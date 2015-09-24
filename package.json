@@ -1,0 +1,15 @@
+{
+  "name": "hiverweb",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www"
+  },
+  "dependencies": {
+    "concentrate": "^0.2.3",
+    "dissolve": "^0.3.3",
+    "enum": "^2.2.0",
+    "serialport": "^1.7.4"
+  },
+  "devDependencies": {}
+}
