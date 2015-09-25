@@ -25,9 +25,9 @@ var FP = function () {
     };
 
     this.flushData = function (bBuffer) {
-        if (!Buffer.isBuffer(buffer)) { throw new TypeError('bBuffer must be a buffer') }
-
-        concentrate.buffer(buffer).flush();
+        if (!Buffer.isBuffer(bBuffer)) { throw new TypeError('bBuffer must be a buffer') }
+            
+        concentrate.buffer(bBuffer).flush();
     };
 };
 
@@ -56,7 +56,12 @@ fp.parser.on('data', spDataHandler);
 /*** Event Handler                                                                             ***/
 /*************************************************************************************************/
 function fpHciCmdHandler (msg) {
-
+	var opcode, cmdPacket;
+	opcode = ( msg.group ) << 10 | 
+			 ( msg.subGroup ) << 7 | 
+			 ( msg.cmdId );
+	cmdPacket = Concentrate().uint16le(opcode).uint8(msg.len).buffer(msg.data).result();
+	fp.flushData(cmdPacket);
 }
 
 function spDataHandler (bpacket) {
