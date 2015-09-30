@@ -1,6 +1,9 @@
 'use strict'
 
-var Enum = require('enum');
+var Enum = require('enum'),
+    DChunks = require('dissolve-chunks'),
+    ru = DChunks().Rule();
+
 var BHCI = {
 	SubGroupCmd: {},
 	SubGroupEvt: {}
@@ -360,6 +363,17 @@ BHCI.ErrCode = new Enum({
     'CONN_TERM_MIC_FAILURE': 0x3D,
     'CONN_FAILED_TO_ESTABLISH': 0x3E,
     'MAC_CONN_FAILED': 0x3F
-})
+});
+
+/**************************************************************************
+ * HCI Event Common Chunk Rules
+ * 
+ *************************************************************************/
+BHCI.HciAttrs = {
+    len: 2,
+    paramLens: 5,
+    params: ['status', 'cmdOpcode'],
+    types: ['uint8', 'uint16le'],
+};
 
 module.exports = BHCI;

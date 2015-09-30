@@ -8,7 +8,10 @@
   "dependencies": {
     "concentrate": "^0.2.3",
     "dissolve": "^0.3.3",
+    "dissolve-chunks": "0.0.2",
     "enum": "^2.2.0",
+    "lodash": "^3.10.1",
+    "q": "^1.4.1",
     "serialport": "^1.7.4"
   },
   "devDependencies": {}
