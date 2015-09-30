@@ -111,17 +111,18 @@ var evtBpi = {
 /*** ArgObj Class                                                                                ***/
 /***************************************************************************************************/
 // Parent constructor of all argobjs which have command and event type. It has a static factory method() to create argobjs
-// It also has methods: getevtAttrs(), storeEvtAttrs(), getHciCmdPacket(),
+// It also has methods: getEvtAttrs(), storeEvtAttrs(), getHciEvtParser(), getHciEvtPacket(),
 // We use the meta-programming to create instances when needed. The meta-data is the argument information of each API.
 /**
  * @class ArgObj
  * @constructor
  * @private
  */
-function ArgObj() {}
+function ArgObj() {
+}
 
 /**
- * @method getevtAttrs
+ * @method getEvtAttrs
  * @return {Object} the attribute of the hci event arguments
  * @private
  */
@@ -145,7 +146,7 @@ ArgObj.prototype.storeEvtAttrs = function (evtAttrs) {
 
 /**
  * @method getHciEvtParser
- * @param bBuffer {Buffer} buffer of HCI event parameters
+ * @param bufLen {Number} length of bBuffer and add 2(opcode length)
  * @return {Object} the parser corresponding to the hci event
  * @private
  */
@@ -161,24 +162,28 @@ ArgObj.prototype.getHciEvtParser = function (bufLen) {
         bufferLen;
 
     for (var i = 0; i < attrLen; i += 1) {
-        if (_.startsWith(attrTypes[i], 'buffer')) {
-            bufferLen = _.parseInt(attrTypes[i].slice(6));
-            chunkRule.push(ru.buffer(attrParams[i], bufferLen));
-        } else {
-            chunkRule.push(ru[attrTypes[i]](attrParams[i]));
-        }
+        (function () {
+            if (_.startsWith(attrTypes[i], 'buffer')) {
+                bufferLen = _.parseInt(attrTypes[i].slice(6));
+                chunkRule.push(ru.buffer(attrParams[i], bufferLen));
+            } else {
+                chunkRule.push(ru[attrTypes[i]](attrParams[i]));
+            }   
+        }());
     }
 
     if (attrParamLen === 'variable') {
         extChunkRule = processExtevtAttrs(self, bufLen);
+        return DChunks().join(chunkRule).join(extChunkRule).compile();
     }
-
-    return DChunks().join(chunkRule).join(extChunkRule);
+    return DChunks().join(chunkRule).compile();
 }
 
 /**
  * @method getHciEvtPacket
+ * @param bufLen {Number} length of bBuffer and add 2(opcode length)
  * @param bBuffer {Buffer} buffer of HCI event parameters
+ * @param callback {Function} 
  * @return {Object} the attribute of HCI event
  * @private
  */
@@ -191,7 +196,7 @@ ArgObj.prototype.getHciEvtPacket = function (bufLen, bBuffer, callback) {
     if (_.isNumber(attrParamLen) && (attrParamLen !== bufLen)) {
         deferred.reject(new Error('Parameter length incorrect.'));
     } else {
-        parser = this.getHciEvtParser(bufLen).compile();
+        parser = this.getHciEvtParser(bufLen);
         parser.on('parsed', function (result) {
             deferred.resolve(result);
         });
@@ -536,35 +541,39 @@ ArgObj.GapCmdStatus = function () {
 /*** Extend Chunk Rules                                                                        ***/
 /*************************************************************************************************/
 extCRules.addr = ru.clause('addr', function (name) {
-    this.uint8('a').uint8('b').uint8('c').uint8('d').uint8('e').uint8('f')
-    .tap(function () {
-        this.vars[name] = new Buffer([this.vars.f, this.vars.e, this.vars.d, this.vars.c, this.vars.b, this.vars.a]);
-        delete this.vars.a;
-        delete this.vars.b;
-        delete this.vars.c;
-        delete this.vars.d;
-        delete this.vars.e;
-        delete this.vars.f;
+    this.buffer(name, 6).tap(function () {
+        var tmpBuf = new Buffer(6).fill(0),
+            origBuf = this.vars[name];
+        for (var i = 0; i < 6; i++) {
+            tmpBuf.writeUInt8( origBuf.readUInt8(i), (5-i) );
+        }
+        this.vars[name] = tmpBuf;
     });
 });
 
-extCRules.bufWithLen = function (lenName, bufName, lenType) {
-    return ru.clause(function () {
-        this[lenType](lenName).tap(function () {
-            this.buffer(bufName, this.vars[lenName]);
-        });
+extCRules.bufWithLen = ru.clause('bufWithLen', function (lenName, bufName, lenType) {
+    this[lenType](lenName).tap(function () {
+        this.buffer(bufName, this.vars[lenName]);
     });
-};
+});
 
 extCRules.GapDeviceDiscovery = ru.clause('GapDeviceDiscovery', function () {
     var count = 0;
-
     this.uint8('numDevs').loop(function (end) {
         var inCount = 0;
         var name = 'dev' + count;
         this.loop(name, function (end) {
             if (inCount === 2) {
                 ru.addr('addr')(this);
+                // this.uint16('addr').uint32('addr');
+                // this.buffer('addr', 6).tap(function () {
+                //     var tmpBuf = new Buffer(6).fill(0),
+                //         origBuf = this.vars['addr'];
+                //     for (var i = 0; i < 6; i++) {
+                //         tmpBuf.writeUInt8( origBuf.readUInt8(i), (5-i) );
+                //     }
+                //     this.vars['addr'] = tmpBuf;
+                // });
             } else {
                 this.uint8();
             }
@@ -582,6 +591,8 @@ extCRules.GapDeviceDiscovery = ru.clause('GapDeviceDiscovery', function () {
             end(); 
         }
     });
+
+
 });
 /*************************************************************************************************/
 /*** Private Functions                                                                         ***/
@@ -593,7 +604,6 @@ function processExtevtAttrs (argObj, bufLen) {
         extParams = extAttrs.params,
         extTypes = extAttrs.types,
         bufferLen;
-
     switch (argObj.constr_name) {
         case 'HciPer':
             if (bufLen === extAttrs.paramLens) {
@@ -609,7 +619,7 @@ function processExtevtAttrs (argObj, bufLen) {
 
         case 'GapDeviceInfo':
         case 'GapCmdStatus':
-            extChunkRule.push(extCRules.bufWithLen(extParams[0], extParams[1], extTypes[0])());
+            extChunkRule.push(ru.bufWithLen(extParams[0], extParams[1], extTypes[0]));
             break;
 
         case 'AttFindInfoRsp':

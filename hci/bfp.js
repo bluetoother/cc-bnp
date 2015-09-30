@@ -56,11 +56,14 @@ fp.parser.on('data', spDataHandler);
 /*** Event Handler                                                                             ***/
 /*************************************************************************************************/
 function fpHciCmdHandler (msg) {
-	var opcode, cmdPacket;
+	var opcode, 
+        cmdPacket;
+
 	opcode = ( msg.group ) << 10 | 
 			 ( msg.subGroup ) << 7 | 
 			 ( msg.cmdId );
-	cmdPacket = Concentrate().uint16le(opcode).uint8(msg.len).buffer(msg.data).result();
+             
+	cmdPacket = Concentrate().uint8(BHCI.PacketType.CMD).uint16le(opcode).uint8(msg.len).buffer(msg.data).result();
 	fp.flushData(cmdPacket);
 }
 
