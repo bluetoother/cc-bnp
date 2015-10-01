@@ -5,9 +5,8 @@ var Q = require('q'),
     DChunks = require('dissolve-chunks'),
     ru = DChunks().Rule(),
     BHCI = require('../defs/bhcidefs');
-var extCRules = {};
 
-var evtBpi = {
+var hciEventDissolver = {
 	/*************************************************************************************************/
     /*** Argument Constructor of HCI Layer HCI APIs (and ZPIs)                                     ***/
     /*************************************************************************************************/
@@ -25,7 +24,7 @@ var evtBpi = {
     HciEndModemTest: function () { return ArgObj.factory('HciEndModemTest'); },
     HciSetBdaddr: function () { return ArgObj.factory('HciSetBdaddr'); },
     HciSetSca: function () { return ArgObj.factory('HciSetSca'); },
-    HciEnablePtm: function () { return ArgObj.factory('HciEnablePtm'); },
+    // HciEnablePtm: function () { return ArgObj.factory('HciEnablePtm'); },
     HciSetFreqTune: function () { return ArgObj.factory('HciSetFreqTune'); },
     HciSaveFreqTune: function () { return ArgObj.factory('HciSaveFreqTune'); },
     HciSetMaxDtmTxPower: function () { return ArgObj.factory('HciSetMaxDtmTxPower'); },
@@ -34,8 +33,8 @@ var evtBpi = {
     HciPer: function () { return ArgObj.factory('HciPer'); },
     HciPerByChan: function () { return ArgObj.factory('HciPerByChan'); },
     HciExtendRfRange: function () { return ArgObj.factory('HciExtendRfRange'); },
-    HciAdvEventNotice: function () { return ArgObj.factory('HciAdvEventNotice'); },
-    HciConnEventNotice: function () { return ArgObj.factory('HciConnEventNotice'); },
+    // HciAdvEventNotice: function () { return ArgObj.factory('HciAdvEventNotice'); },
+    // HciConnEventNotice: function () { return ArgObj.factory('HciConnEventNotice'); },
     HciHaltDuringRf: function () { return ArgObj.factory('HciHaltDuringRf'); },
     HciOverrideSl: function () { return ArgObj.factory('HciOverrideSl'); },
     HciBuildRevision: function () { return ArgObj.factory('HciBuildRevision'); },
@@ -132,7 +131,7 @@ ArgObj.prototype.getEvtAttrs = function () {
 
 /**
  * @method storeEvtAttrs
- * @param evtAttrs {Object} the evtBpi evtAttrs
+ * @param evtAttrs {Object} the event constructor evtAttrs
  * @return {Object} value object made by the input arguments
  * @private
  */
@@ -153,8 +152,8 @@ ArgObj.prototype.storeEvtAttrs = function (evtAttrs) {
 ArgObj.prototype.getHciEvtParser = function (bufLen) {
     var self = this,
         evtAttrs = this.getEvtAttrs(),
-        attrLen = evtAttrs.len,
         attrParams = evtAttrs.params,
+        attrLen = attrParams.length,
         attrTypes = evtAttrs.types,
         attrParamLen = evtAttrs.paramLens,
         chunkRule = [],
@@ -173,7 +172,7 @@ ArgObj.prototype.getHciEvtParser = function (bufLen) {
     }
 
     if (attrParamLen === 'variable') {
-        extChunkRule = processExtevtAttrs(self, bufLen);
+        extChunkRule = processAppendEvtAttrs(self, bufLen);
         return DChunks().join(chunkRule).join(extChunkRule).compile();
     }
     return DChunks().join(chunkRule).compile();
@@ -207,11 +206,11 @@ ArgObj.prototype.getHciEvtPacket = function (bufLen, bBuffer, callback) {
 }
 
 /**
- * This is the factory of the argument value object for the evtBpis
+ * This is the factory of the argument value object for the event constructor
  * @method factory
  * @static
- * @param type {String} evtBpi name
- * @return {Object} value object of the corresponding evtBpi
+ * @param type {String} event constructor name
+ * @return {Object} value object of the corresponding event constructor
  * @private
  */
 ArgObj.factory = function (type) {
@@ -230,125 +229,35 @@ ArgObj.factory = function (type) {
 /*************************************************************************************************/
 /*** Specialized ArgObj Constructor of HCI HCI APIs                                             ***/
 /*************************************************************************************************/
-ArgObj.HciSetRxGain = function () {
-    var evtAttrs = BHCI.HciAttrs;
-    this.constr_name = 'HciSetRxGain';
-    this.storeEvtAttrs(evtAttrs);
-};
-ArgObj.HciSetTxPower = function () {
-    var evtAttrs = BHCI.HciAttrs;
-    this.constr_name = 'HciSetTxPower';
-    this.storeEvtAttrs(evtAttrs);
-};
-ArgObj.HciOnePktPerEvt = function () {
-    var evtAttrs = BHCI.HciAttrs;
-    this.constr_name = 'HciOnePktPerEvt';
-    this.storeEvtAttrs(evtAttrs);
-};
-ArgObj.HciClkDivideOnHalt = function () {
-    var evtAttrs = BHCI.HciAttrs;
-    this.constr_name = 'HciClkDivideOnHalt';
-    this.storeEvtAttrs(evtAttrs);
-};
-ArgObj.HciDeclareNvUsage = function () {
-    var evtAttrs = BHCI.HciAttrs;
-    this.constr_name = 'HciDeclareNvUsage';
-    this.storeEvtAttrs(evtAttrs);
-};
+var subConstr = [ 
+    'HciSetRxGain', 'HciSetTxPower', 'HciOnePktPerEvt', 'HciClkDivideOnHalt', 'HciDeclareNvUsage', 'HciSetLocalSupportedFeatures',
+    'HciSetFastTxRespTime', 'HciModemTestTx', 'HciModemHopTestTx','HciModemTestRx', 'HciEndModemTest', 'HciSetBdaddr', 'HciSetSca',
+    'HciSetFreqTune', 'HciSaveFreqTune', 'HciSetMaxDtmTxPower', 'HciMapPmIoPort', 'HciDisconnectImmed', 'HciPerByChan', 'HciExtendRfRange',
+    'HciHaltDuringRf', 'HciOverrideSl', 'HciDelaySleep', 'HciResetSystem', 'HciOverlappedProcessing', 'HciNumCompletedPktsLimit'
+];
+
+_.forEach(subConstr, function (name) {
+    ArgObj[name] = function () {
+        this.constr_name = name;
+        this.storeEvtAttrs(BHCI.HciAttrs);
+    };
+});
+
 ArgObj.HciDecrypt = function () {
     var evtAttrs = {
-        len: 3,
-        paramLens: 19,
+        paramLens: 21,
         params: ['status', 'cmdOpcode', 'plainTextData'],
         types: ['uint8', 'uint16le', 'buffer16'],
     };
     this.constr_name = 'HciDecrypt';
     this.storeEvtAttrs(evtAttrs);
 };
-ArgObj.HciSetLocalSupportedFeatures = function () {
-    var evtAttrs = BHCI.HciAttrs;
-    this.constr_name = 'HciSetLocalSupportedFeatures';
-    this.storeEvtAttrs(evtAttrs);
-};
-ArgObj.HciSetFastTxRespTime = function () {
-    var evtAttrs = BHCI.HciAttrs;
-    this.constr_name = 'HciSetFastTxRespTime';
-    this.storeEvtAttrs(evtAttrs);
-};
-ArgObj.HciModemTestTx = function () {
-    var evtAttrs = BHCI.HciAttrs;
-    this.constr_name = 'HciModemTestTx';
-    this.storeEvtAttrs(evtAttrs);
-};
-ArgObj.HciModemHopTestTx = function () {
-    var evtAttrs = BHCI.HciAttrs;
-    this.constr_name = 'HciModemHopTestTx';
-    this.storeEvtAttrs(evtAttrs);
-};
-ArgObj.HciModemTestRx = function () {
-    var evtAttrs = BHCI.HciAttrs;
-    this.constr_name = 'HciModemTestRx';
-    this.storeEvtAttrs(evtAttrs);
-};
-ArgObj.HciEndModemTest = function () {
-    var evtAttrs = BHCI.HciAttrs;
-    this.constr_name = 'HciEndModemTest';
-    this.storeEvtAttrs(evtAttrs);
-};
-ArgObj.HciSetBdaddr = function () {
-    var evtAttrs = BHCI.HciAttrs;
-    this.constr_name = 'HciSetBdaddr';
-    this.storeEvtAttrs(evtAttrs);
-};
-ArgObj.HciSetSca = function () {
-    var evtAttrs = BHCI.HciAttrs;
-    this.constr_name = 'HciSetSca';
-    this.storeEvtAttrs(evtAttrs);
-};
-/*ArgObj.HciEnablePtm = function () {
-    var evtAttrs = {
-        len: ,
-        paramLens: ,
-        params: [],
-        types: [],
-        range: [],
-        hisZDEFS: []
-    };
-    this.constr_name = 'HciEnablePtm';
-    this.storeEvtAttrs(evtAttrs);
-};*/
-ArgObj.HciSetFreqTune = function () {
-    var evtAttrs = BHCI.HciAttrs;
-    this.constr_name = 'HciSetFreqTune';
-    this.storeEvtAttrs(evtAttrs);
-};
-ArgObj.HciSaveFreqTune = function () {
-    var evtAttrs = BHCI.HciAttrs;
-    this.constr_name = 'HciSaveFreqTune';
-    this.storeEvtAttrs(evtAttrs);
-};
-ArgObj.HciSetMaxDtmTxPower = function () {
-    var evtAttrs = BHCI.HciAttrs;
-    this.constr_name = 'HciSetMaxDtmTxPower';
-    this.storeEvtAttrs(evtAttrs);
-};
-ArgObj.HciMapPmIoPort = function () {
-    var evtAttrs = BHCI.HciAttrs;
-    this.constr_name = 'HciMapPmIoPort';
-    this.storeEvtAttrs(evtAttrs);
-};
-ArgObj.HciDisconnectImmed = function () {
-    var evtAttrs = BHCI.HciAttrs;
-    this.constr_name = 'HciDisconnectImmed';
-    this.storeEvtAttrs(evtAttrs);
-};
 ArgObj.HciPer = function () {
     var evtAttrs = {
-        len: 3,
         paramLens: 'variable',
         params: ['status', 'cmdOpcode', 'cmdVal'],
         types: ['uint8', 'uint16le', 'uint8'],
-        ext: {
+        append: {
             len: 4,
             paramLens: 14,
             params: ['numPkts', 'numCrcErr', 'numEvents', 'numMissedEvents'],
@@ -358,78 +267,13 @@ ArgObj.HciPer = function () {
     this.constr_name = 'HciPer';
     this.storeEvtAttrs(evtAttrs);
 };
-ArgObj.HciPerByChan = function () {
-    var evtAttrs = BHCI.HciAttrs;
-    this.constr_name = 'HciPerByChan';
-    this.storeEvtAttrs(evtAttrs);
-};
-ArgObj.HciExtendRfRange = function () {
-    var evtAttrs = BHCI.HciAttrs;
-    this.constr_name = 'HciExtendRfRange';
-    this.storeEvtAttrs(evtAttrs);
-};
-/*ArgObj.HciAdvEventNotice = function () {
-    var evtAttrs = {
-        len: ,
-        paramLens: ,
-        params: [],
-        types: [],
-        range: [],
-        hisZDEFS: []
-    };
-    this.constr_name = 'HciAdvEventNotice';
-    this.storeEvtAttrs(evtAttrs);
-};
-ArgObj.HciConnEventNotice = function () {
-    var evtAttrs = {
-        len: ,
-        paramLens: ,
-        params: [],
-        types: [],
-        range: [],
-        hisZDEFS: []
-    };
-    this.constr_name = 'HciConnEventNotice';
-    this.storeEvtAttrs(evtAttrs);
-};*/
-ArgObj.HciHaltDuringRf = function () {
-    var evtAttrs = BHCI.HciAttrs;
-    this.constr_name = 'HciHaltDuringRf';
-    this.storeEvtAttrs(evtAttrs);
-};
-ArgObj.HciOverrideSl = function () {
-    var evtAttrs = BHCI.HciAttrs;
-    this.constr_name = 'HciOverrideSl';
-    this.storeEvtAttrs(evtAttrs);
-};
 ArgObj.HciBuildRevision = function () {
     var evtAttrs = {
-        len: 4,
-        paramLens: 7,
+        paramLens: 9,
         params: ['status', 'cmdOpcode', 'userRevNum', 'buildRevNum'],
         types: ['uint8', 'uint16le', 'uint16le', 'uint16le'],
     };
     this.constr_name = 'HciBuildRevision';
-    this.storeEvtAttrs(evtAttrs);
-};
-ArgObj.HciDelaySleep = function () {
-    var evtAttrs = BHCI.HciAttrs;
-    this.constr_name = 'HciDelaySleep';
-    this.storeEvtAttrs(evtAttrs);
-};
-ArgObj.HciResetSystem = function () {
-    var evtAttrs = BHCI.HciAttrs;
-    this.constr_name = 'HciResetSystem';
-    this.storeEvtAttrs(evtAttrs);
-};
-ArgObj.HciOverlappedProcessing = function () {
-    var evtAttrs = BHCI.HciAttrs;
-    this.constr_name = 'HciOverlappedProcessing';
-    this.storeEvtAttrs(evtAttrs);
-};
-ArgObj.HciNumCompletedPktsLimit = function () {
-    var evtAttrs = BHCI.HciAttrs;
-    this.constr_name = 'HciNumCompletedPktsLimit';
     this.storeEvtAttrs(evtAttrs);
 };
 /*************************************************************************************************/
@@ -441,14 +285,13 @@ ArgObj.HciNumCompletedPktsLimit = function () {
 /*************************************************************************************************/
 ArgObj.AttFindInfoRsp = function () {
     var evtAttrs = {
-        len: 4,
         paramLens: 'variable',
         params: ['status', 'connHandle', 'pduLen', 'format'],
         types: ['uint8', 'uint16le', 'uint8', 'uint8'],
-        ext: {
-            withoutBufLen: 7,
+        append: {
+            precedingLen: 7,
             minLen: 4,
-            params: ['info']
+            params: [ 'info' ]
         }
     };
     this.constr_name = 'AttFindInfoRsp';
@@ -456,12 +299,11 @@ ArgObj.AttFindInfoRsp = function () {
 };
 ArgObj.AttFindByTypeValueReq = function () {
     var evtAttrs = {
-        len: 6,
         paramLens: 'variable',
         params: ['status', 'connHandle', 'pduLen', 'startHandle', 'endHandle', 'type'],
         types: ['uint8', 'uint16le', 'uint8', 'uint16le', 'uint16le', 'uint16le'],
-        ext: {
-            withoutBufLen: 12,
+        append: {
+            precedingLen: 12,
             minLen: 0,
             params: ['value']
         }
@@ -476,18 +318,12 @@ ArgObj.AttFindByTypeValueReq = function () {
 /*************************************************************************************************/
 /*** Specialized ArgObj Constructor of GAP HCI APIs                                            ***/
 /*************************************************************************************************/
-
-/*************************************************************************************************/
-/*** Specialized ArgObj Constructor of UTIL HCI APIs                                           ***/
-/*************************************************************************************************/
 ArgObj.GapDeviceDiscovery = function () {
     var evtAttrs = {
-        len: 1,
         paramLens: 'variable',
         params: ['status'],
         types: ['uint8'],
-        ext: {
-            len: 4,
+        append: {
             params: ['numDevs', 'eventType', 'addrType', 'addr'],
             types: ['uint8', 'uint8', 'uint8', 'addr'],
         }
@@ -497,7 +333,6 @@ ArgObj.GapDeviceDiscovery = function () {
 };
 ArgObj.GapAuthenticationComplete = function () { //TODO, Test
     var evtAttrs = {
-        len: 19,
         paramLens: 104,
         params: ['status', 'connHandle', 'authState', 'secInfo', 'sec_ltkSize', 'sec_ltk', 'sec_div', 'sec_rand', 'devSecInfo', 'dev_ltkSize',
                  'dev_ltk', 'dev_div', 'dev_rand', 'identityInfo', 'identity_irk', 'identity_bd_addr', 'signingInfo', 'signing_irk', 'signing_signCounter'],
@@ -509,12 +344,10 @@ ArgObj.GapAuthenticationComplete = function () { //TODO, Test
 };
 ArgObj.GapDeviceInfo = function () {
     var evtAttrs = {
-        len: 5,
         paramLens: 'variable',
         params: ['status', 'eventType', 'addrType', 'addr', 'rssi'],
         types: ['uint8', 'uint8', 'uint8', 'addr', 'uint8'],
-        ext: {
-            len: 2,
+        append: {
             params: ['dataLen', 'dataField'],
             types: ['uint8', 'buffer'],
         }
@@ -524,12 +357,10 @@ ArgObj.GapDeviceInfo = function () {
 };
 ArgObj.GapCmdStatus = function () {
     var evtAttrs = {
-        len: 2,
         paramLens: 'variable',
         params: ['status', 'opCode'],
         types: ['uint8', 'uint16le'],
-        ext: {
-            len: 2,
+        append: {
             params: ['dataLen', 'payload'],
             types: ['uint8', 'buffer'],
         }
@@ -538,9 +369,13 @@ ArgObj.GapCmdStatus = function () {
     this.storeEvtAttrs(evtAttrs);
 };
 /*************************************************************************************************/
-/*** Extend Chunk Rules                                                                        ***/
+/*** Specialized ArgObj Constructor of UTIL HCI APIs                                           ***/
 /*************************************************************************************************/
-extCRules.addr = ru.clause('addr', function (name) {
+
+/*************************************************************************************************/
+/*** Specific Chunk Rules                                                                      ***/
+/*************************************************************************************************/
+ru.clause('addr', function (name) {
     this.buffer(name, 6).tap(function () {
         var tmpBuf = new Buffer(6).fill(0),
             origBuf = this.vars[name];
@@ -551,13 +386,13 @@ extCRules.addr = ru.clause('addr', function (name) {
     });
 });
 
-extCRules.bufWithLen = ru.clause('bufWithLen', function (lenName, bufName, lenType) {
+ru.clause('bufWithLen', function (lenName, bufName, lenType) {
     this[lenType](lenName).tap(function () {
         this.buffer(bufName, this.vars[lenName]);
     });
 });
 
-extCRules.GapDeviceDiscovery = ru.clause('GapDeviceDiscovery', function () {
+ru.clause('GapDeviceDiscovery', function () {
     var count = 0;
     this.uint8('numDevs').loop(function (end) {
         var inCount = 0;
@@ -565,15 +400,6 @@ extCRules.GapDeviceDiscovery = ru.clause('GapDeviceDiscovery', function () {
         this.loop(name, function (end) {
             if (inCount === 2) {
                 ru.addr('addr')(this);
-                // this.uint16('addr').uint32('addr');
-                // this.buffer('addr', 6).tap(function () {
-                //     var tmpBuf = new Buffer(6).fill(0),
-                //         origBuf = this.vars['addr'];
-                //     for (var i = 0; i < 6; i++) {
-                //         tmpBuf.writeUInt8( origBuf.readUInt8(i), (5-i) );
-                //     }
-                //     this.vars['addr'] = tmpBuf;
-                // });
             } else {
                 this.uint8();
             }
@@ -591,24 +417,23 @@ extCRules.GapDeviceDiscovery = ru.clause('GapDeviceDiscovery', function () {
             end(); 
         }
     });
-
-
 });
 /*************************************************************************************************/
 /*** Private Functions                                                                         ***/
 /*************************************************************************************************/
-function processExtevtAttrs (argObj, bufLen) {
+function processAppendEvtAttrs (argObj, bufLen) {
     var extChunkRule = [],
         evtAttrs = argObj.getEvtAttrs(),
-        extAttrs = evtAttrs.ext,
-        extParams = extAttrs.params,
-        extTypes = extAttrs.types,
+        appendAttrs = evtAttrs.append,
+        appendParams = appendAttrs.params,
+        appendTypes = appendAttrs.types,
         bufferLen;
+
     switch (argObj.constr_name) {
         case 'HciPer':
-            if (bufLen === extAttrs.paramLens) {
-                for (var i = 0; i < extAttrs.len; i += 1) {
-                    extChunkRule.push(ru[extTypes[i]](extParams[i]));
+            if (bufLen === appendAttrs.paramLens) {
+                for (var i = 0; i < appendAttrs.len; i += 1) {
+                    extChunkRule.push(ru[appendTypes[i]](appendParams[i]));
                 }
             }
             break;
@@ -619,16 +444,16 @@ function processExtevtAttrs (argObj, bufLen) {
 
         case 'GapDeviceInfo':
         case 'GapCmdStatus':
-            extChunkRule.push(ru.bufWithLen(extParams[0], extParams[1], extTypes[0]));
+            extChunkRule.push(ru.bufWithLen(appendParams[0], appendParams[1], appendTypes[0]));
             break;
 
         case 'AttFindInfoRsp':
         case 'AttFindByTypeValueReq':
-            bufferLen = bufLen - extAttrs.withoutBufLen;
-            if (bufferLen < extAttrs.minLen) {
-                throw new Error('The length of the ' + extParams[0] + ' field of ' + argObj.constr_name + ' is incorrect.');
+            bufferLen = bufLen - appendAttrs.precedingLen;
+            if (bufferLen < appendAttrs.minLen) {
+                throw new Error('The length of the ' + appendParams[0] + ' field of ' + argObj.constr_name + ' is incorrect.');
             }
-            extChunkRule.push(ru.buffer(extParams[0], bufferLen));
+            extChunkRule.push(ru.buffer(appendParams[0], bufferLen));
             break;
 
         default:
@@ -636,4 +461,5 @@ function processExtevtAttrs (argObj, bufLen) {
     }
     return extChunkRule;
 };
-module.exports = evtBpi;
+
+module.exports = hciEventDissolver;
