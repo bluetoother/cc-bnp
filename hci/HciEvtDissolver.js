@@ -247,7 +247,7 @@ ArgObj.HciDecrypt = function () {
     var evtAttrs = {
         paramLens: 21,
         params: ['status', 'cmdOpcode', 'plainTextData'],
-        types: ['uint8', 'uint16le', 'buffer16'],
+        types: ['uint8', 'uint16le', 'buffer16']
     };
     this.constr_name = 'HciDecrypt';
     this.storeEvtAttrs(evtAttrs);
@@ -258,7 +258,6 @@ ArgObj.HciPer = function () {
         params: ['status', 'cmdOpcode', 'cmdVal'],
         types: ['uint8', 'uint16le', 'uint8'],
         append: {
-            len: 4,
             paramLens: 14,
             params: ['numPkts', 'numCrcErr', 'numEvents', 'numMissedEvents'],
             types: ['uint16le', 'uint16le', 'uint16le', 'uint16le'],
@@ -271,7 +270,7 @@ ArgObj.HciBuildRevision = function () {
     var evtAttrs = {
         paramLens: 9,
         params: ['status', 'cmdOpcode', 'userRevNum', 'buildRevNum'],
-        types: ['uint8', 'uint16le', 'uint16le', 'uint16le'],
+        types: ['uint8', 'uint16le', 'uint16le', 'uint16le']
     };
     this.constr_name = 'HciBuildRevision';
     this.storeEvtAttrs(evtAttrs);
@@ -279,10 +278,63 @@ ArgObj.HciBuildRevision = function () {
 /*************************************************************************************************/
 /*** Specialized ArgObj Constructor of L2CAP HCI APIs                                          ***/
 /*************************************************************************************************/
-
+ArgObj.L2capCmdReject = function () {
+    var evtAttrs = {
+        paramLens: 7,
+        params: ['status', 'connHandle', 'reason'],
+        types: ['uint8', 'uint16le', 'uint16le']
+    };
+    this.constr_name = 'L2capCmdReject';
+    this.storeEvtAttrs(evtAttrs);
+};
+ArgObj.L2capParamUpdateRsp = function () {
+    var evtAttrs = {
+        paramLens: 7,
+        params: ['status', 'connHandle', 'reason'],
+        types: ['uint8', 'uint16le', 'uint16le']
+    };
+    this.constr_name = 'L2capParamUpdateRsp';
+    this.storeEvtAttrs(evtAttrs);
+};
 /*************************************************************************************************/
 /*** Specialized ArgObj Constructor of ATT HCI APIs                                            ***/
 /*************************************************************************************************/
+ArgObj.AttErrorRsp = function () {
+    var evtAttrs = {
+        paramLens: 10,
+        params: ['status', 'connHandle', 'pduLen', 'reqOpcode', 'handle', 'errCode'],
+        types: ['uint8', 'uint16le', 'uint8', 'uint8', 'uint16le', 'uint8']
+    };
+    this.constr_name = 'AttErrorRsp';
+    this.storeEvtAttrs(evtAttrs);
+};
+ArgObj.AttExchangeMtuReq = function () {
+    var evtAttrs = {
+        paramLens: 8,
+        params: ['status', 'connHandle', 'pduLen', 'clientRxMTU'],
+        types: ['uint8', 'uint16le', 'uint8', 'uint16le']
+    };
+    this.constr_name = 'AttExchangeMtuReq';
+    this.storeEvtAttrs(evtAttrs);
+};
+ArgObj.AttExchangeMtuRsp = function () {
+    var evtAttrs = {
+        paramLens: 8,
+        params: ['status', 'connHandle', 'pduLen', 'serverRxMTU'],
+        types: ['uint8', 'uint16le', 'uint8', 'uint16le']
+    };
+    this.constr_name = 'AttExchangeMtuRsp';
+    this.storeEvtAttrs(evtAttrs);
+};
+ArgObj.AttFindInfoReq = function () {
+    var evtAttrs = {
+        paramLens: 10,
+        params: ['status', 'connHandle', 'pduLen', 'startHandle', 'endHandle'],
+        types: ['uint8', 'uint16le', 'uint8', 'uint16le', 'uint16le']
+    };
+    this.constr_name = 'AttFindInfoReq';
+    this.storeEvtAttrs(evtAttrs);
+};
 ArgObj.AttFindInfoRsp = function () {
     var evtAttrs = {
         paramLens: 'variable',
@@ -311,13 +363,278 @@ ArgObj.AttFindByTypeValueReq = function () {
     this.constr_name = 'AttFindByTypeValueReq';
     this.storeEvtAttrs(evtAttrs);
 };
+ArgObj.AttFindByTypeValueRsp = function () {
+    var evtAttrs = {
+        paramLens: 'variable',
+        params: ['status', 'connHandle', 'pduLen'],
+        types: ['uint8', 'uint16le', 'uint8'],
+        append: {
+            precedingLen: 6,
+            minLen: 4,
+            params: ['format']
+        }
+    };
+    this.constr_name = 'AttFindByTypeValueRsp';
+    this.storeEvtAttrs(evtAttrs);
+};
+ArgObj.AttReadByTypeReq = function () { //append
+    var evtAttrs = {
+        paramLens: 'variable',
+        params: ['status', 'connHandle', 'pduLen', 'startHandle', 'endHandle'],
+        types: ['uint8', 'uint16le', 'uint8', 'uint16le', 'uint16le'],
+        append: {
+            precedingLen: 10,
+            params: ['format']
+        }
+    };
+    this.constr_name = 'AttReadByTypeReq';
+    this.storeEvtAttrs(evtAttrs);
+};
+ArgObj.AttReadByTypeRsp = function () { //append
+    var evtAttrs = {
+        paramLens: 'variable',
+        params: ['status', 'connHandle', 'pduLen', 'length'],
+        types: ['uint8', 'uint16le', 'uint8', 'uint8'],
+        append: {
+            precedingLen: 7,
+            minLen: 2,
+            params: ['format']
+        }
+    };
+    this.constr_name = 'AttReadByTypeRsp';
+    this.storeEvtAttrs(evtAttrs);
+};
+ArgObj.AttReadReq = function () {
+    var evtAttrs = {
+        paramLens: 8,
+        params: ['status', 'connHandle', 'pduLen', 'handle'],
+        types: ['uint8', 'uint16le', 'uint8', 'uint16le']
+    };
+    this.constr_name = 'AttReadReq';
+    this.storeEvtAttrs(evtAttrs);
+};
+ArgObj.AttReadRsp = function () {
+    var evtAttrs = {
+        paramLens: 'variable',
+        params: ['status', 'connHandle', 'pduLen'],
+        types: ['uint8', 'uint16le', 'uint8'],
+        append: {
+            precedingLen: 6,
+            minLen: 0,
+            params: ['value']
+        }
+    };
+    this.constr_name = 'AttReadRsp';
+    this.storeEvtAttrs(evtAttrs);
+};
+ArgObj.AttReadBlobReq = function () {
+    var evtAttrs = {
+        paramLens: 10,
+        params: ['status', 'connHandle', 'pduLen', 'handle', 'offset'],
+        types: ['uint8', 'uint16le', 'uint8', 'uint16le', 'uint16le']
+    };
+    this.constr_name = 'AttReadBlobReq';
+    this.storeEvtAttrs(evtAttrs);
+};
+ArgObj.AttReadBlobRsp = function () {
+    var evtAttrs = {
+        paramLens: 'variable',
+        params: ['status', 'connHandle', 'pduLen'],
+        types: ['uint8', 'uint16le', 'uint8'],
+        append: {
+            precedingLen: 6,
+            minLen: 0,
+            params: ['value']
+        }
+    };
+    this.constr_name = 'AttReadBlobRsp';
+    this.storeEvtAttrs(evtAttrs);
+};
+ArgObj.AttReadMultiReq = function () {
+    var evtAttrs = {
+        paramLens: 'variable',
+        params: ['status', 'connHandle', 'pduLen'],
+        types: ['uint8', 'uint16le', 'uint8'],
+        append: {
+            precedingLen: 6,
+            minLen: 4,
+            params: ['handle']
+        }
+    };
+    this.constr_name = 'AttReadMultiReq';
+    this.storeEvtAttrs(evtAttrs);
+};
+ArgObj.AttReadMultiRsp = function () {
+    var evtAttrs = {
+        paramLens: 'variable',
+        params: ['status', 'connHandle', 'pduLen'],
+        types: ['uint8', 'uint16le', 'uint8'],
+        append: {
+            precedingLen: 6,
+            minLen: 0,
+            params: ['value']
+        }
+    };
+    this.constr_name = 'AttReadMultiRsp';
+    this.storeEvtAttrs(evtAttrs);
+};
+ArgObj.AttReadByGrpTypeReq = function () { //append
+    var evtAttrs = {
+        paramLens: 'variable',
+        params: ['status', 'connHandle', 'pduLen', 'startHandle', 'endHandle'],
+        types: ['uint8', 'uint16le', 'uint8', 'uint16le', 'uint16le'],
+        append: {
+            precedingLen: 10,
+            params: ['type']
+        }
+    };
+    this.constr_name = 'AttReadByGrpTypeReq';
+    this.storeEvtAttrs(evtAttrs);
+};
+ArgObj.AttReadByGrpTypeRsp = function () { //append
+    var evtAttrs = {
+        paramLens: 'variable',
+        params: ['status', 'connHandle', 'pduLen', 'length'],
+        types: ['uint8', 'uint16le', 'uint8', 'uint8'],
+        append: {
+            precedingLen: 7,
+            minLen: 2,
+            params: ['data']
+        }
+    };
+    this.constr_name = 'AttReadByGrpTypeRsp';
+    this.storeEvtAttrs(evtAttrs);
+};
+ArgObj.AttWriteReq = function () {
+    var evtAttrs = {
+        paramLens: 'variable',
+        params: ['status', 'connHandle', 'pduLen', 'signature', 'command', 'handle'],
+        types: ['uint8', 'uint16le', 'uint8', 'uint8', 'uint8', 'uint16le'],
+        append: {
+            precedingLen: 10,
+            minLen: 0,
+            params: ['value']
+        }
+    };
+    this.constr_name = 'AttWriteReq';
+    this.storeEvtAttrs(evtAttrs);
+};
+ArgObj.AttWriteRsp = function () {
+    var evtAttrs = {
+        paramLens: 6,
+        params: ['status', 'connHandle', 'pduLen'],
+        types: ['uint8', 'uint16le', 'uint8'],
+    };
+    this.constr_name = 'AttWriteRsp';
+    this.storeEvtAttrs(evtAttrs);
+};
+ArgObj.AttPrepareWriteReq = function () {
+    var evtAttrs = {
+        paramLens: 'variable',
+        params: ['status', 'connHandle', 'pduLen', 'handle', 'offset'],
+        types: ['uint8', 'uint16le', 'uint8', 'uint16le', 'uint16le'],
+        append: {
+            precedingLen: 10,
+            minLen: 0,
+            params: ['value']
+        }
+    };	
+	this.constr_name = 'AttPrepareWriteReq';
+    this.storeEvtAttrs(evtAttrs);
+};
+ArgObj.AttPrepareWriteRsp = function () {
+    var evtAttrs = {
+        paramLens: 'variable',
+        params: ['status', 'connHandle', 'pduLen', 'handle', 'offset'],
+        types: ['uint8', 'uint16le', 'uint8', 'uint16le', 'uint16le'],
+        append: {
+            precedingLen: 10,
+            minLen: 0,
+            params: ['value']
+        }
+    };	
+	this.constr_name = 'AttPrepareWriteRsp';
+    this.storeEvtAttrs(evtAttrs);
+};
+ArgObj.AttExecuteWriteReq = function () {
+    var evtAttrs = {
+        paramLens: 7,
+        params: ['status', 'connHandle', 'pduLen', 'value'],
+        types: ['uint8', 'uint16le', 'uint8', 'uint8']
+    };
+	this.constr_name = 'AttExecuteWriteReq';
+    this.storeEvtAttrs(evtAttrs);
+};
+ArgObj.AttExecuteWriteRsp = function () {
+    var evtAttrs = {
+        paramLens: 6,
+        params: ['status', 'connHandle', 'pduLen'],
+        types: ['uint8', 'uint16le', 'uint8']
+    };
+	this.constr_name = 'AttExecuteWriteRsp';
+    this.storeEvtAttrs(evtAttrs);
+};
+ArgObj.AttHandleValueNoti = function () {
+    var evtAttrs = {
+        paramLens: 'variable',
+        params: ['status', 'connHandle', 'pduLen', 'authenticated', 'handle'],
+        types: ['uint8', 'uint16le', 'uint8', 'uint8', 'uint16le'],
+        append: {
+            precedingLen: 9,
+            minLen: 0,
+            params: ['value']
+        }
+    };	
+	this.constr_name = 'AttHandleValueNoti';
+    this.storeEvtAttrs(evtAttrs);
+};
+ArgObj.AttHandleValueInd = function () {
+    var evtAttrs = {
+        paramLens: 'variable',
+        params: ['status', 'connHandle', 'pduLen', 'authenticated', 'handle'],
+        types: ['uint8', 'uint16le', 'uint8', 'uint8', 'uint16le'],
+        append: {
+            precedingLen: 9,
+            minLen: 0,
+            params: ['value']
+        }
+    };	
+	this.constr_name = 'AttHandleValueInd';
+    this.storeEvtAttrs(evtAttrs);
+};
+ArgObj.AttHandleValueCfm = function () {
+    var evtAttrs = {
+        paramLens: 6,
+        params: ['status', 'connHandle', 'pduLen'],
+        types: ['uint8', 'uint16le', 'uint8']
+    };
+	this.constr_name = 'AttHandleValueCfm';
+    this.storeEvtAttrs(evtAttrs);
+};
 /*************************************************************************************************/
 /*** Specialized ArgObj Constructor of GATT HCI APIs                                           ***/
 /*************************************************************************************************/
-
+ArgObj.GattClientCharCfgUpdate = function () {
+    var evtAttrs = {
+        paramLens: 10,
+        params: ['status', 'connHandle', 'pduLen', 'attributeHandle', 'value'],
+        types: ['uint8', 'uint16le', 'uint8', 'uint16le', 'uint16le']
+    };
+    this.constr_name = 'GattClientCharCfgUpdate';
+    this.storeEvtAttrs(evtAttrs);
+};
 /*************************************************************************************************/
 /*** Specialized ArgObj Constructor of GAP HCI APIs                                            ***/
 /*************************************************************************************************/
+ArgObj.GapDeviceInitDone = function () {
+    var evtAttrs = {
+        paramLens: 44,
+        params: ['status', 'devAddr', 'dataPltLen', 'numDataPkts', 'IRK', 'CSRK'],
+        types: ['uint8', 'addr', 'uint16le', 'uint8', 'buffer16', 'buffer16']
+    };
+    this.constr_name = 'GapDeviceInitDone';
+    this.storeEvtAttrs(evtAttrs);
+};
 ArgObj.GapDeviceDiscovery = function () {
     var evtAttrs = {
         paramLens: 'variable',
@@ -331,6 +648,78 @@ ArgObj.GapDeviceDiscovery = function () {
     this.constr_name = 'GapDeviceDiscovery';
     this.storeEvtAttrs(evtAttrs);
 };
+ArgObj.GapAdvDataUpdateDone = function () {
+    var evtAttrs = {
+        paramLens: 4,
+        params: ['status', 'adType'],
+        types: ['uint8', 'uint8']
+    };
+    this.constr_name = 'GapAdvDataUpdateDone';
+    this.storeEvtAttrs(evtAttrs);
+};
+ArgObj.GapMakeDiscoverableDone = function () {
+    var evtAttrs = {
+        paramLens: 5,
+        params: ['status', 'interval'],
+        types: ['uint8', 'uint16le']
+    };
+    this.constr_name = 'GapMakeDiscoverableDone';
+    this.storeEvtAttrs(evtAttrs);
+};
+ArgObj.GapEndDiscoverableDone = function () {
+    var evtAttrs = {
+        paramLens: 3,
+        params: ['status'],
+        types: ['uint8']
+    };
+    this.constr_name = 'GapEndDiscoverableDone';
+    this.storeEvtAttrs(evtAttrs);
+};
+ArgObj.GapLinkEstablished = function () {
+    var evtAttrs = {
+        paramLens: 19,
+        params: ['status', 'addrType', 'addr', 'connHandle', 'connInterval', 'connLatency', 'connTimeout', 'clockAccuracy'],
+        types: ['uint8', 'uint8', 'addr', 'uint16le', 'uint16le', 'uint16le', 'uint16le', 'uint8']
+    };
+    this.constr_name = 'GapLinkEstablished';
+    this.storeEvtAttrs(evtAttrs);
+};
+ArgObj.GapLinkTerminated = function () {
+    var evtAttrs = {
+        paramLens: 6,
+        params: ['status', 'connHandle', 'reason'],
+        types: ['uint8', 'uint16le', 'uint8']
+    };
+    this.constr_name = 'GapLinkTerminated';
+    this.storeEvtAttrs(evtAttrs);
+};
+ArgObj.GapLinkParamUpdate = function () {
+    var evtAttrs = {
+        paramLens: 11,
+        params: ['status', 'connHandle', 'connInterval', 'connLatency', 'connTimeout'],
+        types: ['uint8', 'uint16le', 'uint16le', 'uint16le', 'uint16le']
+    };
+    this.constr_name = 'GapLinkParamUpdate';
+    this.storeEvtAttrs(evtAttrs);
+};
+ArgObj.GapRandomAddrChanged = function () {
+    var evtAttrs = {
+        paramLens: 10,
+        params: ['status', 'addrType', 'newRandomAddr'],
+        types: ['uint8', 'uint8', 'addr']
+    };
+    this.constr_name = 'GapRandomAddrChanged';
+    this.storeEvtAttrs(evtAttrs);
+};
+ArgObj.GapSignatureUpdated = function () { 
+    var evtAttrs = {
+        paramLens: 16,
+        params: ['status', 'addrType', 'devAddr', 'signCounter'],
+        types: ['uint8', 'uint8', 'addr', 'buffer6']
+    };
+    this.constr_name = 'GapSignatureUpdated';
+    this.storeEvtAttrs(evtAttrs);
+};
 ArgObj.GapAuthenticationComplete = function () { //TODO, Test
     var evtAttrs = {
         paramLens: 104,
@@ -340,6 +729,24 @@ ArgObj.GapAuthenticationComplete = function () { //TODO, Test
                 'uint8', 'buffer16', 'addr', 'uint8', 'buffer16', 'uint32le'],
     };
     this.constr_name = 'GapAuthenticationComplete';
+    this.storeEvtAttrs(evtAttrs);
+};
+ArgObj.GapPasskeyNeeded = function () {
+    var evtAttrs = {
+        paramLens: 13,
+        params: ['status', 'devAddr', 'connHandle', 'uiInput', 'uiOutput'],
+        types: ['uint8', 'addr', 'uint16le', 'uint8', 'uint8']
+    };
+    this.constr_name = 'GapPasskeyNeeded';
+    this.storeEvtAttrs(evtAttrs);
+};
+ArgObj.GapSlaveRequestedSecurity = function () {
+    var evtAttrs = {
+        paramLens: 12,
+        params: ['status', 'connHandle', 'devAddr', 'authReq'],
+        types: ['uint8', 'uint16le', 'addr', 'uint8']
+    };
+    this.constr_name = 'GapSlaveRequestedSecurity';
     this.storeEvtAttrs(evtAttrs);
 };
 ArgObj.GapDeviceInfo = function () {
@@ -355,6 +762,24 @@ ArgObj.GapDeviceInfo = function () {
     this.constr_name = 'GapDeviceInfo';
     this.storeEvtAttrs(evtAttrs);
 };
+ArgObj.GapBondComplete = function () {
+    var evtAttrs = {
+        paramLens: '5',
+        params: ['status', 'connHandle'],
+        types: ['uint8', 'uint16le']
+    };
+    this.constr_name = 'GapBondComplete';
+    this.storeEvtAttrs(evtAttrs);
+};
+ArgObj.GapPairingReq = function () {
+    var evtAttrs = {
+        paramLens: '10',
+        params: ['status', 'connHandle', 'ioCap', 'oobDataFlag', 'authReq', 'maxEncKeySize', 'keyDist'],
+        types: ['uint8', 'uint16le', 'uint8', 'uint8', 'uint8', 'uint8', 'uint8']
+    };
+    this.constr_name = 'GapPairingReq';
+    this.storeEvtAttrs(evtAttrs);
+};
 ArgObj.GapCmdStatus = function () {
     var evtAttrs = {
         paramLens: 'variable',
@@ -368,10 +793,6 @@ ArgObj.GapCmdStatus = function () {
     this.constr_name = 'GapCmdStatus';
     this.storeEvtAttrs(evtAttrs);
 };
-/*************************************************************************************************/
-/*** Specialized ArgObj Constructor of UTIL HCI APIs                                           ***/
-/*************************************************************************************************/
-
 /*************************************************************************************************/
 /*** Specific Chunk Rules                                                                      ***/
 /*************************************************************************************************/
@@ -449,12 +870,33 @@ function processAppendEvtAttrs (argObj, bufLen) {
 
         case 'AttFindInfoRsp':
         case 'AttFindByTypeValueReq':
+        case 'AttFindByTypeValueRsp':
+        case 'AttReadByTypeRsp':
+        case 'AttReadRsp':
+        case 'AttReadBlobRsp':
+        case 'AttReadMultiReq':
+        case 'AttReadMultiRsp':
+        case 'AttReadByGrpTypeRsp':
+        case 'AttWriteReq':
+        case 'AttPrepareWriteReq':
+        case 'AttPrepareWriteRsp':
+        case 'AttHandleValueNoti':
+        case 'AttHandleValueInd':
             bufferLen = bufLen - appendAttrs.precedingLen;
             if (bufferLen < appendAttrs.minLen) {
                 throw new Error('The length of the ' + appendParams[0] + ' field of ' + argObj.constr_name + ' is incorrect.');
             }
             extChunkRule.push(ru.buffer(appendParams[0], bufferLen));
             break;
+
+        case 'AttReadByTypeReq':
+        case 'AttReadByGrpTypeReq':
+        	bufferLen = bufLen - appendAttrs.precedingLen;
+        	if (bufferLen !== 2 || bufferLen !== 16) {
+                throw new Error('The length of the ' + appendParams[0] + ' field of ' + argObj.constr_name + ' is incorrect.');
+            }
+            extChunkRule.push(ru.buffer(appendParams[0], bufferLen));
+        	break;
 
         default:
             throw new Error(argObj.constr_name + 'event packet error!');
