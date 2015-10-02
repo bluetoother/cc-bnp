@@ -382,11 +382,7 @@ ArgObj.AttFindByTypeValueRsp = function () {
     this.constr_name = 'AttFindByTypeValueRsp';
     this.storeEvtAttrs(evtAttrs);
 };
-<<<<<<< HEAD
-ArgObj.AttReadByTypeReq = function () { 
-=======
 ArgObj.AttReadByTypeReq = function () {
->>>>>>> modify HciEvtDissolve.js
     var evtAttrs = {
         paramLens: 'variable',
         params: ['status', 'connHandle', 'pduLen', 'startHandle', 'endHandle'],
@@ -400,11 +396,7 @@ ArgObj.AttReadByTypeReq = function () {
     this.constr_name = 'AttReadByTypeReq';
     this.storeEvtAttrs(evtAttrs);
 };
-<<<<<<< HEAD
-ArgObj.AttReadByTypeRsp = function () { 
-=======
 ArgObj.AttReadByTypeRsp = function () {
->>>>>>> modify HciEvtDissolve.js
     var evtAttrs = {
         paramLens: 'variable',
         params: ['status', 'connHandle', 'pduLen'],
