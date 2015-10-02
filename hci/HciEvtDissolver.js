@@ -338,12 +338,12 @@ ArgObj.AttFindInfoReq = function () {
 ArgObj.AttFindInfoRsp = function () {
     var evtAttrs = {
         paramLens: 'variable',
-        params: ['status', 'connHandle', 'pduLen', 'format'],
-        types: ['uint8', 'uint16le', 'uint8', 'uint8'],
+        params: ['status', 'connHandle', 'pduLen'],
+        types: ['uint8', 'uint16le', 'uint8'],
         append: {
             precedingLen: 7,
             minLen: 4,
-            params: [ 'info' ]
+            params: ['format', 'info']
         }
     };
     this.constr_name = 'AttFindInfoRsp';
@@ -371,34 +371,46 @@ ArgObj.AttFindByTypeValueRsp = function () {
         append: {
             precedingLen: 6,
             minLen: 4,
-            params: ['format']
+            params: ['format'],
+            objAttrs : {
+                objLen: 4,
+                params: ['attrHandle', 'grpEndHandle'],
+                types: ['uint16le', 'uint16le']
+            }
         }
     };
     this.constr_name = 'AttFindByTypeValueRsp';
     this.storeEvtAttrs(evtAttrs);
 };
-ArgObj.AttReadByTypeReq = function () { //append
+ArgObj.AttReadByTypeReq = function () { 
     var evtAttrs = {
         paramLens: 'variable',
         params: ['status', 'connHandle', 'pduLen', 'startHandle', 'endHandle'],
         types: ['uint8', 'uint16le', 'uint8', 'uint16le', 'uint16le'],
         append: {
             precedingLen: 10,
+            minLen: 2,
             params: ['format']
         }
     };
     this.constr_name = 'AttReadByTypeReq';
     this.storeEvtAttrs(evtAttrs);
 };
-ArgObj.AttReadByTypeRsp = function () { //append
+ArgObj.AttReadByTypeRsp = function () { 
     var evtAttrs = {
         paramLens: 'variable',
-        params: ['status', 'connHandle', 'pduLen', 'length'],
-        types: ['uint8', 'uint16le', 'uint8', 'uint8'],
+        params: ['status', 'connHandle', 'pduLen'],
+        types: ['uint8', 'uint16le', 'uint8'],
         append: {
             precedingLen: 7,
             minLen: 2,
-            params: ['format']
+            params: ['length', 'format'],
+            types: ['uint8', 'obj'],
+            objAttrs : {
+                objBufPreLen: 2,
+                params: ['attrHandle', 'attrVal'],
+                types: ['uint16le', 'buffer']
+            }
         }
     };
     this.constr_name = 'AttReadByTypeRsp';
@@ -458,7 +470,12 @@ ArgObj.AttReadMultiReq = function () {
         append: {
             precedingLen: 6,
             minLen: 4,
-            params: ['handle']
+            params: ['handles'],
+            objAttrs : {
+                objLen: 2,
+                params: ['handle'],
+                types: ['uint16le']
+            }
         }
     };
     this.constr_name = 'AttReadMultiReq';
@@ -485,6 +502,7 @@ ArgObj.AttReadByGrpTypeReq = function () { //append
         types: ['uint8', 'uint16le', 'uint8', 'uint16le', 'uint16le'],
         append: {
             precedingLen: 10,
+            minLen: 2,
             params: ['type']
         }
     };
@@ -499,7 +517,13 @@ ArgObj.AttReadByGrpTypeRsp = function () { //append
         append: {
             precedingLen: 7,
             minLen: 2,
-            params: ['data']
+            params: ['length', 'data'],
+            types: ['uint8', 'obj'],
+            objAttrs : {
+                objBufPreLen: 4,
+                params: ['attrHandle', 'endGrpHandle', 'attrVal'],
+                types: ['uint16le', 'uint16le', 'buffer']
+            }
         }
     };
     this.constr_name = 'AttReadByGrpTypeRsp';
@@ -539,7 +563,7 @@ ArgObj.AttPrepareWriteReq = function () {
             params: ['value']
         }
     };	
-	this.constr_name = 'AttPrepareWriteReq';
+    this.constr_name = 'AttPrepareWriteReq';
     this.storeEvtAttrs(evtAttrs);
 };
 ArgObj.AttPrepareWriteRsp = function () {
@@ -552,8 +576,8 @@ ArgObj.AttPrepareWriteRsp = function () {
             minLen: 0,
             params: ['value']
         }
-    };	
-	this.constr_name = 'AttPrepareWriteRsp';
+    };
+    this.constr_name = 'AttPrepareWriteRsp';
     this.storeEvtAttrs(evtAttrs);
 };
 ArgObj.AttExecuteWriteReq = function () {
@@ -562,7 +586,7 @@ ArgObj.AttExecuteWriteReq = function () {
         params: ['status', 'connHandle', 'pduLen', 'value'],
         types: ['uint8', 'uint16le', 'uint8', 'uint8']
     };
-	this.constr_name = 'AttExecuteWriteReq';
+    this.constr_name = 'AttExecuteWriteReq';
     this.storeEvtAttrs(evtAttrs);
 };
 ArgObj.AttExecuteWriteRsp = function () {
@@ -571,7 +595,7 @@ ArgObj.AttExecuteWriteRsp = function () {
         params: ['status', 'connHandle', 'pduLen'],
         types: ['uint8', 'uint16le', 'uint8']
     };
-	this.constr_name = 'AttExecuteWriteRsp';
+    this.constr_name = 'AttExecuteWriteRsp';
     this.storeEvtAttrs(evtAttrs);
 };
 ArgObj.AttHandleValueNoti = function () {
@@ -584,8 +608,8 @@ ArgObj.AttHandleValueNoti = function () {
             minLen: 0,
             params: ['value']
         }
-    };	
-	this.constr_name = 'AttHandleValueNoti';
+    };
+    this.constr_name = 'AttHandleValueNoti';
     this.storeEvtAttrs(evtAttrs);
 };
 ArgObj.AttHandleValueInd = function () {
@@ -598,8 +622,8 @@ ArgObj.AttHandleValueInd = function () {
             minLen: 0,
             params: ['value']
         }
-    };	
-	this.constr_name = 'AttHandleValueInd';
+    };
+    this.constr_name = 'AttHandleValueInd';
     this.storeEvtAttrs(evtAttrs);
 };
 ArgObj.AttHandleValueCfm = function () {
@@ -608,7 +632,7 @@ ArgObj.AttHandleValueCfm = function () {
         params: ['status', 'connHandle', 'pduLen'],
         types: ['uint8', 'uint16le', 'uint8']
     };
-	this.constr_name = 'AttHandleValueCfm';
+    this.constr_name = 'AttHandleValueCfm';
     this.storeEvtAttrs(evtAttrs);
 };
 /*************************************************************************************************/
@@ -800,6 +824,7 @@ ru.clause('addr', function (name) {
     this.buffer(name, 6).tap(function () {
         var tmpBuf = new Buffer(6).fill(0),
             origBuf = this.vars[name];
+
         for (var i = 0; i < 6; i++) {
             tmpBuf.writeUInt8( origBuf.readUInt8(i), (5-i) );
         }
@@ -813,8 +838,58 @@ ru.clause('bufWithLen', function (lenName, bufName, lenType) {
     });
 });
 
+ru.clause('attObj', function (buflen, objName, objAttrs) {
+    var objLen = objAttrs.objLen,
+        objParams = objAttrs.params,
+        objTypes = objAttrs.types,
+        loopTimes = buflen / objLen,
+        self = this;
+
+    this.tap(objName, function (end) {
+        for (var i = 0; i < loopTimes; i += 1) {
+            _.forEach(objParams, function(param, key) {
+                self[objTypes[key]](param + i);
+            });
+        }
+    }).tap(function () {
+        for (var k in this.vars) {
+            delete this.vars[k].__proto__;
+        }
+    });
+});
+
+ru.clause('attObjPreLen', function (bufLen, objName, lenName, lenType, objAttrs) {
+    var objLen,
+        objParams = objAttrs.params,
+        objTypes = objAttrs.types,
+        objBufPreLen = objAttrs.objBufPreLen,
+        loopTimes,
+        self = this;
+
+    this[lenType](lenName).tap(function () {
+        objLen = this.vars[lenName];
+        loopTimes = bufLen / objLen;
+        this.tap(objName, function (end) {
+            for (var i = 0; i < loopTimes; i += 1) {
+                _.forEach(objParams, function (param, key) {
+                    if (objTypes[key] === 'buffer') {
+                        self.buffer((param + i), (objLen - objBufPreLen));
+                    } else {
+                        self[objTypes[key]](param + i);
+                    } 
+                });
+            }
+        }).tap(function () {
+            for (var k in this.vars) {
+                delete this.vars[k].__proto__;
+            }
+        });
+    });
+});
+
 ru.clause('GapDeviceDiscovery', function () {
     var count = 0;
+
     this.uint8('numDevs').loop(function (end) {
         var inCount = 0;
         var name = 'dev' + count;
@@ -839,18 +914,51 @@ ru.clause('GapDeviceDiscovery', function () {
         }
     });
 });
+
+ru.clause('AttFindInfoRsp', function (bufLen, format, objName) {
+    var loopTimes,
+        uuidType;
+
+    this.uint8(format).tap(function () {
+        if (this.vars[format] === 1) {
+            loopTimes = bufLen / 4;
+            uuidType = 'uint16le';
+        } else if (this.vars[format] === 2) {
+            loopTimes = bufLen / 18;
+            uuidType = 'buffer';
+        }
+        this.tap(objName, function (end) {
+            for (var i = 0; i < loopTimes; i += 1) {
+                this.uint16le('handle' + i)[uuidType](('UUID' + i), 16);
+            }
+        }).tap(function () {
+            for (var k in this.vars) {
+                delete this.vars[k].__proto__;
+            }
+        });
+    });
+});
 /*************************************************************************************************/
 /*** Private Functions                                                                         ***/
 /*************************************************************************************************/
 function processAppendEvtAttrs (argObj, bufLen) {
     var extChunkRule = [],
+        constrName = argObj.constr_name,
         evtAttrs = argObj.getEvtAttrs(),
         appendAttrs = evtAttrs.append,
         appendParams = appendAttrs.params,
         appendTypes = appendAttrs.types,
-        bufferLen;
+        bufferLen,
+        objAttrs = appendAttrs.objAttrs;
 
-    switch (argObj.constr_name) {
+    if (_.startsWith(constrName, 'Att')) {
+        bufferLen = bufLen - appendAttrs.precedingLen;
+        if (bufferLen < appendAttrs.minLen) {
+            throw new Error('The length of the ' + appendParams[0] + ' field of ' + constrName + ' is incorrect.');
+        }
+    }
+
+    switch (constrName) {
         case 'HciPer':
             if (bufLen === appendAttrs.paramLens) {
                 for (var i = 0; i < appendAttrs.len; i += 1) {
@@ -868,35 +976,36 @@ function processAppendEvtAttrs (argObj, bufLen) {
             extChunkRule.push(ru.bufWithLen(appendParams[0], appendParams[1], appendTypes[0]));
             break;
 
-        case 'AttFindInfoRsp':
         case 'AttFindByTypeValueReq':
-        case 'AttFindByTypeValueRsp':
-        case 'AttReadByTypeRsp':
+        case 'AttReadByTypeReq':
         case 'AttReadRsp':
         case 'AttReadBlobRsp':
-        case 'AttReadMultiReq':
         case 'AttReadMultiRsp':
-        case 'AttReadByGrpTypeRsp':
+        case 'AttReadByGrpTypeReq':
         case 'AttWriteReq':
         case 'AttPrepareWriteReq':
         case 'AttPrepareWriteRsp':
         case 'AttHandleValueNoti':
         case 'AttHandleValueInd':
-            bufferLen = bufLen - appendAttrs.precedingLen;
-            if (bufferLen < appendAttrs.minLen) {
-                throw new Error('The length of the ' + appendParams[0] + ' field of ' + argObj.constr_name + ' is incorrect.');
+            if ((constrName === 'AttReadByTypeReq' || constrName === 'AttReadByGrpTypeReq') && (bufferLen !== 2 || bufferLen !== 16)) {
+                throw new Error('The length of the ' + appendParams[0] + ' field of ' + constrName + ' must be 2 or 16 bytes.');
             }
             extChunkRule.push(ru.buffer(appendParams[0], bufferLen));
             break;
 
-        case 'AttReadByTypeReq':
-        case 'AttReadByGrpTypeReq':
-        	bufferLen = bufLen - appendAttrs.precedingLen;
-        	if (bufferLen !== 2 || bufferLen !== 16) {
-                throw new Error('The length of the ' + appendParams[0] + ' field of ' + argObj.constr_name + ' is incorrect.');
-            }
-            extChunkRule.push(ru.buffer(appendParams[0], bufferLen));
-        	break;
+        case 'AttFindInfoRsp':
+            extChunkRule.push(ru.AttFindInfoRsp(bufferLen, appendParams[0], appendParams[1]));
+            break;
+
+        case 'AttFindByTypeValueRsp':
+        case 'AttReadMultiReq':
+            extChunkRule.push(ru.attObj(bufferLen, appendParams[0], objAttrs));
+            break;
+
+        case 'AttReadByTypeRsp':
+        case 'AttReadByGrpTypeRsp':
+            extChunkRule.push(ru.attObjPreLen(bufferLen, appendParams[1], appendParams[0], appendTypes[0], objAttrs));
+            break;
 
         default:
             throw new Error(argObj.constr_name + 'event packet error!');
