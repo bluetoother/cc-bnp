@@ -7,7 +7,6 @@ var cmdBpi = {
 	/*************************************************************************************************/
     /*** Argument Constructor of HCI Layer HCI APIs (and ZPIs)                                     ***/
     /*************************************************************************************************/
-    HciSetReceiverGain: function () { return ArgObj.factory('HciSetReceiverGain', arguments); },
     HciSetRxGain: function () { return ArgObj.factory('HciSetRxGain', arguments); },
     HciSetTxPower: function () { return ArgObj.factory('HciSetTxPower', arguments); },
     HciOnePktPerEvt: function () { return ArgObj.factory('HciOnePktPerEvt', arguments); },
@@ -145,7 +144,7 @@ var cmdBpi = {
 /*** ArgObj Class                                                                                ***/
 /***************************************************************************************************/
 // Parent constructor of all argobjs which have command and event type. It has a static factory method() to create argobjs
-// It also has methods: getCmdBpiMeta(), makeArgObj(), storeMeta(), getHciCmdBuf(),
+// It also has methods: getCmdAttrs(), makeArgObj(), storeCmdAttrs(), getHciCmdBuf(),
 // We use the meta-programming to create instances when needed. The meta-data is the argument information of each API.
 /**
  * @class ArgObj
@@ -155,12 +154,12 @@ var cmdBpi = {
 function ArgObj() {}
 
 /**
- * @method getCmdBpiMeta
- * @return {Object} the meta data of the cmdBpi
+ * @method getCmdAttrs
+ * @return {Object} the meta data of the command
  * @private
  */
-ArgObj.prototype.getCmdBpiMeta = function () {
-    return this.constructor[this.constr_name].cmdBpiMeta;
+ArgObj.prototype.getCmdAttrs = function () {
+    return this.constructor[this.constr_name].cmdAttrs;
 };
 
 /**
@@ -170,29 +169,54 @@ ArgObj.prototype.getCmdBpiMeta = function () {
  * @private
  */
 ArgObj.prototype.makeArgObj = function (inArg) {
-    var i,
-        arg_len = this.getCmdBpiMeta().len,
-        arg_param = this.getCmdBpiMeta().params;
+    var cmdParams = this.getCmdAttrs().params,
+        paramLen = cmdParams.length;
 
-    for (i = 0; i < arg_len; i += 1) {
-        this[arg_param[i]] = inArg[i];
+    for (var i = 0; i < paramLen; i += 1) {
+        this[cmdParams[i]] = inArg[i];
     }
 
     return this;
 };
 
 /**
- * @method storeMeta
- * @param cmdBpiMeta {Object} the cmdBpi meta data
+ * @method storeCmdAttrs
+ * @param cmdAttrs {Object} the cmdBpi meta data
  * @return {Object} value object made by the input arguments
  * @private
  */
-ArgObj.prototype.storeMeta = function (cmdBpiMeta) {
+ArgObj.prototype.storeCmdAttrs = function (cmdAttrs) {
     // store zpiMeta to the specialized constructor only once
-    if (ArgObj[this.constr_name].cmdBpiMeta === undefined) {
-        ArgObj[this.constr_name].cmdBpiMeta = cmdBpiMeta;
+    if (ArgObj[this.constr_name].cmdAttrs === undefined) {
+        ArgObj[this.constr_name].cmdAttrs = cmdAttrs;
     }
     return this;
+};
+
+/**
+ * @method transToArgObj
+ * @param argInstance {Object} value object of the zpi input arguments
+ * @return {Object} value object that inherits ArgObj[constr_name] subclass
+ * @private
+ */
+ArgObj.prototype.transToArgObj = function (argInstance) {
+    var cmdParams = this.getCmdAttrs().params;
+        paramLen = cmdParams.length,
+        inArg = [];
+
+    if (argInstance instanceof ArgObj[this.constr_name]) {
+        return argInstance;
+    }
+
+    for (var i = 0; i < arg_len; i += 1) {
+        if (!argInstance.hasOwnProperty(cmdParams[i])) {
+            return new Error('The argument object has incorrect properties.');
+        }
+
+        inArg.push(argInstance[cmdParams[i]]);
+    }
+
+    return this.makeArgObj(inArg);
 };
 
 /**
@@ -201,7 +225,45 @@ ArgObj.prototype.storeMeta = function (cmdBpiMeta) {
  * @private
  */
 ArgObj.prototype.getHciCmdBuf = function () {
-    //TODO
+    var dataBuf = Concentrate(),
+        cmdAttrs = this.getCmdAttrs(),
+        cmdParams = cmdAttrs.params,
+        paramTypes = cmdAttrs.types,
+        paramLen = cmdParams.length,
+        paramVal,
+        tmpBuf;
+
+    for (var i = 0; i < paramLen; i += 1) {
+        paramVal = this[cmdParams[i]];
+
+        switch (paramTypes[i]) {
+            case 'uint8':
+            case 'uint16le':
+            case 'uint32le':
+            case 'uint64':
+            case 'buffer':
+            case 'string':
+                dataBuf = dataBuf[paramTypes[i]](paramVal);
+                break;
+
+            case 'buffer16':
+                dataBuf = dataBuf.buffer(new Buffer(paramVal));
+                break;
+
+            case 'addr':
+                var tmpBuf = new Buffer(6).fill(0),
+                    paramVal = new Buffer(paramVal);
+                for (var i = 0; i < 6; i++) {
+                    tmpBuf.writeUInt8( paramVal.readUInt8(i), (5-i) );
+                }
+                dataBuf = dataBuf.buffer(tmpBuf);
+                break;
+
+            default:
+                throw new Error("Unknown Data Type");
+        }
+    }
+    return dataBuf.result();
 }
 
  /**
@@ -232,13 +294,263 @@ ArgObj.factory = function (type, inArg) {
 /*************************************************************************************************/
 /*** Specialized ArgObj Constructor of HCI HCI APIs                                             ***/
 /*************************************************************************************************/
-ArgObj.HciSetReceiverGain = function () {
-    var cmdBpiMeta = {
-
+ArgObj.HciSetRxGain = function () {
+    var cmdAttrs = {
+        params: ['rxGain'],
+        types: ['uint8']
+        // bDefs: []
     };
-    this.constr_name = 'HciSetReceiverGain';
-    this.storeMeta(cmdBpiMeta);
-}
+    this.constr_name = 'HciSetRxGain';
+    this.storeCmdAttrs(cmdAttrs);
+};
+ArgObj.HciSetTxPower = function () {
+    var cmdAttrs = {
+        params: ['txPower'],
+        types: ['uint8']
+    };
+    this.constr_name = 'HciSetTxPower';
+    this.storeCmdAttrs(cmdAttrs);
+};
+ArgObj.HciOnePktPerEvt = function () {
+    var cmdAttrs = {
+        params: ['control'],
+        types: ['uint8']
+    };
+    this.constr_name = 'HciOnePktPerEvt';
+    this.storeCmdAttrs(cmdAttrs);
+};
+ArgObj.HciClkDivideOnHalt = function () {
+    var cmdAttrs = {
+        params: ['control'],
+        types: ['uint8']
+    };
+    this.constr_name = 'HciClkDivideOnHalt';
+    this.storeCmdAttrs(cmdAttrs);
+};
+ArgObj.HciDeclareNvUsage = function () {
+    var cmdAttrs = {
+        params: ['mode'],
+        types: ['uint8']
+    };
+    this.constr_name = 'HciDeclareNvUsage';
+    this.storeCmdAttrs(cmdAttrs);
+};
+ArgObj.HciDecrypt = function () {
+    var cmdAttrs = {
+        params: ['key', 'encText'],
+        types: ['buffer16', 'buffer16']
+    };
+    this.constr_name = 'HciDecrypt';
+    this.storeCmdAttrs(cmdAttrs);
+};
+ArgObj.HciSetLocalSupportedFeatures = function () {
+    var cmdAttrs = {
+        params: ['localFeatures'],
+        types: ['uint64']
+    };
+    this.constr_name = 'HciSetLocalSupportedFeatures';
+    this.storeCmdAttrs(cmdAttrs);
+};
+ArgObj.HciSetFastTxRespTime = function () {
+    var cmdAttrs = {
+        params: ['control'],
+        types: ['uint8']
+    };
+    this.constr_name = 'HciSetFastTxRespTime';
+    this.storeCmdAttrs(cmdAttrs);
+};
+ArgObj.HciModemTestTx = function () {
+    var cmdAttrs = {
+        params: ['cwMode', 'txFreq'],
+        types: ['uint8', 'uint8']
+    };
+    this.constr_name = 'HciModemTestTx';
+    this.storeCmdAttrs(cmdAttrs);
+};
+ArgObj.HciModemHopTestTx = function () {
+    var cmdAttrs = {
+        params: [],
+        types: []
+    };
+    this.constr_name = 'HciModemHopTestTx';
+    this.storeCmdAttrs(cmdAttrs);
+};
+ArgObj.HciModemTestRx = function () {
+    var cmdAttrs = {
+        params: ['rxFreq'],
+        types: ['uint8']
+    };
+    this.constr_name = 'HciModemTestRx';
+    this.storeCmdAttrs(cmdAttrs);
+};
+ArgObj.HciEndModemTest = function () {
+    var cmdAttrs = {
+        params: [],
+        types: []
+    };
+    this.constr_name = 'HciEndModemTest';
+    this.storeCmdAttrs(cmdAttrs);
+};
+ArgObj.HciSetBdaddr = function () {
+    var cmdAttrs = {
+        params: ['bdAddr'],
+        types: ['addr']
+    };
+    this.constr_name = 'HciSetBdaddr';
+    this.storeCmdAttrs(cmdAttrs);
+};
+ArgObj.HciSetSca = function () {
+    var cmdAttrs = {
+        params: ['scalnPPM'],
+        types: ['uint16le']
+    };
+    this.constr_name = 'HciSetSca';
+    this.storeCmdAttrs(cmdAttrs);
+};
+ArgObj.HciEnablePtm = function () {
+    var cmdAttrs = {
+        params: [],
+        types: []
+    };
+    this.constr_name = 'HciEnablePtm';
+    this.storeCmdAttrs(cmdAttrs);
+};
+ArgObj.HciSetFreqTune = function () {
+    var cmdAttrs = {
+        params: ['step'],
+        types: ['uint8']
+    };
+    this.constr_name = 'HciSetFreqTune';
+    this.storeCmdAttrs(cmdAttrs);
+};
+ArgObj.HciSaveFreqTune = function () {
+    var cmdAttrs = {
+        params: [],
+        types: []
+    };
+    this.constr_name = 'HciSaveFreqTune';
+    this.storeCmdAttrs(cmdAttrs);
+};
+ArgObj.HciSetMaxDtmTxPower = function () {
+    var cmdAttrs = {
+        params: ['txPower'],
+        types: ['uint8']
+    };
+    this.constr_name = 'HciSetMaxDtmTxPower';
+    this.storeCmdAttrs(cmdAttrs);
+};
+ArgObj.HciMapPmIoPort = function () {
+    var cmdAttrs = {
+        params: ['ioPort', 'ioPin'],
+        types: ['uint8', 'uint8']
+    };
+    this.constr_name = 'HciMapPmIoPort';
+    this.storeCmdAttrs(cmdAttrs);
+};
+ArgObj.HciDisconnectImmed = function () {
+    var cmdAttrs = {
+        params: ['connHandle'],
+        types: ['uint16le']
+    };
+    this.constr_name = 'HciDisconnectImmed';
+    this.storeCmdAttrs(cmdAttrs);
+};
+ArgObj.HciPer = function () {
+    var cmdAttrs = {
+        params: ['connHandle', 'cmd'],
+        types: ['uint16le', 'uint8']
+    };
+    this.constr_name = 'HciPer';
+    this.storeCmdAttrs(cmdAttrs);
+};
+ArgObj.HciPerByChan = function () {
+    var cmdAttrs = {
+        params: ['connHandle', 'perByChan'],
+        types: ['uint16le', 'uint16le']
+    };
+    this.constr_name = 'HciPerByChan';
+    this.storeCmdAttrs(cmdAttrs);
+};
+ArgObj.HciExtendRfRange = function () {
+    var cmdAttrs = {
+        params: [],
+        types: []
+    };
+    this.constr_name = 'HciExtendRfRange';
+    this.storeCmdAttrs(cmdAttrs);
+};
+ArgObj.HciAdvEventNotice = function () {
+    var cmdAttrs = {
+        params: ['taskId', 'cmd'],
+        types: ['uint8', 'uint16le']
+    };
+    this.constr_name = 'HciAdvEventNotice';
+    this.storeCmdAttrs(cmdAttrs);
+};
+ArgObj.HciConnEventNotice = function () {
+    var cmdAttrs = {
+        params: ['taskId', 'taskEvt'],
+        types: ['uint8', 'uint16le']
+    };
+    this.constr_name = 'HciConnEventNotice';
+    this.storeCmdAttrs(cmdAttrs);
+};
+ArgObj.HciHaltDuringRf = function () {
+    var cmdAttrs = {
+        params: ['mode'],
+        types: ['uint8']
+    };
+    this.constr_name = 'HciHaltDuringRf';
+    this.storeCmdAttrs(cmdAttrs);
+};
+ArgObj.HciOverrideSl = function () {
+    var cmdAttrs = {
+        params: ['taskId'],
+        types: ['uint8']
+    };
+    this.constr_name = 'HciOverrideSl';
+    this.storeCmdAttrs(cmdAttrs);
+};
+ArgObj.HciBuildRevision = function () {
+    var cmdAttrs = {
+        params: ['mode', 'userRevNum'],
+        types: ['uint8', 'uint16le']
+    };
+    this.constr_name = 'HciBuildRevision';
+    this.storeCmdAttrs(cmdAttrs);
+};
+ArgObj.HciDelaySleep = function () {
+    var cmdAttrs = {
+        params: ['delay'],
+        types: ['uint16le']
+    };
+    this.constr_name = 'HciDelaySleep';
+    this.storeCmdAttrs(cmdAttrs);
+};
+ArgObj.HciResetSystem = function () {
+    var cmdAttrs = {
+        params: ['mode'],
+        types: ['uint8']
+    };
+    this.constr_name = 'HciResetSystem';
+    this.storeCmdAttrs(cmdAttrs);
+};
+ArgObj.HciOverlappedProcessing = function () {
+    var cmdAttrs = {
+        params: ['mode'],
+        types: ['uint8']
+    };
+    this.constr_name = 'HciOverlappedProcessing';
+    this.storeCmdAttrs(cmdAttrs);
+};
+ArgObj.HciNumCompletedPktsLimit = function () {
+    var cmdAttrs = {
+        params: ['limit', 'flushOnEvt'],
+        types: ['uint8', 'uint8']
+    };
+    this.constr_name = 'HciNumCompletedPktsLimit';
+    this.storeCmdAttrs(cmdAttrs);
+};
 /*************************************************************************************************/
 /*** Specialized ArgObj Constructor of L2CAP HCI APIs                                             ***/
 /*************************************************************************************************/

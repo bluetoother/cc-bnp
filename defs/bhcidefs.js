@@ -40,13 +40,13 @@ BHCI.CmdGroup = new Enum({
  * CmdSubGroup(CSG)
  *************************************************************************/
 BHCI.CmdSubGroup = new Enum({
-	'HCI': 0x0000,     
-	'L2CAP': 0x0080,
-	'ATT': 0x0100,
-	'GATT': 0x0180,
-	'GAP': 0x0200,
-	'UTIL': 0x0280,
-	'PROFILE': 0x0380
+	'Hci': 0x0000,     
+	'L2cap': 0x0080,
+	'Att': 0x0100,
+	'Gatt': 0x0180,
+	'Gap': 0x0200,
+	'Util': 0x0280,
+	'Profile': 0x0380
 });
 
 /**************************************************************************
@@ -65,38 +65,38 @@ BHCI.CmdOpcodeMask = new Enum({
  *************************************************************************/
 /* (1) HCI COMMANDS: SubGroupCmd.HCI, Ref: hci_tl.h                      */
 BHCI.SubGroupCmd.HCI = new Enum({
-	'SET_RX_GAIN': 0x0000,
-	'SET_TX_POWER': 0x0001,
-	'ONE_PKT_PER_EVT': 0x0002,
-	'CLK_DIVIDE_ON_HALT': 0x0003,
-	'DECLARE_NV_USAGE': 0x0004,
-	'DECRYPT': 0x0005,
-	'SET_LOCAL_SUPPORTED_FEATURES': 0x0006,
-	'SET_FAST_TX_RESP_TIME': 0x0007,
-	'MODEM_TEST_TX': 0x0008,
-	'MODEM_HOP_TEST_TX': 0x0009,
-	'MODEM_TEST_RX': 0x000A,
-	'END_MODEM_TEST': 0x000B,
-	'SET_BDADDR': 0x000C,
-	'SET_SCA': 0x000D,
-	'ENABLE_PTM': 0x000E,
-	'SET_FREQ_TUNE': 0x000F,
-	'SAVE_FREQ_TUNE': 0x0010,
-	'SET_MAX_DTM_TX_POWER': 0x0011,
-	'MAP_PM_IO_PORT': 0x0012,
-	'DISCONNECT_IMMED': 0x0013,
-	'PER': 0x0014,
-	'PER_BY_CHAN': 0x0015,
-	'EXTEND_RF_RANGE': 0x0016,
-	'ADV_EVENT_NOTICE': 0x0017,
-	'CONN_EVENT_NOTICE': 0x0018,
-	'HALT_DURING_RF': 0x0019,
-	'OVERRIDE_SL': 0x001A,
-	'BUILD_REVISION': 0x001B,
-	'DELAY_SLEEP': 0x001C,
-	'RESET_SYSTEM': 0x001D,
-	'OVERLAPPED_PROCESSING': 0x001E,
-	'NUM_COMPLETED_PKTS_LIMIT': 0x001F
+	'SetRxGain': 0x0000,
+	'SetTxPower': 0x0001,
+	'OnePktPerEvt': 0x0002,
+	'ClkDivideOnHalt': 0x0003,
+	'DeclareNvUsage': 0x0004,
+	'Decrypt': 0x0005,
+	'SetLocalSupportedFeatures': 0x0006,
+	'SetFastTxRespTime': 0x0007,
+	'ModemTestTx': 0x0008,
+	'ModemHopTestTx': 0x0009,
+	'ModemTestRx': 0x000A,
+	'EndModemTest': 0x000B,
+	'SetBdaddr': 0x000C,
+	'SetSca': 0x000D,
+	'EnablePtm': 0x000E,
+	'SetFreqTune': 0x000F,
+	'SaveFreqTune': 0x0010,
+	'SetMaxDtmTxPower': 0x0011,
+	'MapPmIoPort': 0x0012,
+	'DisconnectImmed': 0x0013,
+	'Per': 0x0014,
+	'PerByChan': 0x0015,
+	'ExtendRfRange': 0x0016,
+	'AdvEventNotice': 0x0017,
+	'ConnEventNotice': 0x0018,
+	'HaltDuringRf': 0x0019,
+	'OverrideSl': 0x001A,
+	'BuildRevision': 0x001B,
+	'DelaySleep': 0x001C,
+	'ResetSystem': 0x001D,
+	'OverlappedProcessing': 0x001E,
+	'NumCompletedPktsLimit': 0x001F
 });
 
 /* (2) L2CAP COMMANDS: SubGroupCmd.L2CAP, Ref: l2cap.h                   */
@@ -106,32 +106,32 @@ BHCI.SubGroupCmd.L2CAP = new Enum({
 
 /* (3) ATT COMMANDS: SubGroupCmd.ATT, Ref: att.h                         */
 BHCI.SubGroupCmd.ATT = new Enum({
-	'ERROR_RSP': 0x0001,
-	'EXCHANGE_MTU_REQ': 0x0002,
-	'EXCHANGE_MTU_RSP': 0x0003,
-	'FIND_INFO_REQ': 0x0004,
-	'FIND_INFO_RSP': 0x0005,
-	'FIND_BY_TYPE_VALUE_REQ': 0x0006,
-	'FIND_BY_TYPE_VALUE_RSP': 0x0007,
-	'READ_BY_TYPE_REQ': 0x0008,
-	'READ_BY_TYPE_RSP': 0x0009,
-	'READ_REQ': 0x000A,
-	'READ_RSP': 0x000B,
-	'READ_BLOB_REQ': 0x000C,
-	'READ_BLOB_RSP': 0x000D,
-	'READ_MULTI_REQ': 0x000E,
-	'READ_MULTI_RSP': 0x000F,
-	'READ_BY_GRP_TYPE_REQ': 0x0010,
-	'READ_BY_GRP_TYPE_RSP': 0x0011,
-	'WRITE_REQ': 0x0012,
-	'WRITE_RSP': 0x0013,
-	'PREPARE_WRITE_REQ': 0x0016,
-	'PREPARE_WRITE_RSP': 0x0017,
-	'EXECUTE_WRITE_REQ': 0x0018,
-	'EXECUTE_WRITE_RSP': 0x0019,
-	'HANDLE_VALUE_NOTI': 0x001B,
-	'HANDLE_VALUE_IND': 0x001D,
-	'HANDLE_VALUE_CFM': 0x001E
+	'ErrorRsp': 0x0001,
+	'ExchangeMtuReq': 0x0002,
+	'ExchangeMtuRsp': 0x0003,
+	'FindInfoReq': 0x0004,
+	'FindInfoRsp': 0x0005,
+	'FindByTypeValueReq': 0x0006,
+	'FindByTypeValueRsp': 0x0007,
+	'ReadByTypeReq': 0x0008,
+	'ReadByTypeRsp': 0x0009,
+	'ReadReq': 0x000A,
+	'ReadRsp': 0x000B,
+	'ReadBlobReq': 0x000C,
+	'ReadBlobRsp': 0x000D,
+	'ReadMultiReq': 0x000E,
+	'ReadMultiRsp': 0x000F,
+	'ReadByGrpTypeReq': 0x0010,
+	'ReadByGrpTypeRsp': 0x0011,
+	'WriteReq': 0x0012,
+	'WriteRsp': 0x0013,
+	'PrepareWriteReq': 0x0016,
+	'PrepareWriteRsp': 0x0017,
+	'ExecuteWriteReq': 0x0018,
+	'ExecuteWriteRsp': 0x0019,
+	'HandleValueNoti': 0x001B,
+	'HandleValueInd': 0x001D,
+	'HandleValueCfm': 0x001E
 });
 
 /* (4) GATT COMMANDS: SubGroupCmd.GATT, Ref: hci_ext_app.h               */
@@ -261,8 +261,8 @@ BHCI.SubGroupEvt.HCI = BHCI.SubGroupCmd.HCI;
 
 /* (2) L2CAP Events: SubGroupEvt.L2CAP, Ref: l2cap.h                     */
 BHCI.SubGroupEvt.L2CAP = new Enum({
-	'CMD_REJECT': 0x0001,
-	'PARAM_UPDATE_RSP': 0x0013,
+	'CmdReject': 0x0001,
+	'ParamUpdateRsp': 0x0013,
 });
 
 /* (3) ATT Events: SubGroupEvt.ATT, Ref: att.h                           */
@@ -270,28 +270,28 @@ BHCI.SubGroupEvt.ATT = BHCI.SubGroupCmd.ATT;
 
 /* (4) GATT Events: SubGroupEvt.GATT, Ref: gattservapp.h                 */
 BHCI.SubGroupEvt.GATT = new Enum({
-    'CLIENT_CHAR_CFG_UPDATED': 0x0000
+    'ClientCharCfgUpdate': 0x0000
 });
 
 /* (5) GAP Events: SubGroupEvt.GAP, Ref: gap.h                           */
 BHCI.SubGroupEvt.GAP = new Enum({
-	'DEVICE_INIT_DONE': 0x0000,
-	'DEVICE_DISCOVERY': 0x0001,
-	'ADV_DATA_UPDATE_DONE': 0x0002,
-	'MAKE_DISCOVERABLE_DONE': 0x0003,
-	'END_DISCOVERABLE_DONE': 0x0004,
-	'LINK_ESTABLISHED': 0x0005,
-	'LINK_TERMINATED': 0x0006,
-	'LINK_PARAM_UPDATE': 0x0007,
-	'RANDOM_ADDR_CHANGED': 0x0008,
-	'SIGNATURE_UPDATED': 0x0009,
-	'AUTHENTICATION_COMPLETE': 0x000A,
-	'PASSKEY_NEEDED': 0x000B,
-	'SLAVE_REQUESTED_SECURITY': 0x000C,
-	'DEVICE_INFO': 0x000D,
-	'BOND_COMPLETE': 0x000E,
-	'PAIRING_REQ': 0x000F,
-	'CMD_STATUS': 0x007F
+	'DeviceInitDone': 0x0000,
+	'DeviceDiscovery': 0x0001,
+	'AdvDataUpdateDone': 0x0002,
+	'MakeDiscoverableDone': 0x0003,
+	'EndDiscoverableDone': 0x0004,
+	'LinkEstablished': 0x0005,
+	'LinkTerminated': 0x0006,
+	'LinkParamUpdate': 0x0007,
+	'RandomAddrChanged': 0x0008,
+	'SignatureUpdated': 0x0009,
+	'AuthenticationComplete': 0x000A,
+	'PasskeyNeeded': 0x000B,
+	'SlaveRequestedSecurity': 0x000C,
+	'DeviceInfo': 0x000D,
+	'BondComplete': 0x000E,
+	'PairingReq': 0x000F,
+	'CmdStatus': 0x007F
 });
 
 /**************************************************************************
