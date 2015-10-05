@@ -382,7 +382,7 @@ ArgObj.AttFindByTypeValueRsp = function () {
     this.constr_name = 'AttFindByTypeValueRsp';
     this.storeEvtAttrs(evtAttrs);
 };
-ArgObj.AttReadByTypeReq = function () { 
+ArgObj.AttReadByTypeReq = function () {
     var evtAttrs = {
         paramLens: 'variable',
         params: ['status', 'connHandle', 'pduLen', 'startHandle', 'endHandle'],
@@ -396,7 +396,7 @@ ArgObj.AttReadByTypeReq = function () {
     this.constr_name = 'AttReadByTypeReq';
     this.storeEvtAttrs(evtAttrs);
 };
-ArgObj.AttReadByTypeRsp = function () { 
+ArgObj.AttReadByTypeRsp = function () {
     var evtAttrs = {
         paramLens: 'variable',
         params: ['status', 'connHandle', 'pduLen'],
@@ -737,16 +737,16 @@ ArgObj.GapRandomAddrChanged = function () {
 };
 ArgObj.GapSignatureUpdated = function () { 
     var evtAttrs = {
-        paramLens: 16,
+        paramLens: 14,
         params: ['status', 'addrType', 'devAddr', 'signCounter'],
-        types: ['uint8', 'uint8', 'addr', 'buffer6']
+        types: ['uint8', 'uint8', 'addr', 'uint32le']
     };
     this.constr_name = 'GapSignatureUpdated';
     this.storeEvtAttrs(evtAttrs);
 };
 ArgObj.GapAuthenticationComplete = function () { //TODO, Test
     var evtAttrs = {
-        paramLens: 104,
+        paramLens: 106,
         params: ['status', 'connHandle', 'authState', 'secInfo', 'sec_ltkSize', 'sec_ltk', 'sec_div', 'sec_rand', 'devSecInfo', 'dev_ltkSize',
                  'dev_ltk', 'dev_div', 'dev_rand', 'identityInfo', 'identity_irk', 'identity_bd_addr', 'signingInfo', 'signing_irk', 'signing_signCounter'],
         types: ['uint8', 'uint16le', 'uint8', 'uint8', 'uint8', 'buffer16', 'uint16le', 'uint64', 'uint8', 'uint8', 'buffer16', 'uint16le', 'uint64',
@@ -987,7 +987,7 @@ function processAppendEvtAttrs (argObj, bufLen) {
         case 'AttPrepareWriteRsp':
         case 'AttHandleValueNoti':
         case 'AttHandleValueInd':
-            if ((constrName === 'AttReadByTypeReq' || constrName === 'AttReadByGrpTypeReq') && (bufferLen !== 2 || bufferLen !== 16)) {
+            if ((constrName === 'AttReadByTypeReq' || constrName === 'AttReadByGrpTypeReq') && (bufferLen !== 2 && bufferLen !== 16)) {
                 throw new Error('The length of the ' + appendParams[0] + ' field of ' + constrName + ' must be 2 or 16 bytes.');
             }
             extChunkRule.push(ru.buffer(appendParams[0], bufferLen));
