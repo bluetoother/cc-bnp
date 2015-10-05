@@ -371,7 +371,7 @@ ArgObj.AttFindByTypeValueRsp = function () {
         append: {
             precedingLen: 6,
             minLen: 4,
-            params: ['format'],
+            params: ['handlesInfo'],
             objAttrs : {
                 objLen: 4,
                 params: ['attrHandle', 'grpEndHandle'],
@@ -929,7 +929,7 @@ ru.clause('AttFindInfoRsp', function (bufLen, format, objName) {
         }
         this.tap(objName, function (end) {
             for (var i = 0; i < loopTimes; i += 1) {
-                this.uint16le('handle' + i)[uuidType](('UUID' + i), 16);
+                this.uint16le('handle' + i)[uuidType](('uuid' + i), 16);
             }
         }).tap(function () {
             for (var k in this.vars) {
