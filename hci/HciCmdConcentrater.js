@@ -159,7 +159,7 @@ function ArgObj() {}
 
 /**
  * @method getCmdAttrs
- * @return {Object} the meta data of the command
+ * @return {Object} the meta data of the command construction
  * @private
  */
 ArgObj.prototype.getCmdAttrs = function () {
@@ -168,7 +168,7 @@ ArgObj.prototype.getCmdAttrs = function () {
 
 /**
  * @method makeArgObj
- * @param inArg {Array} the cmdBpi input arguments
+ * @param inArg {Array} the command input arguments
  * @return {Object} value object made from the input arguments
  * @private
  */
@@ -199,7 +199,7 @@ ArgObj.prototype.storeCmdAttrs = function (cmdAttrs) {
 
 /**
  * @method transToArgObj
- * @param argInstance {Object} value object of the zpi input arguments
+ * @param argInstance {Object} value object of the command input arguments
  * @return {Object} value object that inherits ArgObj[constr_name] subclass
  * @private
  */
@@ -225,7 +225,7 @@ ArgObj.prototype.transToArgObj = function (argInstance) {
 
 /**
  * @method getHciCmdBuf
- * @return {Buffer} HCI command frame of the zpi
+ * @return {Buffer} HCI command frame of the command
  * @private
  */
 ArgObj.prototype.getHciCmdBuf = function () {
@@ -239,6 +239,7 @@ ArgObj.prototype.getHciCmdBuf = function () {
 
     for (var i = 0; i < paramLen; i += 1) {
         paramVal = this[cmdParams[i]];
+        checkType(paramVal, paramTypes[i], cmdParams[i]);
 
         switch (paramTypes[i]) {
             case 'uint8':
@@ -320,12 +321,12 @@ ArgObj.prototype.parseCmdFrame = function (buf, callback) {
 }
 
  /**
- * This is the factory of the argument value object for the cmdBpis
+ * This is the factory of the argument value object for the command
  * @method factory
  * @static
- * @param type {String} cmdBpi name
- * @param inArg {Array} input arguments of the cmdBpi
- * @return {Object} value object of the corresponding cmdBpi
+ * @param type {String} command constr name
+ * @param inArg {Array} input arguments of the command
+ * @return {Object} value object of the corresponding command
  * @private
  */
 ArgObj.factory = function (type, inArg) {
@@ -362,7 +363,6 @@ ArgObj.HciSetRxGain = function () {
     var cmdAttrs = {
         params: ['rxGain'],
         types: ['uint8']
-        // bDefs: []
     };
     this.constr_name = 'HciSetRxGain';
     this.storeCmdAttrs(cmdAttrs);
@@ -684,7 +684,13 @@ function checkType(data, type, param) {
 
         case 'string':
             if (!_.isString(data)) {
-                throw new Error(param + ' must be a string.')
+                throw new Error(param + ' must be a string.');
+            }
+            break;
+
+        case 'obj':
+            if (!_.isObject(data)) {
+                throw new Error(param + ' must be a object.');
             }
             break;
 
@@ -783,4 +789,5 @@ ru.clause('attObj', function (buflen, objName, objInfo) {
         }
     });
 });
+
 module.exports = cmdBpi;
