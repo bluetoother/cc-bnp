@@ -5,9 +5,10 @@ var _ = require('lodash'),
     DChunks = require('dissolve-chunks'),
     ru = DChunks().Rule(),
     Q = require('q'),
-    BHCI = require('../defs/bhcidefs');
+    BHCI = require('../defs/blehcidefs'),
+    cmdMeta = require('./HciCmdMeta');
 
-var cmdBpi = {
+var hciCmdConcentrater = {
 	/*************************************************************************************************/
     /*** Argument Constructor of HCI Layer HCI APIs (and ZPIs)                                     ***/
     /*************************************************************************************************/
@@ -324,306 +325,31 @@ ArgObj.prototype.parseCmdFrame = function (buf, callback) {
  * This is the factory of the argument value object for the command
  * @method factory
  * @static
- * @param type {String} command constr name
+ * @param constrName {String} command constr name
  * @param inArg {Array} input arguments of the command
  * @return {Object} value object of the corresponding command
  * @private
  */
-ArgObj.factory = function (type, inArg) {
-    var constr = type,
+ArgObj.factory = function (constrName, inArg) {
+    var constr,
         new_argobj;
 
-    if (typeof ArgObj[constr] !== "function") { throw new Error(constr + " doesn't exist"); }
+    constr = function () {
+        var cmdAttrs = cmdMeta[constrName];
+        this.constr_name = constrName;
+        this.storeCmdAttrs(cmdAttrs);
+    };
 
-    if (typeof ArgObj[constr].prototype.getZpiMeta !== "function") {
-        ArgObj[constr].prototype = new ArgObj();
+    if (cmdMeta[constrName]) { throw new Error(constr + " doesn't exist"); }
+
+    if (!_.isFunction(constr.prototype.getCmdAttrs)) {
+        constr.prototype = new ArgObj();
     }
 
-    new_argobj = (new ArgObj[constr]()).makeArgObj(inArg);
+    new_argobj = (new constr()).makeArgObj(inArg);
 
     return new_argobj;
 };
-
-// Specialize the sub-classes
-/*************************************************************************************************/
-/*** Specialized ArgObj Constructor of HCI HCI APIs                                            ***/
-/*************************************************************************************************/
-var subConstr = [
-    'HciModemHopTestTx', 'HciEndModemTest', 'HciEnablePtm', 'HciSaveFreqTune', 'HciExtendRfRange'
-];
-
-_.forEach(subConstr, function (name) {
-    ArgObj[name] = function () {
-        this.constr_name = name;
-        this.storeCmdAttrs({params: [], types: []});
-    };
-});
-
-ArgObj.HciSetRxGain = function () {
-    var cmdAttrs = {
-        params: ['rxGain'],
-        types: ['uint8']
-    };
-    this.constr_name = 'HciSetRxGain';
-    this.storeCmdAttrs(cmdAttrs);
-};
-ArgObj.HciSetTxPower = function () {
-    var cmdAttrs = {
-        params: ['txPower'],
-        types: ['uint8']
-    };
-    this.constr_name = 'HciSetTxPower';
-    this.storeCmdAttrs(cmdAttrs);
-};
-ArgObj.HciOnePktPerEvt = function () {
-    var cmdAttrs = {
-        params: ['control'],
-        types: ['uint8']
-    };
-    this.constr_name = 'HciOnePktPerEvt';
-    this.storeCmdAttrs(cmdAttrs);
-};
-ArgObj.HciClkDivideOnHalt = function () {
-    var cmdAttrs = {
-        params: ['control'],
-        types: ['uint8']
-    };
-    this.constr_name = 'HciClkDivideOnHalt';
-    this.storeCmdAttrs(cmdAttrs);
-};
-ArgObj.HciDeclareNvUsage = function () {
-    var cmdAttrs = {
-        params: ['mode'],
-        types: ['uint8']
-    };
-    this.constr_name = 'HciDeclareNvUsage';
-    this.storeCmdAttrs(cmdAttrs);
-};
-ArgObj.HciDecrypt = function () {
-    var cmdAttrs = {
-        params: ['key', 'encText'],
-        types: ['buffer16', 'buffer16']
-    };
-    this.constr_name = 'HciDecrypt';
-    this.storeCmdAttrs(cmdAttrs);
-};
-ArgObj.HciSetLocalSupportedFeatures = function () {
-    var cmdAttrs = {
-        params: ['localFeatures'],
-        types: ['buffer8']
-    };
-    this.constr_name = 'HciSetLocalSupportedFeatures';
-    this.storeCmdAttrs(cmdAttrs);
-};
-ArgObj.HciSetFastTxRespTime = function () {
-    var cmdAttrs = {
-        params: ['control'],
-        types: ['uint8']
-    };
-    this.constr_name = 'HciSetFastTxRespTime';
-    this.storeCmdAttrs(cmdAttrs);
-};
-ArgObj.HciModemTestTx = function () {
-    var cmdAttrs = {
-        params: ['cwMode', 'txFreq'],
-        types: ['uint8', 'uint8']
-    };
-    this.constr_name = 'HciModemTestTx';
-    this.storeCmdAttrs(cmdAttrs);
-};
-ArgObj.HciModemTestRx = function () {
-    var cmdAttrs = {
-        params: ['rxFreq'],
-        types: ['uint8']
-    };
-    this.constr_name = 'HciModemTestRx';
-    this.storeCmdAttrs(cmdAttrs);
-};
-ArgObj.HciSetBdaddr = function () {
-    var cmdAttrs = {
-        params: ['bdAddr'],
-        types: ['addr']
-    };
-    this.constr_name = 'HciSetBdaddr';
-    this.storeCmdAttrs(cmdAttrs);
-};
-ArgObj.HciSetSca = function () {
-    var cmdAttrs = {
-        params: ['scalnPPM'],
-        types: ['uint16le']
-    };
-    this.constr_name = 'HciSetSca';
-    this.storeCmdAttrs(cmdAttrs);
-};
-ArgObj.HciSetFreqTune = function () {
-    var cmdAttrs = {
-        params: ['step'],
-        types: ['uint8']
-    };
-    this.constr_name = 'HciSetFreqTune';
-    this.storeCmdAttrs(cmdAttrs);
-};
-ArgObj.HciSetMaxDtmTxPower = function () {
-    var cmdAttrs = {
-        params: ['txPower'],
-        types: ['uint8']
-    };
-    this.constr_name = 'HciSetMaxDtmTxPower';
-    this.storeCmdAttrs(cmdAttrs);
-};
-ArgObj.HciMapPmIoPort = function () {
-    var cmdAttrs = {
-        params: ['ioPort', 'ioPin'],
-        types: ['uint8', 'uint8']
-    };
-    this.constr_name = 'HciMapPmIoPort';
-    this.storeCmdAttrs(cmdAttrs);
-};
-ArgObj.HciDisconnectImmed = function () {
-    var cmdAttrs = {
-        params: ['connHandle'],
-        types: ['uint16le']
-    };
-    this.constr_name = 'HciDisconnectImmed';
-    this.storeCmdAttrs(cmdAttrs);
-};
-ArgObj.HciPer = function () {
-    var cmdAttrs = {
-        params: ['connHandle', 'cmd'],
-        types: ['uint16le', 'uint8']
-    };
-    this.constr_name = 'HciPer';
-    this.storeCmdAttrs(cmdAttrs);
-};
-ArgObj.HciPerByChan = function () {
-    var cmdAttrs = {
-        params: ['connHandle', 'perByChan'],
-        types: ['uint16le', 'uint16le']
-    };
-    this.constr_name = 'HciPerByChan';
-    this.storeCmdAttrs(cmdAttrs);
-};
-ArgObj.HciAdvEventNotice = function () {
-    var cmdAttrs = {
-        params: ['taskId', 'cmd'],
-        types: ['uint8', 'uint16le']
-    };
-    this.constr_name = 'HciAdvEventNotice';
-    this.storeCmdAttrs(cmdAttrs);
-};
-ArgObj.HciConnEventNotice = function () {
-    var cmdAttrs = {
-        params: ['taskId', 'taskEvt'],
-        types: ['uint8', 'uint16le']
-    };
-    this.constr_name = 'HciConnEventNotice';
-    this.storeCmdAttrs(cmdAttrs);
-};
-ArgObj.HciHaltDuringRf = function () {
-    var cmdAttrs = {
-        params: ['mode'],
-        types: ['uint8']
-    };
-    this.constr_name = 'HciHaltDuringRf';
-    this.storeCmdAttrs(cmdAttrs);
-};
-ArgObj.HciOverrideSl = function () {
-    var cmdAttrs = {
-        params: ['taskId'],
-        types: ['uint8']
-    };
-    this.constr_name = 'HciOverrideSl';
-    this.storeCmdAttrs(cmdAttrs);
-};
-ArgObj.HciBuildRevision = function () {
-    var cmdAttrs = {
-        params: ['mode', 'userRevNum'],
-        types: ['uint8', 'uint16le']
-    };
-    this.constr_name = 'HciBuildRevision';
-    this.storeCmdAttrs(cmdAttrs);
-};
-ArgObj.HciDelaySleep = function () {
-    var cmdAttrs = {
-        params: ['delay'],
-        types: ['uint16le']
-    };
-    this.constr_name = 'HciDelaySleep';
-    this.storeCmdAttrs(cmdAttrs);
-};
-ArgObj.HciResetSystem = function () {
-    var cmdAttrs = {
-        params: ['mode'],
-        types: ['uint8']
-    };
-    this.constr_name = 'HciResetSystem';
-    this.storeCmdAttrs(cmdAttrs);
-};
-ArgObj.HciOverlappedProcessing = function () {
-    var cmdAttrs = {
-        params: ['mode'],
-        types: ['uint8']
-    };
-    this.constr_name = 'HciOverlappedProcessing';
-    this.storeCmdAttrs(cmdAttrs);
-};
-ArgObj.HciNumCompletedPktsLimit = function () {
-    var cmdAttrs = {
-        params: ['limit', 'flushOnEvt'],
-        types: ['uint8', 'uint8']
-    };
-    this.constr_name = 'HciNumCompletedPktsLimit';
-    this.storeCmdAttrs(cmdAttrs);
-};
-/*************************************************************************************************/
-/*** Specialized ArgObj Constructor of L2CAP HCI APIs                                          ***/
-/*************************************************************************************************/
-
-/*************************************************************************************************/
-/*** Specialized ArgObj Constructor of ATT HCI APIs                                            ***/
-/*************************************************************************************************/
-ArgObj.AttFindInfoRsp = function () {
-    var cmdAttrs = {
-        params: ['connHandle', 'format', 'info'],
-        types: ['uint16le', 'uint8', 'obj'],
-        objInfo: {
-            params: ['handle', 'uuid'],
-            types: ['uint16le', 'variable'],
-            //for test
-            precedingLen: 3,
-            minLen: 4,
-        }
-    };
-    this.constr_name = 'AttFindInfoRsp';
-    this.storeCmdAttrs(cmdAttrs);
-};
-ArgObj.AttFindByTypeValueRsp = function () {
-    var cmdAttrs = {
-        params: ['connHandle', 'handlesInfo'],
-        types: ['uint16le', 'obj'],
-        objInfo: {
-            params: ['attrHandle', 'grpEndHandle'],
-            types: ['uint16le', 'uint16le'],
-            //for test
-            objLen: 4,
-            precedingLen: 2,
-            minLen: 4,
-        }
-    };
-    this.constr_name = 'AttFindByTypeValueRsp';
-    this.storeCmdAttrs(cmdAttrs);
-};
-/*************************************************************************************************/
-/*** Specialized ArgObj Constructor of GATT HCI APIs                                           ***/
-/*************************************************************************************************/
-
-/*************************************************************************************************/
-/*** Specialized ArgObj Constructor of GAP HCI APIs                                            ***/
-/*************************************************************************************************/
-
-/*************************************************************************************************/
-/*** Specialized ArgObj Constructor of UTIL HCI APIs                                           ***/
-/*************************************************************************************************/
 
 /*************************************************************************************************/
 /*** Private Functions                                                                         ***/
@@ -790,4 +516,5 @@ ru.clause('attObj', function (buflen, objName, objInfo) {
     });
 });
 
-module.exports = cmdBpi;
+module.exports = hciCmdConcentrater;
+

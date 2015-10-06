@@ -4,7 +4,8 @@ var Q = require('q'),
     _ = require('lodash'),
     DChunks = require('dissolve-chunks'),
     ru = DChunks().Rule(),
-    BHCI = require('../defs/bhcidefs');
+    BHCI = require('../defs/blehcidefs'),
+    evtMeta = require('./HciEvtMeta');
 
 var hciEventDissolver = {
 	/*************************************************************************************************/
@@ -209,72 +210,78 @@ ArgObj.prototype.getHciEvtPacket = function (bufLen, bBuffer, callback) {
  * This is the factory of the argument value object for the event constructor
  * @method factory
  * @static
- * @param type {String} event constructor name
+ * @param type {String} constrName constructor name
  * @return {Object} value object of the corresponding event constructor
  * @private
  */
-ArgObj.factory = function (type) {
-    var constr = type;
+ArgObj.factory = function (constrName) {
+    var constr;
 
-    if (typeof ArgObj[constr] !== "function") { throw new Error(constr + " doesn't exist"); }
+    constr = function () {
+        var evtAttrs = evtMeta[constrName];
+        this.constr_name = constrName;
+        this.storeEvtAttrs(evtAttrs);
+    };
 
-    if (typeof ArgObj[constr].prototype.getevtAttrs !== "function") {
-        ArgObj[constr].prototype = new ArgObj();
+    if (!evtMeta[constrName]) { throw new Error(constr + " doesn't exist"); }
+
+    if (!_.isFunction(constr.prototype.getEvtAttrs)) {
+        constr.prototype = new ArgObj();
     }
 
-    return new ArgObj[constr]();
+    return new constr();
 };
 
 // Specialize the sub-classes
 /*************************************************************************************************/
 /*** Specialized ArgObj Constructor of HCI HCI APIs                                             ***/
 /*************************************************************************************************/
-var subConstr = [ 
-    'HciSetRxGain', 'HciSetTxPower', 'HciOnePktPerEvt', 'HciClkDivideOnHalt', 'HciDeclareNvUsage', 'HciSetLocalSupportedFeatures',
-    'HciSetFastTxRespTime', 'HciModemTestTx', 'HciModemHopTestTx','HciModemTestRx', 'HciEndModemTest', 'HciSetBdaddr', 'HciSetSca',
-    'HciSetFreqTune', 'HciSaveFreqTune', 'HciSetMaxDtmTxPower', 'HciMapPmIoPort', 'HciDisconnectImmed', 'HciPerByChan', 'HciExtendRfRange',
-    'HciHaltDuringRf', 'HciOverrideSl', 'HciDelaySleep', 'HciResetSystem', 'HciOverlappedProcessing', 'HciNumCompletedPktsLimit'
-];
+// var subConstr = [ 
+//     'HciSetRxGain', 'HciSetTxPower', 'HciOnePktPerEvt', 'HciClkDivideOnHalt', 'HciDeclareNvUsage', 'HciSetLocalSupportedFeatures',
+//     'HciSetFastTxRespTime', 'HciModemTestTx', 'HciModemHopTestTx','HciModemTestRx', 'HciEndModemTest', 'HciSetBdaddr', 'HciSetSca',
+//     'HciSetFreqTune', 'HciSaveFreqTune', 'HciSetMaxDtmTxPower', 'HciMapPmIoPort', 'HciDisconnectImmed', 'HciPerByChan', 'HciExtendRfRange',
+//     'HciHaltDuringRf', 'HciOverrideSl', 'HciDelaySleep', 'HciResetSystem', 'HciOverlappedProcessing', 'HciNumCompletedPktsLimit'
+// ];
 
-_.forEach(subConstr, function (name) {
-    ArgObj[name] = function () {
-        this.constr_name = name;
-        this.storeEvtAttrs(BHCI.HciAttrs);
-    };
-});
+// _.forEach(subConstr, function (name) {
+//     ArgObj[name] = function () {
+//         this.constr_name = name;
+//         this.storeEvtAttrs(BHCI.HciAttrs);
+//     };
+// });
 
-ArgObj.HciDecrypt = function () {
-    var evtAttrs = {
-        paramLens: 21,
-        params: ['status', 'cmdOpcode', 'plainTextData'],
-        types: ['uint8', 'uint16le', 'buffer16']
-    };
-    this.constr_name = 'HciDecrypt';
-    this.storeEvtAttrs(evtAttrs);
-};
-ArgObj.HciPer = function () {
-    var evtAttrs = {
-        paramLens: 'variable',
-        params: ['status', 'cmdOpcode', 'cmdVal'],
-        types: ['uint8', 'uint16le', 'uint8'],
-        append: {
-            paramLens: 14,
-            params: ['numPkts', 'numCrcErr', 'numEvents', 'numMissedEvents'],
-            types: ['uint16le', 'uint16le', 'uint16le', 'uint16le'],
-        }
-    };
-    this.constr_name = 'HciPer';
-    this.storeEvtAttrs(evtAttrs);
-};
-ArgObj.HciBuildRevision = function () {
-    var evtAttrs = {
-        paramLens: 9,
-        params: ['status', 'cmdOpcode', 'userRevNum', 'buildRevNum'],
-        types: ['uint8', 'uint16le', 'uint16le', 'uint16le']
-    };
-    this.constr_name = 'HciBuildRevision';
-    this.storeEvtAttrs(evtAttrs);
-};
+// ArgObj.HciDecrypt = function () {
+//     var evtAttrs = {
+//         paramLens: 21,
+//         params: ['status', 'cmdOpcode', 'plainTextData'],
+//         types: ['uint8', 'uint16le', 'buffer16']
+//     };
+//     this.constr_name = 'HciDecrypt';
+//     this.storeEvtAttrs(evtAttrs);
+// };
+// ArgObj.HciPer = function () {
+//     var evtAttrs = {
+//         paramLens: 'variable',
+//         params: ['status', 'cmdOpcode', 'cmdVal'],
+//         types: ['uint8', 'uint16le', 'uint8'],
+//         append: {
+//             paramLens: 14,
+//             params: ['numPkts', 'numCrcErr', 'numEvents', 'numMissedEvents'],
+//             types: ['uint16le', 'uint16le', 'uint16le', 'uint16le'],
+//         }
+//     };
+//     this.constr_name = 'HciPer';
+//     this.storeEvtAttrs(evtAttrs);
+// };
+// ArgObj.HciBuildRevision = function () {
+//     var evtAttrs = {
+//         paramLens: 9,
+//         params: ['status', 'cmdOpcode', 'userRevNum', 'buildRevNum'],
+//         types: ['uint8', 'uint16le', 'uint16le', 'uint16le']
+//     };
+//     this.constr_name = 'HciBuildRevision';
+//     this.storeEvtAttrs(evtAttrs);
+// };
 /*************************************************************************************************/
 /*** Specialized ArgObj Constructor of L2CAP HCI APIs                                          ***/
 /*************************************************************************************************/

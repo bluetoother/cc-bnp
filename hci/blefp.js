@@ -3,7 +3,7 @@ var util = require('util'),
     SerialPort = require('serialport').SerialPort,
     Dissolve = require('dissolve'),
     Concentrate = require('concentrate'),
-    BHCI = require('../defs/bhcidefs');
+    BHCI = require('../defs/blehcidefs');
 
 var FP = function () {
     var concentrate = Concentrate();
