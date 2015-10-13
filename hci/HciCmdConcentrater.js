@@ -47,97 +47,96 @@ var hciCmdConcentrater = {
     /*************************************************************************************************/
     /*** Argument Constructor of L2CAP Layer HCI APIs (and ZPIs)                                   ***/
     /*************************************************************************************************/
-    L2capParamUPpdateReq: function () { return ArgObj.factory('L2capParamUPpdateReq', arguments); },
+    L2capParamUPpdateReq: function (connHandle, intervalMin, intervalMax, slaveLatency, timeoutMultiplier) { return ArgObj.factory('L2capParamUPpdateReq', arguments); },
     /*************************************************************************************************/
     /*** Argument Constructor of ATT Layer HCI APIs (and ZPIs)                                     ***/
     /*************************************************************************************************/
-    AttErrorRsp: function () { return ArgObj.factory('AttErrorRsp', arguments); },
-    AttExchangeMtuReq: function () { return ArgObj.factory('AttExchangeMtuReq', arguments); },
-    AttExchangeMtuRsp: function () { return ArgObj.factory('AttExchangeMtuRsp', arguments); },
-    AttFindInfoReq: function () { return ArgObj.factory('AttFindInfoReq', arguments); },
+    AttErrorRsp: function (connHandle, reqOpcode, handle, errCode) { return ArgObj.factory('AttErrorRsp', arguments); },
+    AttExchangeMtuReq: function (connHandle, clientRxMTU) { return ArgObj.factory('AttExchangeMtuReq', arguments); },
+    AttExchangeMtuRsp: function (connHandle, serverRxMTU) { return ArgObj.factory('AttExchangeMtuRsp', arguments); },
+    AttFindInfoReq: function (connHandle, startHandle, endHandle) { return ArgObj.factory('AttFindInfoReq', arguments); },
     AttFindInfoRsp: function (connHandle, format, info) { return ArgObj.factory('AttFindInfoRsp', arguments); },
-    AttFindByTypeValueReq: function () { return ArgObj.factory('AttFindByTypeValueReq', arguments); },
+    AttFindByTypeValueReq: function (connHandle, startHandle, endHandle, type, value) { return ArgObj.factory('AttFindByTypeValueReq', arguments); },
     AttFindByTypeValueRsp: function (connHandle, handlesInfo) { return ArgObj.factory('AttFindByTypeValueRsp', arguments); },
-    AttReadByTypeReq: function () { return ArgObj.factory('AttReadByTypeReq', arguments); },
-    AttReadByTypeRsp: function () { return ArgObj.factory('AttReadByTypeRsp', arguments); },
-    AttReadReq: function () { return ArgObj.factory('AttReadReq', arguments); },
-    AttReadRsp: function () { return ArgObj.factory('AttReadRsp', arguments); },
-    AttReadBlobReq: function () { return ArgObj.factory('AttReadBlobReq', arguments); },
-    AttReadBlobRsp: function () { return ArgObj.factory('AttReadBlobRsp', arguments); },
-    AttReadMultiReq: function () { return ArgObj.factory('AttReadMultiReq', arguments); },
-    AttReadMultiRsp: function () { return ArgObj.factory('AttReadMultiRsp', arguments); },
-    AttReadByGrpTypeReq: function () { return ArgObj.factory('AttReadByGrpTypeReq', arguments); },
-    AttReadByGrpTypeRsp: function () { return ArgObj.factory('AttReadByGrpTypeRsp', arguments); },
-    AttWriteReq: function () { return ArgObj.factory('AttWriteReq', arguments); },
-    AttWriteRsp: function () { return ArgObj.factory('AttWriteRsp', arguments); },
-    AttPrepareWriteReq: function () { return ArgObj.factory('AttPrepareWriteReq', arguments); },
-    AttPrepareWriteRsp: function () { return ArgObj.factory('AttPrepareWriteRsp', arguments); },
-    AttExecuteWriteReq: function () { return ArgObj.factory('AttExecuteWriteReq', arguments); },
-    AttExecuteWriteRsp: function () { return ArgObj.factory('AttExecuteWriteRsp', arguments); },
-    AttHandleValueNoti: function () { return ArgObj.factory('AttHandleValueNoti', arguments); },
-    AttHandleValueInd: function () { return ArgObj.factory('AttHandleValueInd', arguments); },
-    AttHandleValueCfm: function () { return ArgObj.factory('AttHandleValueCfm', arguments); },
+    AttReadByTypeReq: function (connHandle, startHandle, endHandle, type) { return ArgObj.factory('AttReadByTypeReq', arguments); },
+    AttReadByTypeRsp: function (connHandle, length, data) { return ArgObj.factory('AttReadByTypeRsp', arguments); },
+    AttReadReq: function (connHandle, handle) { return ArgObj.factory('AttReadReq', arguments); },
+    AttReadRsp: function (connHandle, value) { return ArgObj.factory('AttReadRsp', arguments); },
+    AttReadBlobReq: function (connHandle, handle, offset) { return ArgObj.factory('AttReadBlobReq', arguments); },
+    AttReadBlobRsp: function (connHandle, value) { return ArgObj.factory('AttReadBlobRsp', arguments); },
+    AttReadMultiReq: function (connHandle, handles) { return ArgObj.factory('AttReadMultiReq', arguments); },
+    AttReadMultiRsp: function (connHandle, value) { return ArgObj.factory('AttReadMultiRsp', arguments); },
+    AttReadByGrpTypeReq: function (connHandle, startHandle, endHandle, type) { return ArgObj.factory('AttReadByGrpTypeReq', arguments); },
+    AttReadByGrpTypeRsp: function (connHandle, length, data) { return ArgObj.factory('AttReadByGrpTypeRsp', arguments); },
+    AttWriteReq: function (connHandle, signature, command, handle, value) { return ArgObj.factory('AttWriteReq', arguments); },
+    AttWriteRsp: function (connHandle) { return ArgObj.factory('AttWriteRsp', arguments); },
+    AttPrepareWriteReq: function (connHandle, handle, offset, value) { return ArgObj.factory('AttPrepareWriteReq', arguments); },
+    AttPrepareWriteRsp: function (connHandle, handle, offset, value) { return ArgObj.factory('AttPrepareWriteRsp', arguments); },
+    AttExecuteWriteReq: function (connHandle, flags) { return ArgObj.factory('AttExecuteWriteReq', arguments); },
+    AttExecuteWriteRsp: function (connHandle) { return ArgObj.factory('AttExecuteWriteRsp', arguments); },
+    AttHandleValueNoti: function (connHandle, authenticated, handle, value) { return ArgObj.factory('AttHandleValueNoti', arguments); },
+    AttHandleValueInd: function (connHandle, authenticated, handle, value) { return ArgObj.factory('AttHandleValueInd', arguments); },
+    AttHandleValueCfm: function (connHandle) { return ArgObj.factory('AttHandleValueCfm', arguments); },
     /*************************************************************************************************/
     /*** Argument Constructor of GATT Layer HCI APIs (and ZPIs)                                    ***/
     /*************************************************************************************************/
-    GattExchangeMtu: function () { return ArgObj.factory('GattExchangeMtu', arguments); },
-    GattDiscAllPrimaryServices: function () { return ArgObj.factory('GattDiscAllPrimaryServices', arguments); },
-    GattDiscPrimaryServiceByUuid: function () { return ArgObj.factory('GattDiscPrimaryServiceByUuid', arguments); },
-    GattFindIncludedServices: function () { return ArgObj.factory('GattFindIncludedServices', arguments); },
-    GattDiscAllChars: function () { return ArgObj.factory('GattDiscAllChars', arguments); },
-    GattDiscCharsByUuid: function () { return ArgObj.factory('GattDiscCharsByUuid', arguments); },
-    GattDiscAllCharDescs: function () { return ArgObj.factory('GattDiscAllCharDescs', arguments); },
-    GattReadCharValue: function () { return ArgObj.factory('GattReadCharValue', arguments); },
-    GattReadUsingCharUuid: function () { return ArgObj.factory('GattReadUsingCharUuid', arguments); },
-    GattReadLongCharValue: function () { return ArgObj.factory('GattReadLongCharValue', arguments); },
-    GattReadMultiCharValues:function () { return ArgObj.factory('GattReadMultiCharValues', arguments); }, 
-    GattWriteNoRsp: function () { return ArgObj.factory('GattWriteNoRsp', arguments); },
-    GattSignedWriteNoRsp: function () { return ArgObj.factory('GattSignedWriteNoRsp', arguments); },
-    GattWriteCharValue: function () { return ArgObj.factory('GattWriteCharValue', arguments); },
-    GattWriteLongCharValue: function () { return ArgObj.factory('GattWriteLongCharValue', arguments); },
-    GattReliableWrites: function () { return ArgObj.factory('GattReliableWrites', arguments); },
-    GattReadCharDesc: function () { return ArgObj.factory('GattReadCharDesc', arguments); },
-    GattReadLongCharDesc: function () { return ArgObj.factory('GattReadLongCharDesc', arguments); },
-    GattWriteCharDesc: function () { return ArgObj.factory('GattWriteCharDesc', arguments); },
-    GattWriteLongCharDesc: function () { return ArgObj.factory('GattWriteLongCharDesc', arguments); },
-    GattNotification: function () { return ArgObj.factory('GattNotification', arguments); },
-    GattIndication: function () { return ArgObj.factory('GattIndication', arguments); },
-    GattAddService: function () { return ArgObj.factory('GattAddService', arguments); },
-    GattDelService: function () { return ArgObj.factory('GattDelService', arguments); },
-    GattAddAttribute: function () { return ArgObj.factory('GattAddAttribute', arguments); },
+    GattExchangeMtu: function (connHandle, clientRxMTU) { return ArgObj.factory('GattExchangeMtu', arguments); },
+    GattDiscAllPrimaryServices: function (connHandle) { return ArgObj.factory('GattDiscAllPrimaryServices', arguments); },
+    GattDiscPrimaryServiceByUuid: function (connHandle, value) { return ArgObj.factory('GattDiscPrimaryServiceByUuid', arguments); },
+    GattFindIncludedServices: function (connHandle, startHandle, endHandle) { return ArgObj.factory('GattFindIncludedServices', arguments); },
+    GattDiscAllChars: function (connHandle, startHandle, endHandle) { return ArgObj.factory('GattDiscAllChars', arguments); },
+    GattDiscCharsByUuid: function (connHandle, startHandle, endHandle, type) { return ArgObj.factory('GattDiscCharsByUuid', arguments); },
+    GattDiscAllCharDescs: function (connHandle, handle, offset) { return ArgObj.factory('GattDiscAllCharDescs', arguments); },
+    GattReadCharValue: function (connHandle, handle) { return ArgObj.factory('GattReadCharValue', arguments); },
+    GattReadUsingCharUuid: function (connHandle, startHandle, endHandle, type) { return ArgObj.factory('GattReadUsingCharUuid', arguments); },
+    GattReadLongCharValue: function (connHandle, handle, offset) { return ArgObj.factory('GattReadLongCharValue', arguments); },
+    GattReadMultiCharValues:function (connHandle, handles) { return ArgObj.factory('GattReadMultiCharValues', arguments); }, 
+    GattWriteNoRsp: function (connHandle, handle, value) { return ArgObj.factory('GattWriteNoRsp', arguments); },
+    GattSignedWriteNoRsp: function (connHandle, handle, value) { return ArgObj.factory('GattSignedWriteNoRsp', arguments); },
+    GattWriteCharValue: function (connHandle, signature, command, handle, value) { return ArgObj.factory('GattWriteCharValue', arguments); },
+    GattWriteLongCharValue: function (connHandle, handle, offset, value) { return ArgObj.factory('GattWriteLongCharValue', arguments); },
+    GattReliableWrites: function (connHandle, numberRequests, requests) { return ArgObj.factory('GattReliableWrites', arguments); },
+    GattReadCharDesc: function (connHandle, handle) { return ArgObj.factory('GattReadCharDesc', arguments); },
+    GattReadLongCharDesc: function (connHandle, handle, offset) { return ArgObj.factory('GattReadLongCharDesc', arguments); },
+    GattWriteCharDesc: function (connHandle, signature, command, handle, value) { return ArgObj.factory('GattWriteCharDesc', arguments); },
+    GattWriteLongCharDesc: function (connHandle, handle, offset, value) { return ArgObj.factory('GattWriteLongCharDesc', arguments); },
+    GattNotification: function (connHandle, authenticated, handle, value) { return ArgObj.factory('GattNotification', arguments); },
+    GattIndication: function (connHandle, authenticated, handle, value) { return ArgObj.factory('GattIndication', arguments); },
+    GattAddService: function (UUID, numAttrs) { return ArgObj.factory('GattAddService', arguments); },
+    GattDelService: function (handle) { return ArgObj.factory('GattDelService', arguments); },
+    GattAddAttribute: function (UUID, permissions) { return ArgObj.factory('GattAddAttribute', arguments); },
     /*************************************************************************************************/
     /*** Argument Constructor of GAP Layer HCI APIs (and ZPIs)                                     ***/
     /*************************************************************************************************/
-    GapDeviceInit: function () { return ArgObj.factory('GapDeviceInit', arguments); },
-    GapConfigDeviceAddr: function () { return ArgObj.factory('GapConfigDeviceAddr', arguments); },
-    GapDeviceDiscReq: function () { return ArgObj.factory('GapDeviceDiscReq', arguments); },
+    GapDeviceInit: function (profileRole, maxScanResponses, IRK, CSRK, signCounter) { return ArgObj.factory('GapDeviceInit', arguments); },
+    GapConfigDeviceAddr: function (BitMask, Addr) { return ArgObj.factory('GapConfigDeviceAddr', arguments); },
+    GapDeviceDiscReq: function (mode, activeScan, whiteList) { return ArgObj.factory('GapDeviceDiscReq', arguments); },
     GapDeviceDiscCancel: function () { return ArgObj.factory('GapDeviceDiscCancel', arguments); },
-    GapMakeDiscoverable: function () { return ArgObj.factory('GapMakeDiscoverable', arguments); },
-    GapUpdateAdvData: function () { return ArgObj.factory('GapUpdateAdvData', arguments); },
+    GapMakeDiscoverable: function (eventType, initiatorAddrType, initiatorAddr, channelMap, filterPolicy) { return ArgObj.factory('GapMakeDiscoverable', arguments); },
+    GapUpdateAdvData: function (adType, daraLen, advertData) { return ArgObj.factory('GapUpdateAdvData', arguments); },
     GapEndDisc: function () { return ArgObj.factory('GapEndDisc', arguments); },
-    GapEstLinkReq: function () { return ArgObj.factory('GapEstLinkReq', arguments); },
-    GapTerminateLink: function () { return ArgObj.factory('GapTerminateLink', arguments); },
-    GapAuthenticate: function () { return ArgObj.factory('GapAuthenticate', arguments); },
-    GapPasskeyUpdate: function () { return ArgObj.factory('GapPasskeyUpdate', arguments); },
-    GapSlaveSecurityReqUpdate: function () { return ArgObj.factory('GapSlaveSecurityReqUpdate', arguments); },
-    GapSignable: function () { return ArgObj.factory('GapSignable', arguments); },
-    GapBond: function () { return ArgObj.factory('GapBond', arguments); },
-    GapTerminateAuth: function () { return ArgObj.factory('GapTerminateAuth', arguments); },
-    GapUpdateLinkParamReq: function () { return ArgObj.factory('GapUpdateLinkParamReq', arguments); },
-    GapSetParam: function () { return ArgObj.factory('GapSetParam', arguments); },
-    GapGetParam: function () { return ArgObj.factory('GapGetParam', arguments); },
-    GapResolvePrivateAddr: function () { return ArgObj.factory('GapResolvePrivateAddr', arguments); },
-    GapSETAdvToken: function () { return ArgObj.factory('GapSETAdvToken', arguments); },
-    GapRemoveAdvToken: function () { return ArgObj.factory('GapRemoveAdvToken', arguments); },
+    GapEstLinkReq: function (highDutyCycle, whiteList, addrtypePeer, peerAddr) { return ArgObj.factory('GapEstLinkReq', arguments); },
+    GapTerminateLink: function (connHandle, reason) { return ArgObj.factory('GapTerminateLink', arguments); },
+    GapAuthenticate: function (connHandle, secReq_ioCaps, secReq_oobAvailable, secReq_oob, secReq_authReq, secReq_maxEncKeySize, secReq_keyDist, pairReq_Enable, pairReq_ioCaps, pairReq_oobDataFlag, pairReq_authReq, pairReq_maxEncKeySize, pairReq_keyDist) { return ArgObj.factory('GapAuthenticate', arguments); },
+    GapPasskeyUpdate: function (connHandle, passkey) { return ArgObj.factory('GapPasskeyUpdate', arguments); },
+    GapSlaveSecurityReqUpdate: function (connHandle, authReq) { return ArgObj.factory('GapSlaveSecurityReqUpdate', arguments); },
+    GapSignable: function (connHandle, authenticated, CSRK, signCounter) { return ArgObj.factory('GapSignable', arguments); },
+    GapBond: function (connHandle, authenticated, LTK, DIV, rand, LTKsize) { return ArgObj.factory('GapBond', arguments); },
+    GapTerminateAuth: function (connHandle, reason) { return ArgObj.factory('GapTerminateAuth', arguments); },
+    GapUpdateLinkParamReq: function (connHandle, intervalMin, intervalMax, connLatency, connTimeout) { return ArgObj.factory('GapUpdateLinkParamReq', arguments); },
+    GapSetParam: function (paramID, paramValue) { return ArgObj.factory('GapSetParam', arguments); },
+    GapGetParam: function (paramID) { return ArgObj.factory('GapGetParam', arguments); },
+    GapResolvePrivateAddr: function (IRK, Addr) { return ArgObj.factory('GapResolvePrivateAddr', arguments); },
+    GapSETAdvToken: function (adType, advDataLen, advData) { return ArgObj.factory('GapSETAdvToken', arguments); },
+    GapRemoveAdvToken: function (adType) { return ArgObj.factory('GapRemoveAdvToken', arguments); },
     GapUpdateAdvTokens: function () { return ArgObj.factory('GapUpdateAdvTokens', arguments); },
-    GapBondSetParam: function () { return ArgObj.factory('GapBondSetParam', arguments); },
-    GapBondGetParam: function () { return ArgObj.factory('GapBondGetParam', arguments); },
-    GapBondServiceChange: function () { return ArgObj.factory('GapBondServiceChange', arguments); },
+    GapBondSetParam: function (paramID, paramDataLan, paramData) { return ArgObj.factory('GapBondSetParam', arguments); },
+    GapBondGetParam: function (paramID) { return ArgObj.factory('GapBondGetParam', arguments); },
     /*************************************************************************************************/
     /*** Argument Constructor of UTIL Layer HCI APIs (and ZPIs)                                    ***/
     /*************************************************************************************************/
-    UtilNvRead: function () { return ArgObj.factory('UtilNvRead', arguments); },
-	UtilNvWrite: function () { return ArgObj.factory('UtilNvWrite', arguments); },
+    UtilNvRead: function (nvID, nvDataLen) { return ArgObj.factory('UtilNvRead', arguments); },
+	UtilNvWrite: function (nvID, nvDataLen, nvData) { return ArgObj.factory('UtilNvWrite', arguments); },
 	UtilForceBoot: function () { return ArgObj.factory('UtilForceBoot', arguments); }
 };
 
@@ -252,6 +251,7 @@ ArgObj.prototype.getHciCmdBuf = function () {
                 dataBuf = dataBuf[paramTypes[i]](paramVal);
                 break;
 
+            case 'buffer6':
             case 'buffer8':
             case 'buffer16':
                 dataBuf = dataBuf.buffer(paramVal);
@@ -291,6 +291,9 @@ ArgObj.prototype.getHciCmdParser = function (bufLen) {
         (function () {
             if (_.startsWith(attrTypes[i], 'buffer')) {
                 bufferLen = _.parseInt(attrTypes[i].slice(6));
+                if(!bufferLen) {
+                    bufferLen = bufLen - cmdAttrs.preBufLen;
+                }
                 chunkRule.push(ru.buffer(attrParams[i], bufferLen));
             } else if (attrTypes[i] === 'obj') {
                 chunkRule.push(processAppendCmdAttrs(self, bufLen, attrParams[i]));
@@ -299,7 +302,6 @@ ArgObj.prototype.getHciCmdParser = function (bufLen) {
             }   
         }());
     }
-
     return DChunks().join(chunkRule).compile();
 }
 
@@ -331,22 +333,21 @@ ArgObj.prototype.parseCmdFrame = function (buf, callback) {
  * @private
  */
 ArgObj.factory = function (constrName, inArg) {
-    var constr,
-        new_argobj;
+    var new_argobj;
 
-    constr = function () {
+    ArgObj[constrName] = function () {
         var cmdAttrs = cmdMeta[constrName];
         this.constr_name = constrName;
         this.storeCmdAttrs(cmdAttrs);
     };
 
-    if (cmdMeta[constrName]) { throw new Error(constr + " doesn't exist"); }
+    if (!cmdMeta[constrName]) { throw new Error(ArgObj[constrName] + " doesn't exist"); }
 
-    if (!_.isFunction(constr.prototype.getCmdAttrs)) {
-        constr.prototype = new ArgObj();
+    if (!_.isFunction(ArgObj[constrName].prototype.getCmdAttrs)) {
+        ArgObj[constrName].prototype = new ArgObj();
     }
 
-    new_argobj = (new constr()).makeArgObj(inArg);
+    new_argobj = (new ArgObj[constrName]()).makeArgObj(inArg);
 
     return new_argobj;
 };
@@ -372,7 +373,6 @@ function generateObjBuf(dataBuf, constrName, objVal, objInfo, length) {
         index++;
         if (index === objTypes.length) { index = 0 }
     });
-
     return dataBuf;
 }
 
@@ -399,6 +399,7 @@ function checkType(data, type, param) {
             break;
 
         case 'buffer':
+        case 'buffer6':
         case 'buffer8':
         case 'buffer16':
         case 'addr':
@@ -435,7 +436,7 @@ function processAppendCmdAttrs (argObj, bufLen, objName) {
         types = objInfo.types,
         bufferLen;
 
-    if (_.startsWith(constrName, 'Att')) {
+    if (_.startsWith(constrName, 'Att') || constrName === 'GattReadMultiCharValues' || constrName === 'GattReliableWrites') {
         bufferLen = bufLen - objInfo.precedingLen;
         if (bufferLen < objInfo.minLen) {
             throw new Error('The length of the ' + params[0] + ' field of ' + constrName + ' is incorrect.');
@@ -448,7 +449,18 @@ function processAppendCmdAttrs (argObj, bufLen, objName) {
             break;
 
         case 'AttFindByTypeValueRsp':
+        case 'AttReadMultiReq':
+        case 'GattReadMultiCharValues':
             extChunkRule = ru.attObj(bufferLen, objName, objInfo);
+            break;
+
+        case 'AttReadByTypeRsp':
+        case 'AttReadByGrpTypeRsp':
+            extChunkRule = ru.attObjRead(bufferLen, objName, objInfo);
+            break;
+
+        case 'GattReliableWrites':
+            extChunkRule = ru.GattReliableWrites(bufferLen, objName, objInfo);
             break;
 
         default:
@@ -504,6 +516,7 @@ ru.clause('attObj', function (buflen, objName, objInfo) {
         self = this;
 
     this.tap(objName, function (end) {
+
         for (var i = 0; i < loopTimes; i += 1) {
             _.forEach(objParams, function(param, key) {
                 self[objTypes[key]](param + i);
@@ -516,5 +529,48 @@ ru.clause('attObj', function (buflen, objName, objInfo) {
     });
 });
 
-module.exports = hciCmdConcentrater;
+ru.clause('attObjRead', function (buflen, objName, objInfo) {
+    var objParams = objInfo.params,
+        objTypes = objInfo.types,
+        loopTimes, eachBufLen,
+        self = this;
 
+    this.tap(function () {
+        loopTimes = buflen / this.vars.length;
+        eachBufLen = this.vars.length - objInfo.preBufLen;
+    }).tap(objName, function (end) {
+        for (var i = 0; i < loopTimes; i += 1) {
+            _.forEach(objParams, function(param, key) {
+                self[objTypes[key]](param + i, eachBufLen);
+            });
+        }
+    }).tap(function () {
+        for (var k in this.vars) {
+            delete this.vars[k].__proto__;
+        }
+    });
+});
+
+ru.clause('GattReliableWrites', function (buflen, objName, objInfo) {
+    var objParams = objInfo.params,
+        objTypes = objInfo.types,
+        loopTimes, eachBufLen, 
+        self = this;
+
+    this.tap(function () {
+        loopTimes = this.vars.numberRequests;
+        eachBufLen = (buflen / this.vars.numberRequests) - objInfo.preBufLen;
+    }).tap(objName, function (end) {
+        for (var i = 0; i < loopTimes; i += 1) {
+            _.forEach(objParams, function(param, key) {
+                self[objTypes[key]](param + i, eachBufLen);
+            });
+        }
+    }).tap(function () {
+        for (var k in this.vars) {
+            delete this.vars[k].__proto__;
+        }
+    });
+});
+
+module.exports = hciCmdConcentrater;

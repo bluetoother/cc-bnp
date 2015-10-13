@@ -9,8 +9,8 @@ var hciCmdConcentrater = require('../hci/HciCmdConcentrater');
 
 
 var furtherProcessArr = [
-	'AttFindInfoRsp', 'AttFindByTypeValueRsp'
-];
+	'AttFindInfoRsp', 'AttFindByTypeValueRsp', 'AttReadMultiReq', 'AttReadByTypeRsp',
+    'AttReadByGrpTypeRsp', 'GattReadMultiCharValues', 'GattReliableWrites'];
 
 //define argobj which requires further processing
 var attFindInfoRspObj = {
@@ -19,17 +19,56 @@ var attFindInfoRspObj = {
         handle1: 2,
         uuid1: 22,
         handle2: 3,
-        uuid2: 33,
+        uuid2: 33
     },
     attFindByTypeValueRspObj = {
         attrHandle0: 0x0102,
         grpEndHandle0: 0x0304,
         attrHandle1: 0x0506,
-        grpEndHandle1: 0x0708,
+        grpEndHandle1: 0x0708
+    },
+    attReadMultiReqObj = {
+        handle0: 1,
+        handle1: 2,
+        handle2: 3
+    },
+    attReadByTypeRspObj = {
+        attrHandle0: 0x0102,
+        attrVal0: new Buffer([0x01, 0x02]),
+        attrHandle1: 0x0506,
+        attrVal1: new Buffer([0x01, 0x02])
+    },
+    attReadByGrpTypeRspObj = {
+        attrHandle0: 0x0102, 
+        endGroupHandle0: 0x010C, 
+        attrVal0: new Buffer([0x01, 0x02]),
+        attrHandle1: 0x0300, 
+        endGroupHandle1: 0x030A, 
+        attrVal1: new Buffer([0x01, 0x02])
+    },
+    gattReadMultiCharValuesObj = {
+        handle0: 4,
+        handle1: 5,
+        handle2: 6
+    },
+    gattReliableWritesObj = {
+        attrValLen0: 6,
+        handle0: 0x0102, 
+        offset0: 0x010C,
+        value0: new Buffer([0x01, 0x02]),
+        attrValLen1: 6, 
+        handle1: 0x0300, 
+        offset1: 0x030A,
+        value1: new Buffer([0x01, 0x02])
     },
     furtherProcessObj = {
         attFindInfoRsp: hciCmdConcentrater.AttFindInfoRsp(65534, 1, attFindInfoRspObj),
-        attFindByTypeValueRsp: hciCmdConcentrater.AttFindByTypeValueRsp(65534, attFindByTypeValueRspObj)
+        attFindByTypeValueRsp: hciCmdConcentrater.AttFindByTypeValueRsp(65534, attFindByTypeValueRspObj),
+        attReadMultiReq: hciCmdConcentrater.AttReadMultiReq(65534, attReadMultiReqObj),
+        attReadByTypeRsp: hciCmdConcentrater.AttReadByTypeRsp(65534, 4, attReadByTypeRspObj),
+        attReadByGrpTypeRsp: hciCmdConcentrater.AttReadByGrpTypeRsp(65534, 6, attReadByGrpTypeRspObj),
+        gattReadMultiCharValues: hciCmdConcentrater.GattReadMultiCharValues(65534, gattReadMultiCharValuesObj),
+        gattReliableWrites: hciCmdConcentrater.GattReliableWrites(65534, 2, gattReliableWritesObj)
     };
 
 describe('Constructor Testing', function () {
@@ -71,7 +110,6 @@ describe('Constructor Testing', function () {
     _.forEach(furtherProcessArr, function (val) {
         it(val + ' framer check', function () {
             var argObj = furtherProcessObj[_.camelCase(val)];
-
             return compareArgObjAndParsedObj(argObj).then(function (result) {
                 return argObj.should.be.deepEqual(result);
             });
@@ -99,6 +137,7 @@ function randomArg(type) {
             return chance.integer({min: 0, max: 18446744073709551615});
         	break;
         case 'buffer':
+        case 'buffer6':
         case 'buffer8':
         case 'buffer16':
         case 'addr':
@@ -132,10 +171,10 @@ function compareArgObjAndParsedObj (argObj, callback) {
 	var deferred = Q.defer(),
         buf = argObj.getHciCmdBuf(),
 		constrName;
-
 	argObj.parseCmdFrame(buf).then(function (parsedObj) {
     	constrName = argObj.constr_name;
     	delete argObj.constr_name;
+        
         deferred.resolve(parsedObj);
     });
     return deferred.promise.nodeify(callback);
