@@ -36,26 +36,25 @@ var hciEvtMeta = {
     },
 
     /*** Metadata of L2CAP APIs***/
-L2capCmdReject: {
+    L2capCmdReject: {
         paramLens: 7,
         params: ['status', 'connHandle', 'reason'],
         types: ['uint8', 'uint16le', 'uint16le']
     },
 
-L2capParamUpdateRsp: {
+    L2capParamUpdateRsp: {
         paramLens: 7,
         params: ['status', 'connHandle', 'reason'],
         types: ['uint8', 'uint16le', 'uint16le']
     },
 
     /*** Metadata of GAP APIs***/
-GapDeviceInitDone: {
+    GapDeviceInitDone: {
         paramLens: 44,
         params: ['status', 'devAddr', 'dataPltLen', 'numDataPkts', 'IRK', 'CSRK'],
         types: ['uint8', 'addr', 'uint16le', 'uint8', 'buffer16', 'buffer16']
     },
-
-GapDeviceDiscovery: {
+    GapDeviceDiscovery: {
         paramLens: 'variable',
         params: ['status'],
         types: ['uint8'],
@@ -64,76 +63,64 @@ GapDeviceDiscovery: {
             types: ['uint8', 'uint8', 'uint8', 'addr'],
         }
     },
-
-GapAdvDataUpdateDone: {
+    GapAdvDataUpdateDone: {
         paramLens: 4,
         params: ['status', 'adType'],
         types: ['uint8', 'uint8']
     },
-
-GapMakeDiscoverableDone: {
+    GapMakeDiscoverableDone: {
         paramLens: 5,
         params: ['status', 'interval'],
         types: ['uint8', 'uint16le']
     },
-
-GapEndDiscoverableDone: {
+    GapEndDiscoverableDone: {
         paramLens: 3,
         params: ['status'],
         types: ['uint8']
     },
-
-GapLinkEstablished: {
+    GapLinkEstablished: {
         paramLens: 19,
         params: ['status', 'addrType', 'addr', 'connHandle', 'connInterval', 'connLatency', 'connTimeout', 'clockAccuracy'],
         types: ['uint8', 'uint8', 'addr', 'uint16le', 'uint16le', 'uint16le', 'uint16le', 'uint8']
     },
-
-GapLinkTerminated: {
+    GapLinkTerminated: {
         paramLens: 6,
         params: ['status', 'connHandle', 'reason'],
         types: ['uint8', 'uint16le', 'uint8']
     },
-
-GapLinkParamUpdate: {
+    GapLinkParamUpdate: {
         paramLens: 11,
         params: ['status', 'connHandle', 'connInterval', 'connLatency', 'connTimeout'],
         types: ['uint8', 'uint16le', 'uint16le', 'uint16le', 'uint16le']
     },
-
-GapRandomAddrChanged: {
+    GapRandomAddrChanged: {
         paramLens: 10,
         params: ['status', 'addrType', 'newRandomAddr'],
         types: ['uint8', 'uint8', 'addr']
     },
-
-GapSignatureUpdated: { 
+    GapSignatureUpdated: { 
         paramLens: 14,
         params: ['status', 'addrType', 'devAddr', 'signCounter'],
         types: ['uint8', 'uint8', 'addr', 'uint32le']
     },
-
-GapAuthenticationComplete: { //TODO, Test
+    GapAuthenticationComplete: { //TODO, Test
         paramLens: 106,
         params: ['status', 'connHandle', 'authState', 'secInfo', 'sec_ltkSize', 'sec_ltk', 'sec_div', 'sec_rand', 'devSecInfo', 'dev_ltkSize',
                  'dev_ltk', 'dev_div', 'dev_rand', 'identityInfo', 'identity_irk', 'identity_bd_addr', 'signingInfo', 'signing_irk', 'signing_signCounter'],
         types: ['uint8', 'uint16le', 'uint8', 'uint8', 'uint8', 'buffer16', 'uint16le', 'uint64', 'uint8', 'uint8', 'buffer16', 'uint16le', 'uint64',
                 'uint8', 'buffer16', 'addr', 'uint8', 'buffer16', 'uint32le'],
     },
-
-GapPasskeyNeeded: {
+    GapPasskeyNeeded: {
         paramLens: 13,
         params: ['status', 'devAddr', 'connHandle', 'uiInput', 'uiOutput'],
         types: ['uint8', 'addr', 'uint16le', 'uint8', 'uint8']
     },
-
-GapSlaveRequestedSecurity: {
+    GapSlaveRequestedSecurity: {
         paramLens: 12,
         params: ['status', 'connHandle', 'devAddr', 'authReq'],
         types: ['uint8', 'uint16le', 'addr', 'uint8']
     },
-
-GapDeviceInfo: {
+    GapDeviceInfo: {
         paramLens: 'variable',
         params: ['status', 'eventType', 'addrType', 'addr', 'rssi'],
         types: ['uint8', 'uint8', 'uint8', 'addr', 'uint8'],
@@ -142,20 +129,17 @@ GapDeviceInfo: {
             types: ['uint8', 'buffer'],
         }
     },
-
-GapBondComplete: {
+    GapBondComplete: {
         paramLens: '5',
         params: ['status', 'connHandle'],
         types: ['uint8', 'uint16le']
     },
-
-GapPairingReq: {
+    GapPairingReq: {
         paramLens: '10',
         params: ['status', 'connHandle', 'ioCap', 'oobDataFlag', 'authReq', 'maxEncKeySize', 'keyDist'],
         types: ['uint8', 'uint16le', 'uint8', 'uint8', 'uint8', 'uint8', 'uint8']
     },
-
-GapCmdStatus: {
+    GapCmdStatus: {
         paramLens: 'variable',
         params: ['status', 'opCode'],
         types: ['uint8', 'uint16le'],
@@ -164,44 +148,38 @@ GapCmdStatus: {
             types: ['uint8', 'buffer'],
         }
     },
-
     /*** Metadata of ATT APIs***/
-AttErrorRsp: {
+    AttErrorRsp: {
         paramLens: 10,
         params: ['status', 'connHandle', 'pduLen', 'reqOpcode', 'handle', 'errCode'],
         types: ['uint8', 'uint16le', 'uint8', 'uint8', 'uint16le', 'uint8']
     },
-
-AttExchangeMtuReq: {
+    AttExchangeMtuReq: {
         paramLens: 8,
         params: ['status', 'connHandle', 'pduLen', 'clientRxMTU'],
         types: ['uint8', 'uint16le', 'uint8', 'uint16le']
     },
-
-AttExchangeMtuRsp: {
+    AttExchangeMtuRsp: {
         paramLens: 8,
         params: ['status', 'connHandle', 'pduLen', 'serverRxMTU'],
         types: ['uint8', 'uint16le', 'uint8', 'uint16le']
     },
-
-AttFindInfoReq: {
+    AttFindInfoReq: {
         paramLens: 10,
         params: ['status', 'connHandle', 'pduLen', 'startHandle', 'endHandle'],
         types: ['uint8', 'uint16le', 'uint8', 'uint16le', 'uint16le']
     },
-
-AttFindInfoRsp: {
+    AttFindInfoRsp: {
         paramLens: 'variable',
         params: ['status', 'connHandle', 'pduLen'],
         types: ['uint8', 'uint16le', 'uint8'],
         append: {
-            precedingLen: 7,
+            precedingLen: 6,
             minLen: 4,
             params: ['format', 'info']
         }
     },
-
-AttFindByTypeValueReq: {
+    AttFindByTypeValueReq: {
         paramLens: 'variable',
         params: ['status', 'connHandle', 'pduLen', 'startHandle', 'endHandle', 'type'],
         types: ['uint8', 'uint16le', 'uint8', 'uint16le', 'uint16le', 'uint16le'],
@@ -211,8 +189,7 @@ AttFindByTypeValueReq: {
             params: ['value']
         }
     },
-
-AttFindByTypeValueRsp: {
+    AttFindByTypeValueRsp: {
         paramLens: 'variable',
         params: ['status', 'connHandle', 'pduLen'],
         types: ['uint8', 'uint16le', 'uint8'],
@@ -227,8 +204,7 @@ AttFindByTypeValueRsp: {
             }
         }
     },
-
-AttReadByTypeReq: {
+    AttReadByTypeReq: {
         paramLens: 'variable',
         params: ['status', 'connHandle', 'pduLen', 'startHandle', 'endHandle'],
         types: ['uint8', 'uint16le', 'uint8', 'uint16le', 'uint16le'],
@@ -238,8 +214,7 @@ AttReadByTypeReq: {
             params: ['format']
         }
     },
-
-AttReadByTypeRsp: {
+    AttReadByTypeRsp: {
         paramLens: 'variable',
         params: ['status', 'connHandle', 'pduLen'],
         types: ['uint8', 'uint16le', 'uint8'],
@@ -255,14 +230,12 @@ AttReadByTypeRsp: {
             }
         }
     },
-
-AttReadReq: {
+    AttReadReq: {
         paramLens: 8,
         params: ['status', 'connHandle', 'pduLen', 'handle'],
         types: ['uint8', 'uint16le', 'uint8', 'uint16le']
     },
-
-AttReadRsp: {
+    AttReadRsp: {
         paramLens: 'variable',
         params: ['status', 'connHandle', 'pduLen'],
         types: ['uint8', 'uint16le', 'uint8'],
@@ -272,14 +245,12 @@ AttReadRsp: {
             params: ['value']
         }
     },
-
-AttReadBlobReq: {
+    AttReadBlobReq: {
         paramLens: 10,
         params: ['status', 'connHandle', 'pduLen', 'handle', 'offset'],
         types: ['uint8', 'uint16le', 'uint8', 'uint16le', 'uint16le']
     },
-
-AttReadBlobRsp: {
+    AttReadBlobRsp: {
         paramLens: 'variable',
         params: ['status', 'connHandle', 'pduLen'],
         types: ['uint8', 'uint16le', 'uint8'],
@@ -289,8 +260,7 @@ AttReadBlobRsp: {
             params: ['value']
         }
     },
-
-AttReadMultiReq: {
+    AttReadMultiReq: {
         paramLens: 'variable',
         params: ['status', 'connHandle', 'pduLen'],
         types: ['uint8', 'uint16le', 'uint8'],
@@ -305,8 +275,7 @@ AttReadMultiReq: {
             }
         }
     },
-
-AttReadMultiRsp: {
+    AttReadMultiRsp: {
         paramLens: 'variable',
         params: ['status', 'connHandle', 'pduLen'],
         types: ['uint8', 'uint16le', 'uint8'],
@@ -316,8 +285,7 @@ AttReadMultiRsp: {
             params: ['value']
         }
     },
-
-AttReadByGrpTypeReq: {
+    AttReadByGrpTypeReq: {
         paramLens: 'variable',
         params: ['status', 'connHandle', 'pduLen', 'startHandle', 'endHandle'],
         types: ['uint8', 'uint16le', 'uint8', 'uint16le', 'uint16le'],
@@ -327,8 +295,7 @@ AttReadByGrpTypeReq: {
             params: ['type']
         }
     },
-
-AttReadByGrpTypeRsp: {
+    AttReadByGrpTypeRsp: {
         paramLens: 'variable',
         params: ['status', 'connHandle', 'pduLen', 'length'],
         types: ['uint8', 'uint16le', 'uint8', 'uint8'],
@@ -344,8 +311,7 @@ AttReadByGrpTypeRsp: {
             }
         }
     },
-
-AttWriteReq: {
+    AttWriteReq: {
         paramLens: 'variable',
         params: ['status', 'connHandle', 'pduLen', 'signature', 'command', 'handle'],
         types: ['uint8', 'uint16le', 'uint8', 'uint8', 'uint8', 'uint16le'],
@@ -355,14 +321,12 @@ AttWriteReq: {
             params: ['value']
         }
     },
-
-AttWriteRsp: {
+    AttWriteRsp: {
         paramLens: 6,
         params: ['status', 'connHandle', 'pduLen'],
         types: ['uint8', 'uint16le', 'uint8'],
     },
-
-AttPrepareWriteReq: {
+    AttPrepareWriteReq: {
         paramLens: 'variable',
         params: ['status', 'connHandle', 'pduLen', 'handle', 'offset'],
         types: ['uint8', 'uint16le', 'uint8', 'uint16le', 'uint16le'],
@@ -372,8 +336,7 @@ AttPrepareWriteReq: {
             params: ['value']
         }
     },  
-
-AttPrepareWriteRsp: {
+    AttPrepareWriteRsp: {
         paramLens: 'variable',
         params: ['status', 'connHandle', 'pduLen', 'handle', 'offset'],
         types: ['uint8', 'uint16le', 'uint8', 'uint16le', 'uint16le'],
@@ -383,20 +346,17 @@ AttPrepareWriteRsp: {
             params: ['value']
         }
     },
-
-AttExecuteWriteReq: {
+    AttExecuteWriteReq: {
         paramLens: 7,
         params: ['status', 'connHandle', 'pduLen', 'value'],
         types: ['uint8', 'uint16le', 'uint8', 'uint8']
     },
-
-AttExecuteWriteRsp: {
+    AttExecuteWriteRsp: {
         paramLens: 6,
         params: ['status', 'connHandle', 'pduLen'],
         types: ['uint8', 'uint16le', 'uint8']
     },
-
-AttHandleValueNoti: {
+    AttHandleValueNoti: {
         paramLens: 'variable',
         params: ['status', 'connHandle', 'pduLen', 'authenticated', 'handle'],
         types: ['uint8', 'uint16le', 'uint8', 'uint8', 'uint16le'],
@@ -406,8 +366,7 @@ AttHandleValueNoti: {
             params: ['value']
         }
     },
-
-AttHandleValueInd: {
+    AttHandleValueInd: {
         paramLens: 'variable',
         params: ['status', 'connHandle', 'pduLen', 'authenticated', 'handle'],
         types: ['uint8', 'uint16le', 'uint8', 'uint8', 'uint16le'],
@@ -417,20 +376,17 @@ AttHandleValueInd: {
             params: ['value']
         }
     },
-
-AttHandleValueCfm: {
+    AttHandleValueCfm: {
         paramLens: 6,
         params: ['status', 'connHandle', 'pduLen'],
         types: ['uint8', 'uint16le', 'uint8']
     },
-
     /*** Metadata of GATT APIs***/
-GattClientCharCfgUpdate: {
+    GattClientCharCfgUpdate: {
         paramLens: 10,
         params: ['status', 'connHandle', 'pduLen', 'attributeHandle', 'value'],
         types: ['uint8', 'uint16le', 'uint8', 'uint16le', 'uint16le']
     }
-
 };
 
 _.forEach(hciSubMeta, function (name) {

@@ -5,9 +5,10 @@ var Enum = require('enum'),
     ru = DChunks().Rule();
 
 var BHCI = {
-	SubGroupCmd: {},
-	SubGroupEvt: {}
-};
+    	SubGroupCmd: {},
+    	SubGroupEvt: {},
+        cmdEvtCorrTable: {}
+    };
 
 /**************************************************************************
  * HCI Packet Type, Ref: hci_tl.h
@@ -64,7 +65,7 @@ BHCI.CmdOpcodeMask = new Enum({
  * SubGroupCmd(Command ID)
  *************************************************************************/
 /* (1) HCI COMMANDS: SubGroupCmd.HCI, Ref: hci_tl.h                      */
-BHCI.SubGroupCmd.HCI = new Enum({
+BHCI.SubGroupCmd.Hci = new Enum({
 	'SetRxGain': 0x0000,
 	'SetTxPower': 0x0001,
 	'OnePktPerEvt': 0x0002,
@@ -100,12 +101,12 @@ BHCI.SubGroupCmd.HCI = new Enum({
 });
 
 /* (2) L2CAP COMMANDS: SubGroupCmd.L2CAP, Ref: l2cap.h                   */
-BHCI.SubGroupCmd.L2CAP = new Enum({
-	'PARAM_UPDATE_REQ': 0x0012
+BHCI.SubGroupCmd.L2cap = new Enum({
+	'ParamUpdateReq': 0x0012
 });
 
 /* (3) ATT COMMANDS: SubGroupCmd.ATT, Ref: att.h                         */
-BHCI.SubGroupCmd.ATT = new Enum({
+BHCI.SubGroupCmd.Att = new Enum({
 	'ErrorRsp': 0x0001,
 	'ExchangeMtuReq': 0x0002,
 	'ExchangeMtuRsp': 0x0003,
@@ -135,68 +136,68 @@ BHCI.SubGroupCmd.ATT = new Enum({
 });
 
 /* (4) GATT COMMANDS: SubGroupCmd.GATT, Ref: hci_ext_app.h               */
-BHCI.SubGroupCmd.GATT = new Enum({
-	'EXCHANGE_MTU': 0x0002,
-	'DISC_ALL_PRIMARY_SERVICES': 0x0010,
-	'DISC_PRIMARY_SERVICE_BY_UUID': 0x0006,
-	'FIND_INCLUDED_SERVICES': 0x0030,
-	'DISC_ALL_CHARS': 0x0032,
-	'DISC_CHARS_BY_UUID': 0x0008,
-	'DISC_ALL_CHAR_DESCS': 0x0004,
-	'READ_CHAR_VALUE': 0x000A,
-	'READ_USING_CHAR_UUID': 0x0034,
-	'READ_LONG_CHAR_VALUE': 0x000C,
-	'READ_MULTI_CHAR_VALUES':0x000E, 
-	'WRITE_NO_RSP': 0x0036,
-	'SIGNED_WRITE_NO_RSP': 0x0038,
-	'WRITE_CHAR_VALUE': 0x0012,
-	'WRITE_LONG_CHAR_VALUE': 0x0016,
-	'RELIABLE_WRITES': 0x003A,
-	'READ_CHAR_DESC': 0x003C,
-	'READ_LONG_CHAR_DESC': 0x003E,
-	'WRITE_CHAR_DESC': 0x0040,
-	'WRITE_LONG_CHAR_DESC': 0x0042,
-	'NOTIFICATION': 0x001B,
-	'INDICATION': 0x001D,
-	'ADD_SERVICE': 0x007C,
-	'DEL_SERVICE': 0x007D,
-	'ADD_ATTRIBUTE': 0x007E
+BHCI.SubGroupCmd.Gatt = new Enum({
+	'ExchangeMtu': 0x0002,
+	'DiscAllPrimaryServices': 0x0010,
+	'DiscPrimaryServiceByUuid': 0x0006,
+	'FindIncludedServices': 0x0030,
+	'DiscAllChars': 0x0032,
+	'DiscCharsByUuid': 0x0008,
+	'DiscAllCharDescs': 0x0004,
+	'ReadCharValue': 0x000A,
+	'ReadUsingCharUuid': 0x0034,
+	'ReadLongCharValue': 0x000C,
+	'ReadMultiCharValues':0x000E, 
+	'WriteNoRsp': 0x0036,
+	'SignedWriteNoRsp': 0x0038,
+	'WriteCharValue': 0x0012,
+	'WriteLongCharValue': 0x0016,
+	'ReliableWrites': 0x003A,
+	'ReadCharDesc': 0x003C,
+	'ReadLongCharDesc': 0x003E,
+	'WriteCharDesc': 0x0040,
+	'WriteLongCharDesc': 0x0042,
+	'Notification': 0x001B,
+	'Indication': 0x001D,
+	'AddService': 0x007C,
+	'DelService': 0x007D,
+	'AddAttribute': 0x007E
 });
 
 /* (5) GAP COMMANDS: SubGroupCmd.GAP, Ref: hci_ext_app.h                 */
-BHCI.SubGroupCmd.GAP = new Enum({
-	'DEVICE_INIT': 0x0000,
-	'CONFIG_DEVICE_ADDR': 0x0003,
-	'DEVICE_DISC_REQ': 0x0004,
-	'DEVICE_DISC_CANCEL': 0x0005,
-	'MAKE_DISCOVERABLE': 0x0006,
-	'UPDATE_ADV_DATA': 0x0007,
-	'END_DISC': 0x0008,
-	'EST_LINK_REQ': 0x0009,
-	'TERMINATE_LINK': 0x000A,
-	'AUTHENTICATE': 0x000B,
-	'PASSKEY_UPDATE': 0x000C,
-	'SLAVE_SECURITY_REQ_UPDATE': 0x000D,
-	'SIGNABLE': 0x000E,
-	'BOND': 0x000F,
-	'TERMINATE_AUTH': 0x0010,
-	'UPDATE_LINK_PARAM_REQ': 0x0011,
-	'SET_PARAM': 0x0030,
-	'GET_PARAM': 0x0031,
-	'RESOLVE_PRIVATE_ADDR': 0x0032,
-	'SET_ADV_TOKEN': 0x0033,
-	'REMOVE_ADV_TOKEN': 0x0034,
-	'UPDATE_ADV_TOKENS': 0x0035,
-	'BOND_SET_PARAM': 0x0036,
-	'BOND_GET_PARAM': 0x0037,
-	'BOND_SERVICE_CHANGE': 0x0038
+BHCI.SubGroupCmd.Gap = new Enum({
+	'DeviceInit': 0x0000,
+	'ConfigDeviceAddr': 0x0003,
+	'DeviceDiscReq': 0x0004,
+	'DeviceDiscCancel': 0x0005,
+	'MakeDiscoverable': 0x0006,
+	'UpdateAdvData': 0x0007,
+	'EndDisc': 0x0008,
+	'EstLinkReq': 0x0009,
+	'TerminateLink': 0x000A,
+	'Authenticate': 0x000B,
+	'PasskeyUpdate': 0x000C,
+	'SlaveSecurityReqUpdate': 0x000D,
+	'Signable': 0x000E,
+	'Bond': 0x000F,
+	'TerminateAuth': 0x0010,
+	'UpdateLinkParamReq': 0x0011,
+	'SetParam': 0x0030,
+	'GetParam': 0x0031,
+	'ResolvePrivateAddr': 0x0032,
+	'SetAdvToken': 0x0033,
+	'RemoveAdvToken': 0x0034,
+	'UpdateAdvTokens': 0x0035,
+	'BondSetParam': 0x0036,
+	'BondGetParam': 0x0037,
+    'BondServiceChange': 0x0038
 });
 
 /* (6) UTIL COMMANDS: SubGroupCmd.UTIL, Ref: hci_ext_app.h               */
-BHCI.SubGroupCmd.UTIL = new Enum({
-	'NV_READ': 0x0001,
-	'NV_WRITE': 0x0002,
-	'FORCE_BOOT': 0x0003
+BHCI.SubGroupCmd.Util = new Enum({
+	'NvRead': 0x0001,
+	'NvWrite': 0x0002,
+	'ForceBoot': 0x0003
 });
 
 /**************************************************************************
@@ -232,15 +233,7 @@ BHCI.EvtGroup = new Enum({
  * HCI Event SubGroup, Ref: hci_ext_app.h
  * EvtSubGroup(ESG)
  *************************************************************************/
-BHCI.EvtSubGroup = new Enum({
-    'HCI': 0x0000,     
-	'L2CAP': 0x0080,
-	'ATT': 0x0100,
-	'GATT': 0x0180,
-	'GAP': 0x0200,
-	'UTIL': 0x0280,
-	'PROFILE': 0x0380
-});
+BHCI.EvtSubGroup = BHCI.CmdSubGroup;
 
 /**************************************************************************
  * HCI Event Opcode Mask
@@ -257,24 +250,24 @@ BHCI.EvtOpcodeMask = new Enum({
  * SubGroupEvt(Event ID)
  *************************************************************************/
 /* (1) HCI Events: SubGroupEvt.HCI, Ref: hci_tl.h                        */
-BHCI.SubGroupEvt.HCI = BHCI.SubGroupCmd.HCI;
+BHCI.SubGroupEvt.Hci = BHCI.SubGroupCmd.Hci;
 
 /* (2) L2CAP Events: SubGroupEvt.L2CAP, Ref: l2cap.h                     */
-BHCI.SubGroupEvt.L2CAP = new Enum({
+BHCI.SubGroupEvt.L2cap = new Enum({
 	'CmdReject': 0x0001,
 	'ParamUpdateRsp': 0x0013,
 });
 
 /* (3) ATT Events: SubGroupEvt.ATT, Ref: att.h                           */
-BHCI.SubGroupEvt.ATT = BHCI.SubGroupCmd.ATT;
+BHCI.SubGroupEvt.Att = BHCI.SubGroupCmd.Att;
 
 /* (4) GATT Events: SubGroupEvt.GATT, Ref: gattservapp.h                 */
-BHCI.SubGroupEvt.GATT = new Enum({
+BHCI.SubGroupEvt.Gatt = new Enum({
     'ClientCharCfgUpdate': 0x0000
 });
 
 /* (5) GAP Events: SubGroupEvt.GAP, Ref: gap.h                           */
-BHCI.SubGroupEvt.GAP = new Enum({
+BHCI.SubGroupEvt.Gap = new Enum({
 	'DeviceInitDone': 0x0000,
 	'DeviceDiscovery': 0x0001,
 	'AdvDataUpdateDone': 0x0002,
@@ -366,14 +359,60 @@ BHCI.ErrCode = new Enum({
 });
 
 /**************************************************************************
- * HCI Event Common Chunk Rules
+ * HCI Command and Event Corresponding Table
  * 
  *************************************************************************/
-BHCI.HciAttrs = {
-    len: 2,
-    paramLens: 5,
-    params: ['status', 'cmdOpcode'],
-    types: ['uint8', 'uint16le'],
+BHCI.cmdEvtCorrTable.Att = {
+    AttExchangeMtuReq: 'AttExchangeMtuRsp',
+    AttFindInfoReq: ['AttFindInfoRsp'],
+    AttFindByTypeValueReq: ['AttFindByTypeValueRsp'],
+    AttReadByTypeReq: ['AttReadByTypeRsp'],
+    AttReadReq: 'AttReadRsp',
+    AttReadBlobReq: ['AttReadBlobRsp'],
+    AttReadMultiReq: 'AttReadMultiRsp',
+    AttReadByGrpTypeReq: ['AttReadByGrpTypeRsp'],
+    AttWriteReq: 'AttWriteRsp',
+    AttPrepareWriteReq: 'AttPrepareWriteRsp',
+    AttExecuteWriteReq: 'AttExecuteWriteRsp',
+    AttHandleValueInd: 'AttHandleValueCfm'
+};
+
+BHCI.cmdEvtCorrTable.Gatt = {
+    GattExchangeMtu: BHCI.cmdEvtCorrTable.Att.AttExchangeMtuReq,
+    GattDiscAllPrimaryServices: BHCI.cmdEvtCorrTable.Att.AttReadByGrpTypeReq,
+    GattDiscPrimaryServiceByUuid: BHCI.cmdEvtCorrTable.Att.AttFindByTypeValueReq,
+    GattFindIncludedServices: BHCI.cmdEvtCorrTable.Att.AttReadByTypeReq,
+    GattDiscAllChars: BHCI.cmdEvtCorrTable.Att.AttReadByTypeReq,
+    GattDiscCharsByUuid: BHCI.cmdEvtCorrTable.Att.AttReadByTypeReq,
+    GattDiscAllCharDescs: BHCI.cmdEvtCorrTable.Att.AttFindInfoReq,
+    GattReadCharValue: BHCI.cmdEvtCorrTable.Att.AttReadReq,
+    GattReadUsingCharUuid: BHCI.cmdEvtCorrTable.Att.AttReadByTypeReq,
+    GattReadLongCharValue: BHCI.cmdEvtCorrTable.Att.AttReadBlobReq,
+    GattReadMultiCharValues: BHCI.cmdEvtCorrTable.Att.AttReadMultiReq,
+    GattWriteCharValue: BHCI.cmdEvtCorrTable.Att.AttWriteReq,
+    GattWriteLongCharValue: BHCI.cmdEvtCorrTable.Att.AttExecuteWriteReq,
+    GattReliableWrites: BHCI.cmdEvtCorrTable.Att.AttExecuteWriteReq,
+    GattReadCharDesc: BHCI.cmdEvtCorrTable.Att.AttReadReq,
+    GattReadLongCharDesc: BHCI.cmdEvtCorrTable.Att.AttReadBlobReq,
+    GattWriteCharDesc: BHCI.cmdEvtCorrTable.Att.AttWriteReq,
+    GattWriteLongCharDesc: BHCI.cmdEvtCorrTable.Att.AttExecuteWriteReq,
+    GattIndication: BHCI.cmdEvtCorrTable.Att.AttHandleValueInd
+};
+
+BHCI.cmdEvtCorrTable.Gap = {
+    GapDeviceInit: 'GapDeviceInitDone',
+    GapConfigDeviceAddr: 'GapRandomAddrChanged',
+    GapDeviceDiscReq: ['GapDeviceInfo', 'GapDeviceDiscovery'],
+    GapDeviceDiscCancel: 'GapDeviceDiscovery',
+    GapMakeDiscoverable: ['GapMakeDiscoverableDone', 'GapEndDiscoverableDone'],
+    GapUpdateAdvData: 'GapAdvDataUpdateDone',
+    GapEndDisc: 'GapEndDiscoverableDone',
+    GapEstLinkReq: 'GapLinkEstablished',
+    GapTerminateLink: 'GapLinkTerminated',
+    GapAuthenticate: 'GapAuthenticationComplete',
+    GapBond: 'GapBondComplete',
+    GapTerminateAuth: 'GapAuthenticationComplete',
+    GapUpdateLinkParamReq: 'GapLinkParamUpdate',
 };
 
 module.exports = BHCI;

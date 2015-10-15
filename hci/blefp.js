@@ -59,10 +59,8 @@ function fpHciCmdHandler (msg) {
 	var opcode, 
         cmdPacket;
 
-	opcode = ( msg.group ) << 10 | 
-			 ( msg.subGroup ) << 7 | 
-			 ( msg.cmdId );
-             
+	opcode = ( msg.group ) |  ( msg.subGroup ) | ( msg.cmdId );
+
 	cmdPacket = Concentrate().uint8(BHCI.PacketType.CMD).uint16le(opcode).uint8(msg.len).buffer(msg.data).result();
 	fp.flushData(cmdPacket);
 }
@@ -77,9 +75,9 @@ function spDataHandler (bpacket) {
             len: bpacket.paramLens,
             data: bpacket.data
         };
-
-    evtMsg.group = ( opcode & BHCI.EvtOpcodeMask.EOGF.value ) >> 10;
-    evtMsg.subGroup = ( opcode & BHCI.EvtOpcodeMask.ESG.value ) >> 7;
+    
+    evtMsg.group = ( opcode & BHCI.EvtOpcodeMask.EOGF.value );
+    evtMsg.subGroup = ( opcode & BHCI.EvtOpcodeMask.ESG.value );
     evtMsg.evtID = ( opcode & BHCI.EvtOpcodeMask.Evt.value );
 
     fp.emit('HCI:EVT', evtMsg);

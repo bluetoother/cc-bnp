@@ -281,6 +281,9 @@ ru.clause('attObjPreLen', function (bufLen, objName, lenName, lenType, objAttrs)
         self = this;
 
     this[lenType](lenName).tap(function () {
+        if (bufLen === 'uint8') { bufLen = bufLen - 1; }
+        if (bufLen === 'uint16le') { bufLen = bufLen - 2; }
+
         objLen = this.vars[lenName];
         loopTimes = bufLen / objLen;
         this.tap(objName, function (end) {
@@ -335,10 +338,10 @@ ru.clause('AttFindInfoRsp', function (bufLen, format, objName) {
 
     this.uint8(format).tap(function () {
         if (this.vars[format] === 1) {
-            loopTimes = bufLen / 4;
+            loopTimes = (bufLen - 1) / 4;
             uuidType = 'uint16le';
         } else if (this.vars[format] === 2) {
-            loopTimes = bufLen / 18;
+            loopTimes = (bufLen - 1) / 18;
             uuidType = 'buffer';
         }
         this.tap(objName, function (end) {
@@ -367,7 +370,10 @@ function processAppendEvtAttrs (argObj, bufLen) {
 
     if (_.startsWith(constrName, 'Att')) {
         bufferLen = bufLen - appendAttrs.precedingLen;
-        if (bufferLen < appendAttrs.minLen) {
+        if (bufferLen === 0) {
+            return extChunkRule;
+        }else if (bufferLen < appendAttrs.minLen) {
+            console.log(bufferLen);
             throw new Error('The length of the ' + appendParams[0] + ' field of ' + constrName + ' is incorrect.');
         }
     }

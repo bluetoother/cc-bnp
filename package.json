@@ -1,7 +1,7 @@
 {
-  "name": "hiverweb",
+  "name": "bluetooth",
   "version": "0.0.0",
-  "private": true,
+  "private": false,
   "scripts": {
     "start": "node ./bin/www"
   },
@@ -11,6 +11,7 @@
     "dissolve": "^0.3.3",
     "dissolve-chunks": "0.0.2",
     "enum": "^2.2.0",
+    "joi": "^6.9.0",
     "lodash": "^3.10.1",
     "q": "^1.4.1",
     "serialport": "^1.7.4",

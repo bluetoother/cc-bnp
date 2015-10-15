@@ -204,7 +204,7 @@ ArgObj.prototype.storeCmdAttrs = function (cmdAttrs) {
  * @private
  */
 ArgObj.prototype.transToArgObj = function (argInstance) {
-    var cmdParams = this.getCmdAttrs().params;
+    var cmdParams = this.getCmdAttrs().params,
         paramLen = cmdParams.length,
         inArg = [];
 
@@ -212,9 +212,9 @@ ArgObj.prototype.transToArgObj = function (argInstance) {
         return argInstance;
     }
 
-    for (var i = 0; i < arg_len; i += 1) {
+    for (var i = 0; i < paramLen; i += 1) {
         if (!argInstance.hasOwnProperty(cmdParams[i])) {
-            return new Error('The argument object has incorrect properties.');
+            throw new Error('The argument object has incorrect properties.');
         }
 
         inArg.push(argInstance[cmdParams[i]]);
@@ -341,7 +341,7 @@ ArgObj.factory = function (constrName, inArg) {
         this.storeCmdAttrs(cmdAttrs);
     };
 
-    if (!cmdMeta[constrName]) { throw new Error(ArgObj[constrName] + " doesn't exist"); }
+    if (!cmdMeta[constrName]) { throw new Error(constrName + " doesn't exist"); }
 
     if (!_.isFunction(ArgObj[constrName].prototype.getCmdAttrs)) {
         ArgObj[constrName].prototype = new ArgObj();
