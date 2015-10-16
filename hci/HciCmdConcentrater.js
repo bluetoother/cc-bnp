@@ -1,4 +1,10 @@
-'use strict'
+// Copyright Sivann, Inc. and other Node contributors.
+/**
+ *  This module provides the methods to create value object for each HCI command arguments.
+ *  The object is inherited from ArgObj class, and has methods to deal with HCI command meta data and HCI command framer.
+ *  @module hciCmdConcentrater
+ */
+'use strict';
 
 var _ = require('lodash'),
     Concentrate = require('concentrate'),
@@ -141,13 +147,9 @@ var hciCmdConcentrater = {
 };
 
 /***************************************************************************************************/
-/*** Private Member in This Module                                                               ***/
-/***************************************************************************************************/
-
-/***************************************************************************************************/
 /*** ArgObj Class                                                                                ***/
 /***************************************************************************************************/
-// Parent constructor of all argobjs which have command and event type. It has a static factory method() to create argobjs
+// Parent constructor of all argobjs. It has a static factory method() to create argobjs
 // It also has methods: getCmdAttrs(), makeArgObj(), storeCmdAttrs(), getHciCmdBuf(),
 // We use the meta-programming to create instances when needed. The meta-data is the argument information of each API.
 /**
@@ -159,7 +161,7 @@ function ArgObj() {}
 
 /**
  * @method getCmdAttrs
- * @return {Object} the meta data of the command construction
+ * @return {Object} the meta data of the HCI command
  * @private
  */
 ArgObj.prototype.getCmdAttrs = function () {
@@ -185,12 +187,12 @@ ArgObj.prototype.makeArgObj = function (inArg) {
 
 /**
  * @method storeCmdAttrs
- * @param cmdAttrs {Object} the cmdBpi meta data
+ * @param cmdAttrs {Object} the HCI command meta data
  * @return {Object} value object made by the input arguments
  * @private
  */
 ArgObj.prototype.storeCmdAttrs = function (cmdAttrs) {
-    // store zpiMeta to the specialized constructor only once
+    // store command metadata to the specialized constructor only once
     if (ArgObj[this.constr_name].cmdAttrs === undefined) {
         ArgObj[this.constr_name].cmdAttrs = cmdAttrs;
     }
@@ -225,7 +227,7 @@ ArgObj.prototype.transToArgObj = function (argInstance) {
 
 /**
  * @method getHciCmdBuf
- * @return {Buffer} HCI command frame of the command
+ * @return {Buffer} command frame of the HCI command
  * @private
  */
 ArgObj.prototype.getHciCmdBuf = function () {

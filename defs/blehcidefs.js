@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 
 var Enum = require('enum'),
     DChunks = require('dissolve-chunks'),

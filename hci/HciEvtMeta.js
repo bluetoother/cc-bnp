@@ -1,3 +1,10 @@
+// Copyright Sivann, Inc. and other Node contributors.
+/**
+ *  This module provides a object that contains HCI event metadata.
+ *  @module hciEvtMeta
+ */
+'use strict';
+
 var _ = require('lodash'),
     hciNormalMeta = {
         len: 2,

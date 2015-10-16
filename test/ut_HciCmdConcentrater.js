@@ -1,3 +1,4 @@
+'use strict';
 var _ = require('lodash'),
 	should = require('should'),
 	Chance = require('chance'),

@@ -1,4 +1,10 @@
-'use strict'
+// Copyright Sivann, Inc. and other Node contributors.
+/**
+ *  This module provides the methods to create object for each HCI event arguments.
+ *  The object is inherited from ArgObj class, and has methods to deal with HCI event meta data and HCI event parser.
+ *  @module hciEventDissolver
+ */
+'use strict';
 
 var Q = require('q'),
     _ = require('lodash'),
@@ -104,13 +110,9 @@ var hciEventDissolver = {
 };
 
 /***************************************************************************************************/
-/*** Private Member in This Module                                                               ***/
-/***************************************************************************************************/
-
-/***************************************************************************************************/
 /*** ArgObj Class                                                                                ***/
 /***************************************************************************************************/
-// Parent constructor of all argobjs which have command and event type. It has a static factory method() to create argobjs
+// Parent constructor of all argobjs. It has a static factory method() to create argobjs
 // It also has methods: getEvtAttrs(), storeEvtAttrs(), getHciEvtParser(), getHciEvtPacket(),
 // We use the meta-programming to create instances when needed. The meta-data is the argument information of each API.
 /**
@@ -123,7 +125,7 @@ function ArgObj() {
 
 /**
  * @method getEvtAttrs
- * @return {Object} the attribute of the hci event arguments
+ * @return {Object} the meta data of the HCI event
  * @private
  */
 ArgObj.prototype.getEvtAttrs = function () {
@@ -132,12 +134,12 @@ ArgObj.prototype.getEvtAttrs = function () {
 
 /**
  * @method storeEvtAttrs
- * @param evtAttrs {Object} the event constructor evtAttrs
+ * @param evtAttrs {Object} the HCI event meta data
  * @return {Object} value object made by the input arguments
  * @private
  */
 ArgObj.prototype.storeEvtAttrs = function (evtAttrs) {
-    // store evtAttrs to the specialized constructor only once
+    // store event metadata to the specialized constructor only once
     if (ArgObj[this.constr_name].evtAttrs === undefined) {
         ArgObj[this.constr_name].evtAttrs = evtAttrs;
     }
@@ -184,7 +186,7 @@ ArgObj.prototype.getHciEvtParser = function (bufLen) {
  * @param bufLen {Number} length of bBuffer and add 2(opcode length)
  * @param bBuffer {Buffer} buffer of HCI event parameters
  * @param callback {Function} 
- * @return {Object} the attribute of HCI event
+ * @return {Object} the parsed obj of HCI event
  * @private
  */
 ArgObj.prototype.getHciEvtPacket = function (bufLen, bBuffer, callback) {

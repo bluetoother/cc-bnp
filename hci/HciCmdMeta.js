@@ -1,3 +1,9 @@
+// Copyright Sivann, Inc. and other Node contributors.
+/**
+ *  This module provides a object that contains HCI command metadata.
+ */
+'use strict';
+
 var emptyMeta = {
         params: [],
         types: []

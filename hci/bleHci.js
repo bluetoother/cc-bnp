@@ -1,4 +1,9 @@
-'use strict'
+// Copyright Sivann, Inc. and other Node contributors.
+/**
+ *  This module provides a object that handles HCI command/event communications.
+ *  @module bleHci
+ */
+'use strict';
 
 var util = require('util'),
     EventEmitter = require('events').EventEmitter,
@@ -26,10 +31,12 @@ var BleHci = function () {
         spinlock = false;
     };
 
-    this.isSpining = function () {  // Check the srsp spin
+    // Check the transmit spin
+    this.isSpining = function () {  
         return spinlock;
     };
 
+    // register serial port to blefp module
     this.registerSp = function (sp) {
        blefp.registerSp(sp);
     }
@@ -38,6 +45,16 @@ var BleHci = function () {
 util.inherits(BleHci, EventEmitter);
 var bleHci = new BleHci();
 
+/**
+ * Execute bluetooth HCI command. 
+ * The method will automatically generate the event listener corresponding to command, and pass the received event data.
+ *
+ * @method execCmd
+ * @param subGroup {String} sub group of HCI command
+ * @param cmd {String} HCI command name
+ * @param argInstance {Object} value object of the input arguments
+ * @return {Promise} the promise object
+ */
 BleHci.prototype.execCmd = function (subGroup, cmd, argInstance, callback) {
     var deferred = Q.defer(),
         bself = this,
@@ -114,6 +131,16 @@ BleHci.prototype.execCmd = function (subGroup, cmd, argInstance, callback) {
     return deferred.promise.nodeify(callback);
 };
 
+/**
+ * Invoke bluetooth HCI command. 
+ * The method will use blefp module to emit the command to controller through the serial port.
+ *
+ * @method invokeCmd
+ * @param subGroup {String} sub group of HCI command
+ * @param cmd {String} HCI command name
+ * @param argInstance {Object} value object of the input arguments
+ * @return {Promise} the promise object
+ */
 BleHci.prototype.invokeCmd = function (subGroup, cmd, argInstance, callback) {
     var deferred = Q.defer(),
         bself = this,
@@ -183,24 +210,27 @@ bleHci.on('Util', appLevelHandler);
 function blefpEvtHandler (msg) {
     var subGroup = BHCI.EvtSubGroup.get(msg.subGroup).key;
 
+    delete msg.evtCode;
+    delete msg.group;
     bleHci.emit(subGroup, msg);
 }
 
 function appLevelHandler(msg) {
     var subGroup = BHCI.EvtSubGroup.get(msg.subGroup).key,
         evtName = BHCI.SubGroupEvt[subGroup].get(msg.evtID).key,
-        argObj;
+        argObj,
+        resultObj = {};
 
     argObj = hciEvtDissolver[subGroup + evtName]();
     argObj.getHciEvtPacket(msg.len, msg.data).then(function (result) {
-        msg.evtName = subGroup + evtName;
-        msg.data = result;
+        resultObj.data = result;
+        resultObj.evtName = subGroup + evtName;
         if (subGroup + evtName === 'GapCmdStatus') {
-            bleHci.emit(subGroup + evtName + ':' + msg.data.opCode, msg);
+            bleHci.emit(subGroup + evtName + ':' + resultObj.data.opCode, resultObj);
         } else if (subGroup + evtName === 'AttErrorRsp') {
-            bleHci.emit(subGroup + evtName + ':' + msg.data.reqOpcode, msg.data);
+            bleHci.emit(subGroup + evtName + ':' + resultObj.data.reqOpcode, resultObj.data);
         } else {
-            bleHci.emit(subGroup + evtName, msg);
+            bleHci.emit(subGroup + evtName, resultObj);
         }
     }, function (err) {
         //TODO
@@ -263,7 +293,8 @@ function startListenAndInvokeCmd (bself, subGroup, cmd) {
     else if (subGroup === 'L2cap' || subGroup === 'Gap') { waitingTime = 15000; }
     else { waitingTime = 30000; }
     timeoutCtrl = setTimeout(function() {
-        cmdDeferred.reject(subGroup + cmd + ' command process is timeout.')
+        cmdDeferred.reject(subGroup + cmd + ' command process is timeout.');
+        invokeNextCmd(bself, subGroup, cmd);
     }, waitingTime);
 
     bself.invokeCmd(subGroup, cmd, deferredExecObj.args).then(function () {
