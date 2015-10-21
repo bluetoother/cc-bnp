@@ -1,0 +1,286 @@
+'use strict';
+
+var Q = require('q'),
+    _ = require('lodash'),
+    DChunks = require('dissolve-chunks'),
+    ru = DChunks().Rule(),
+    evtMeta = require('./HciEvtMeta');
+
+var hciEvtDiscriminator = {
+    // HciEnablePtm: function () { return ArgObj.factory('HciEnablePtm'); },
+    // HciAdvEventNotice: function () { return ArgObj.factory('HciAdvEventNotice'); },
+    // HciConnEventNotice: function () { return ArgObj.factory('HciConnEventNotice');    
+};
+// Build Argument Constructors for All Layers APIs
+(function () {
+    _.forEach(evtMeta, function (meta, cmd) {
+        hciEvtDiscriminator[cmd] = function () {
+            return ArgObj.factory(cmd, arguments);
+        };
+    });
+})();
+
+function ArgObj() {
+}
+
+ArgObj.factory = function (constrName) {
+    var evtAttrsMeta = evtMeta[constrName];
+    if (!evtAttrsMeta) { throw new Error(ArgObj[constrName] + " doesn't exist"); }
+
+    ArgObj[constrName] = function () {
+        this.constr_name = constrName;
+        // store event metadata to the specialized constructor only once
+        ArgObj[constrName].evtAttrs = ArgObj[constrName].evtAttrs || evtAttrsMeta;
+    };
+
+    if (!_.isFunction(ArgObj[constrName].prototype.getEvtAttrs)) {
+        ArgObj[constrName].prototype = new ArgObj();
+    }
+
+    return new ArgObj[constrName]();
+};
+
+ArgObj.prototype.getEvtAttrs = function () {
+    return this.constructor[this.constr_name].evtAttrs;
+};
+
+ArgObj.prototype.getHciEvtParser = function (bufLen) {
+    var evtAttrs = this.getEvtAttrs(),
+        chunkRules = [],
+        extChunkRules;        
+
+    _.forEach(evtAttrs.params, function (param, idx) {
+        var attrType = evtAttrs.types[idx];
+
+        if (_.startsWith(attrType, 'buffer')) {
+            chunkRules.push(ru.buffer(param, _.parseInt(attrType.slice(6))));
+        } else {
+            chunkRules.push(ru[attrType](param));
+        }
+    });
+
+    extChunkRules = (evtAttrs.paramLens === 'variable') ? buildExtraEvtAttrsRules(this, bufLen) : [];
+
+    return DChunks().join(chunkRules).join(extChunkRules).compile();    // if extChunkRules = [], not affect the result
+};
+
+ArgObj.prototype.getHciEvtPacket = function (bufLen, bBuf, callback) {
+    var deferred = Q.defer(),
+        evtAttrs = this.getEvtAttrs(),
+        attrParamLen = evtAttrs.paramLens,
+        parser;
+
+    if (_.isNumber(attrParamLen) && (attrParamLen !== bufLen)) {
+        deferred.reject(new Error('Parameter length incorrect.'));
+    } else {
+        parser = this.getHciEvtParser(bufLen);
+        parser.on('parsed', function (result) {
+            parser = undefined;
+            deferred.resolve(result);
+        });
+        parser.write(bBuf);
+    }
+
+    return deferred.promise.nodeify(callback);
+};
+
+/*************************************************************************************************/
+/*** Specific Chunk Rules                                                                      ***/
+/*************************************************************************************************/
+ru.clause('addr', function (name) {
+    this.buffer(name, 6).tap(function () {
+        var tmpBuf = (new Buffer(6)).fill(0),
+            origBuf = this.vars[name];
+
+        for (var i = 0; i < 6; i++) {
+            tmpBuf.writeUInt8(origBuf.readUInt8(i), (5-i));
+        }
+        this.vars[name] = tmpBuf;
+    });
+});
+
+ru.clause('bufWithLen', function (lenName, bufName, lenType) {
+    this[lenType](lenName).tap(function () {
+        this.buffer(bufName, this.vars[lenName]);
+    });
+});
+
+ru.clause('attObj', function (buflen, objName, objAttrs) {
+    var loopTimes = Math.floor(buflen / objAttrs.objLen);
+
+    this.tap(objName, function () {
+        var self = this;
+
+        for (var i = 0; i < loopTimes; i += 1) {
+            _.forEach(objAttrs.params, function(param, idx) {
+                var type = objAttrs.types[idx];
+                self[type](param + i);
+            });
+        }
+    }).tap(function () {
+        for (var k in this.vars) {
+            delete this.vars[k].__proto__;
+        }
+    });
+});
+
+ru.clause('attObjPreLen', function (bufLen, objName, lenName, lenType, objAttrs) {
+
+    this[lenType](lenName).tap(function () {
+        var objLen = this.vars[lenName],
+            loopTimes;
+
+        if (lenType === 'uint8') { bufLen = bufLen - 1; }
+        if (lenType === 'uint16le') { bufLen = bufLen - 2; }
+
+        loopTimes = Math.floor(bufLen / objLen);
+
+        this.tap(objName, function () {
+            var self = this;
+
+            for (var i = 0; i < loopTimes; i += 1) {
+                _.forEach(objAttrs.params, function (param, idx) {
+                    var type = objAttrs.types[idx];
+
+                    if (type === 'buffer') {
+                        self.buffer((param + i), (objLen - objAttrs.objBufPreLen));
+                    } else {
+                        self[type](param + i);
+                    } 
+                });
+            }
+
+        }).tap(function () {
+            for (var k in this.vars) {
+                delete this.vars[k].__proto__;
+            }
+        });
+    });
+});
+
+ru.clause('GapDeviceDiscovery', function () {
+    var count = 0;
+
+    this.uint8('numDevs').loop(function (end) {
+        var inrCount = 0,
+            name = 'dev' + count;
+
+        this.loop(name, function (inrEnd) {
+            if (inrCount < 2) {
+                this.uint8();
+            } else {
+                ru.addr('addr')(this);
+            }
+
+            inrCount += 1;
+            if (inrCount === 3) { inrEnd(); }
+        }).tap(function () {
+            this.vars[name] = [this.vars[name][0]['undefined'], this.vars[name][1]['undefined'], this.vars[name][2].addr];
+        });
+
+        count += 1;
+        if (count === this.vars.numDevs) { end(); }
+    });
+});
+
+ru.clause('AttFindInfoRsp', function (bufLen, format, objName) {
+    var loopTimes,
+        uuidType;
+
+    this.uint8(format).tap(function () {
+
+        if (this.vars[format] === 1) {
+            loopTimes = (bufLen - 1) / 4;
+            uuidType = 'uint16le';
+        }
+
+        if (this.vars[format] === 2) {
+            loopTimes = (bufLen - 1) / 18;
+            uuidType = 'buffer';
+        }
+
+        this.tap(objName, function () {
+            for (var i = 0; i < loopTimes; i += 1) {
+                this.uint16le('handle' + i)[uuidType](('uuid' + i), 16);
+            }
+        }).tap(function () {
+            for (var k in this.vars) {
+                delete this.vars[k].__proto__;
+            }
+        });
+    });
+});
+
+/*************************************************************************************************/
+/*** Private Functions                                                                         ***/
+/*************************************************************************************************/
+function buildExtraEvtAttrsRules (argObj, bufLen) {
+    var extraRules = [],
+        constrName = argObj.constr_name,
+        extAttrs = argObj.getEvtAttrs().extra,
+        extParams = extAttrs.params,
+        extTypes = extAttrs.types;
+
+    if (_.startsWith(constrName, 'Att')) {
+        bufLen = bufLen - extAttrs.precedingLen;
+        if (bufLen === 0) { return extraRules; }    
+        if (bufLen < extAttrs.minLen) { throw new Error('The length of the ' + extParams[0] + ' field of ' + constrName + ' is incorrect.'); }
+    }
+
+    switch (constrName) {
+        case 'HciPer':
+            if (bufLen === extAttrs.paramLens) {  // [QUES] why this if? Only when the command parameter is HCI_EXT_PER_READ will have extra event arguments
+                _.forEach(extParams, function (param, idx) {
+                    var type = extTypes[idx];
+                    extraRules.push(ru[type](param));
+                });
+            }
+            break;
+
+        case 'GapDeviceDiscovery':
+            extraRules.push(ru.GapDeviceDiscovery());
+            break;
+
+        case 'GapDeviceInfo':
+        case 'GapCmdStatus':
+            extraRules.push(ru.bufWithLen(extParams[0], extParams[1], extTypes[0]));
+            break;
+
+        case 'AttFindByTypeValueReq':
+        case 'AttReadByTypeReq':
+        case 'AttReadRsp':
+        case 'AttReadBlobRsp':
+        case 'AttReadMultiRsp':
+        case 'AttReadByGrpTypeReq':
+        case 'AttWriteReq':
+        case 'AttPrepareWriteReq':
+        case 'AttPrepareWriteRsp':
+        case 'AttHandleValueNoti':
+        case 'AttHandleValueInd':
+            if ((constrName === 'AttReadByTypeReq' || constrName === 'AttReadByGrpTypeReq') && (bufLen !== 2 && bufLen !== 16)) {   // [QUES] (bufLen !== 2 && bufLen !== 16)
+                throw new Error('The length of the ' + extParams[0] + ' field of ' + constrName + ' must be 2 or 16 bytes.');       // AttReadByTypeReq and AttReadByGrpTypeReq type field is 2 or 16 octet UUID
+            }
+            extraRules.push(ru.buffer(extParams[0], bufLen));
+            break;
+
+        case 'AttFindInfoRsp':
+            extraRules.push(ru.AttFindInfoRsp(bufLen, extParams[0], extParams[1]));
+            break;
+
+        case 'AttFindByTypeValueRsp':
+        case 'AttReadMultiReq':
+            extraRules.push(ru.attObj(bufLen, extParams[0], extAttrs.objAttrs));
+            break;
+
+        case 'AttReadByTypeRsp':
+        case 'AttReadByGrpTypeRsp':
+            extraRules.push(ru.attObjPreLen(bufLen, extParams[1], extParams[0], extTypes[0], extAttrs.objAttrs));
+            break;
+
+        default:
+            throw new Error(argObj.constr_name + ' event packet error!');
+    }
+    return extraRules;
+};
+
+module.exports = hciEvtDiscriminator;

@@ -5,7 +5,7 @@ var _ = require('lodash'),
 	chance = new Chance(),
     Q = require('q');
 
-var hciCmdConcentrater = require('../hci/HciCmdConcentrater');
+var hciCmdConcentrater = require('../hci/HciCmdBuilder');
 
 
 

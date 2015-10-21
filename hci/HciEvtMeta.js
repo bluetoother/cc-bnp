@@ -30,7 +30,7 @@ var hciEvtMeta = {
         paramLens: 'variable',
         params: ['status', 'cmdOpcode', 'cmdVal'],
         types: ['uint8', 'uint16le', 'uint8'],
-        append: {
+        extra: {
             paramLens: 14,
             params: ['numPkts', 'numCrcErr', 'numEvents', 'numMissedEvents'],
             types: ['uint16le', 'uint16le', 'uint16le', 'uint16le'],
@@ -65,7 +65,7 @@ var hciEvtMeta = {
         paramLens: 'variable',
         params: ['status'],
         types: ['uint8'],
-        append: {
+        extra: {
             params: ['numDevs', 'eventType', 'addrType', 'addr'],
             types: ['uint8', 'uint8', 'uint8', 'addr'],
         }
@@ -131,7 +131,7 @@ var hciEvtMeta = {
         paramLens: 'variable',
         params: ['status', 'eventType', 'addrType', 'addr', 'rssi'],
         types: ['uint8', 'uint8', 'uint8', 'addr', 'uint8'],
-        append: {
+        extra: {
             params: ['dataLen', 'dataField'],
             types: ['uint8', 'buffer'],
         }
@@ -150,7 +150,7 @@ var hciEvtMeta = {
         paramLens: 'variable',
         params: ['status', 'opCode'],
         types: ['uint8', 'uint16le'],
-        append: {
+        extra: {
             params: ['dataLen', 'payload'],
             types: ['uint8', 'buffer'],
         }
@@ -180,7 +180,7 @@ var hciEvtMeta = {
         paramLens: 'variable',
         params: ['status', 'connHandle', 'pduLen'],
         types: ['uint8', 'uint16le', 'uint8'],
-        append: {
+        extra: {
             precedingLen: 6,
             minLen: 4,
             params: ['format', 'info']
@@ -190,7 +190,7 @@ var hciEvtMeta = {
         paramLens: 'variable',
         params: ['status', 'connHandle', 'pduLen', 'startHandle', 'endHandle', 'type'],
         types: ['uint8', 'uint16le', 'uint8', 'uint16le', 'uint16le', 'uint16le'],
-        append: {
+        extra: {
             precedingLen: 12,
             minLen: 0,
             params: ['value']
@@ -200,7 +200,7 @@ var hciEvtMeta = {
         paramLens: 'variable',
         params: ['status', 'connHandle', 'pduLen'],
         types: ['uint8', 'uint16le', 'uint8'],
-        append: {
+        extra: {
             precedingLen: 6,
             minLen: 4,
             params: ['handlesInfo'],
@@ -215,7 +215,7 @@ var hciEvtMeta = {
         paramLens: 'variable',
         params: ['status', 'connHandle', 'pduLen', 'startHandle', 'endHandle'],
         types: ['uint8', 'uint16le', 'uint8', 'uint16le', 'uint16le'],
-        append: {
+        extra: {
             precedingLen: 10,
             minLen: 2,
             params: ['format']
@@ -225,7 +225,7 @@ var hciEvtMeta = {
         paramLens: 'variable',
         params: ['status', 'connHandle', 'pduLen'],
         types: ['uint8', 'uint16le', 'uint8'],
-        append: {
+        extra: {
             precedingLen: 7,
             minLen: 2,
             params: ['length', 'format'],
@@ -246,7 +246,7 @@ var hciEvtMeta = {
         paramLens: 'variable',
         params: ['status', 'connHandle', 'pduLen'],
         types: ['uint8', 'uint16le', 'uint8'],
-        append: {
+        extra: {
             precedingLen: 6,
             minLen: 0,
             params: ['value']
@@ -261,7 +261,7 @@ var hciEvtMeta = {
         paramLens: 'variable',
         params: ['status', 'connHandle', 'pduLen'],
         types: ['uint8', 'uint16le', 'uint8'],
-        append: {
+        extra: {
             precedingLen: 6,
             minLen: 0,
             params: ['value']
@@ -271,7 +271,7 @@ var hciEvtMeta = {
         paramLens: 'variable',
         params: ['status', 'connHandle', 'pduLen'],
         types: ['uint8', 'uint16le', 'uint8'],
-        append: {
+        extra: {
             precedingLen: 6,
             minLen: 4,
             params: ['handles'],
@@ -286,7 +286,7 @@ var hciEvtMeta = {
         paramLens: 'variable',
         params: ['status', 'connHandle', 'pduLen'],
         types: ['uint8', 'uint16le', 'uint8'],
-        append: {
+        extra: {
             precedingLen: 6,
             minLen: 0,
             params: ['value']
@@ -296,7 +296,7 @@ var hciEvtMeta = {
         paramLens: 'variable',
         params: ['status', 'connHandle', 'pduLen', 'startHandle', 'endHandle'],
         types: ['uint8', 'uint16le', 'uint8', 'uint16le', 'uint16le'],
-        append: {
+        extra: {
             precedingLen: 10,
             minLen: 2,
             params: ['type']
@@ -306,7 +306,7 @@ var hciEvtMeta = {
         paramLens: 'variable',
         params: ['status', 'connHandle', 'pduLen', 'length'],
         types: ['uint8', 'uint16le', 'uint8', 'uint8'],
-        append: {
+        extra: {
             precedingLen: 7,
             minLen: 2,
             params: ['length', 'data'],
@@ -322,7 +322,7 @@ var hciEvtMeta = {
         paramLens: 'variable',
         params: ['status', 'connHandle', 'pduLen', 'signature', 'command', 'handle'],
         types: ['uint8', 'uint16le', 'uint8', 'uint8', 'uint8', 'uint16le'],
-        append: {
+        extra: {
             precedingLen: 10,
             minLen: 0,
             params: ['value']
@@ -337,7 +337,7 @@ var hciEvtMeta = {
         paramLens: 'variable',
         params: ['status', 'connHandle', 'pduLen', 'handle', 'offset'],
         types: ['uint8', 'uint16le', 'uint8', 'uint16le', 'uint16le'],
-        append: {
+        extra: {
             precedingLen: 10,
             minLen: 0,
             params: ['value']
@@ -347,7 +347,7 @@ var hciEvtMeta = {
         paramLens: 'variable',
         params: ['status', 'connHandle', 'pduLen', 'handle', 'offset'],
         types: ['uint8', 'uint16le', 'uint8', 'uint16le', 'uint16le'],
-        append: {
+        extra: {
             precedingLen: 10,
             minLen: 0,
             params: ['value']
@@ -367,7 +367,7 @@ var hciEvtMeta = {
         paramLens: 'variable',
         params: ['status', 'connHandle', 'pduLen', 'authenticated', 'handle'],
         types: ['uint8', 'uint16le', 'uint8', 'uint8', 'uint16le'],
-        append: {
+        extra: {
             precedingLen: 9,
             minLen: 0,
             params: ['value']
@@ -377,7 +377,7 @@ var hciEvtMeta = {
         paramLens: 'variable',
         params: ['status', 'connHandle', 'pduLen', 'authenticated', 'handle'],
         types: ['uint8', 'uint16le', 'uint8', 'uint8', 'uint16le'],
-        append: {
+        extra: {
             precedingLen: 9,
             minLen: 0,
             params: ['value']
