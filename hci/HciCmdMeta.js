@@ -125,7 +125,7 @@ module.exports = {
         types: ['uint8', 'uint8']
     },
     /*** Metadata of L2CAP APIs***/
-    L2capParamUPpdateReq: {
+    L2capParamUpdateReq: {
         params: ['connHandle', 'intervalMin', 'intervalMax', 'slaveLatency', 'timeoutMultiplier'],
         types: ['uint16le', 'uint16le', 'uint16le', 'uint16le', 'uint16le']
     },
@@ -508,7 +508,7 @@ module.exports = {
         params: ['IRK', 'Addr'],
         types: ['buffer16', 'addr']
     },
-    GapSETAdvToken: {
+    GapSetAdvToken: {
         params: ['adType', 'advDataLen', 'advData'],
         types: ['uint8', 'uint8', 'buffer'],
         //for test

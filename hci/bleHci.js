@@ -39,7 +39,7 @@ function BleHci() {
         var deferred = Q.defer();
 
         rawUnit.closeSp().then(function () {
-            deferred.resolve();
+            deferred.resolve(  );
         });
 
         return deferred.promise.nodeify(callback);
@@ -171,7 +171,7 @@ BleHci.prototype._addListenerAndInvokeCmd = function (subGroup, cmd) {
         cmdSto.deferred.reject(new Error(errStr));
         // reject all promises in promsToResolve array, and the reset it to []
         _.forEach(promsToResolve, function (prom) {
-            if (prom.isPending()) { prom.reject(new Error(errStr)); }
+            if (prom.isPending()) { Q.reject(prom); } //prom.reject(new Error(errStr));
         });
         promsToResolve = [];
     };
@@ -229,7 +229,6 @@ function bleRawUnitEvtHandler (msg) {
 }
 
 function appLevelHandler(msg) {
-    console.log(msg)
     var subGroup = BHCI.EvtSubGroup.get(msg.subGroup).key,
         evtName = BHCI.SubGroupEvt[subGroup].get(msg.evtId).key,
         evtApiName = (subGroup + evtName),
@@ -280,7 +279,7 @@ function genCmdStatusEvtHandler(deferred) {
     }
 }
 
-function genMultiAttEvtHandlerGen(deferred) {
+function genMultiAttEvtHandler(deferred) {
     var result = {},
         count = 0;
 
@@ -369,13 +368,13 @@ CmdStore.prototype.buildHandlers = function () {
                 this._assignHandler('GapTerminateLink', genNormalEvtHandler);
             }
 
-            if (cmdName !== 'HciEnablePtm' && cmdName !== 'HciAdvEventNotice' && cmdName !== 'HciConnEventNotice') {
+            if (cmdName !== 'HciEnablePtm' && cmdName !== 'HciAdvEventNotice' && cmdName !== 'HciConnEventNotice' && cmdName !== 'HciPerByChan') {
                 this._assignHandler(hdlrKey, genNormalEvtHandler);
             }
             break;
 
         case 'L2cap':
-            this._assignHandler('L2capCmdReject', genNormalEvtHandler);
+            this._assignHandler('L2capParamUpdateRsp', genNormalEvtHandler); //[TODO]L2capCmdReject
             break;
 
         case 'Att':
@@ -388,12 +387,13 @@ CmdStore.prototype.buildHandlers = function () {
             }
 
             if (_.isArray(hdlrKey)) {
-                hdlrKey = hdlrKey[0];
+                this._assignHandler(hdlrKey[0], genMultiAttEvtHandler);
+            } else {
+                this._assignHandler(hdlrKey, genNormalEvtHandler);
             }
-            this._assignHandler(hdlrKey, genNormalEvtHandler);
 
             this.bleHci.once('AttErrorRsp:' + cmdId, function (msg) {
-                deferred.reject({ AttErrorRsp: msg });
+                defr.reject({ AttErrorRsp: msg });
                 self.bleHci._invokeNextCmd(subGroup, self.cmd);
                 // [TODO] remove promiseHolder from holders
             })

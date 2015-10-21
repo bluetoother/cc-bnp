@@ -157,7 +157,9 @@ function spDataHandler (pkt) {
             data: pkt.data
         };
 
-    bleRawUint.emit('HCI:EVT', evtMsg);
+    if (evtMsg.evtCode === BHCI.EvtCode.VENDOR_SPECIFIC.value) {
+        bleRawUint.emit('HCI:EVT', evtMsg);
+    }
 }
 
 module.exports = bleRawUint;
