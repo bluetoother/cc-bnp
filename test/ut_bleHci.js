@@ -11,7 +11,7 @@ var bleHci = require('../hci/bleHci'),
     hciCmdBuilder = require('../hci/HciCmdBuilder');
     BHCI = require('../defs/blehcidefs');
 
-var sp = new SerialPort("/dev/ttyUSB0", {
+var sp = new SerialPort("/dev/ttyACM0", {
     baudrate: 115200,
     rtscts: true,
     flowControl: true
@@ -64,7 +64,7 @@ describe('Testing Command Response From Local Controller', function () {
         it('Hci Level: ' + key, function () {
             var argObj = genCmdArgObj('Hci', key);
 
-            if (key === 'DisconnectImmed') { return; }
+            if (key === 'DisconnectImmed' || key === 'ResetSystem') { return; }
             return bleHci.execCmd('Hci', key, argObj).should.be.fulfilled();
         });
     });
@@ -111,9 +111,13 @@ describe('Testing Command Response From Local Controller And Remote Slave', func
     var buffer16 = new Buffer([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
     this.timeout(15000);
 
+    /*---Hci---*/
     // it('Hci Level: DisconnectImmed', function () {
-    //     var argObj = genCmdArgObj('Hci', 'DisconnectImmed');
-    //     return bleHci.execCmd('Hci', 'DisconnectImmed', argObj).should.be.fulfilled();
+    //     bleHci.execCmd('Gap', 'DeviceInit', {profileRole: 8, maxScanResponses: 5, IRK: buffer16, CSRK: buffer16, signCounter: 1}).then(function () {
+    //         return bleHci.execCmd('Gap', 'EstLinkReq', {highDutyCycle: 0, whiteList: 0, addrtypePeer: 0, peerAddr: new Buffer([0x78, 0xC5, 0xE5, 0x70, 0x79, 0x6E])});
+    //     }).then(function () {
+    //         return bleHci.execCmd('Hci', 'DisconnectImmed', argObj).should.be.fulfilled();
+    //     });
     // });
 
     /*---GAP---*/
@@ -132,21 +136,81 @@ describe('Testing Command Response From Local Controller And Remote Slave', func
     it('Att Level: FindInfoReq', function () {
         return bleHci.execCmd('Att', 'FindInfoReq', {connHandle: 0, startHandle: 0x0001, endHandle: 0xFFFF}).should.be.fulfilled();
     });
-    it('Att Level: WriteReq', function () {
-        return bleHci.execCmd('Att', 'WriteReq', {connHandle: 0, signature: 0, command: 0, handle: 1, value: new Buffer([0x00])}).should.be.rejected();
+    it('Att Level: ReadByTypeReq', function () {
+        return bleHci.execCmd('Att', 'ReadByTypeReq', {connHandle: 0, startHandle: 1, endHandle: 65535, type: new Buffer([0xF1, 0xFF])}).should.be.fulfilled();
+    });
+    it('Att Level: ReadReq', function () {
+        return bleHci.execCmd('Att', 'ReadReq', {connHandle: 0, handle: 37}).should.be.fulfilled();
     });
     it('Att Level: ReadBlobReq', function () {
-        return bleHci.execCmd('Att', 'ReadBlobReq', {connHandle: 0, handle: 1, offset: 0}).should.be.fulfilled();
+        return bleHci.execCmd('Att', 'ReadBlobReq', {connHandle: 0, handle: 37, offset: 0}).should.be.fulfilled();
+    });
+    it('Att Level: ReadMultiReq', function () {
+        return bleHci.execCmd('Att', 'ReadMultiReq', {connHandle: 0, handles: {handle0: 0x0025, handle1: 0x0026}}).should.be.fulfilled();
+    });
+    it('Att Level: ReadByGrpTypeReq', function () {
+        return bleHci.execCmd('Att', 'ReadByGrpTypeReq', {connHandle: 0, startHandle: 1, endHandle: 65535, type: new Buffer([0x00, 0x28])}).should.be.fulfilled();
+    });
+    it('Att Level: WriteReq', function () {
+        return bleHci.execCmd('Att', 'WriteReq', {connHandle: 0, signature: 0, command: 0, handle: 37, value: new Buffer([0x00])}).should.be.fulfilled();
+    });
+
+    /*---GATT---*/
+    it('Gatt Level: ExchangeMtu', function () {
+        return bleHci.execCmd('Gatt', 'ExchangeMtu', {connHandle: 0, clientRxMTU: 23}).should.be.fulfilled();
+    });
+    it('Gatt Level: DiscAllPrimaryServices', function () {
+        return bleHci.execCmd('Gatt', 'DiscAllPrimaryServices', {connHandle: 0}).should.be.fulfilled();
+    });
+    it('Gatt Level: DiscPrimaryServiceByUuid', function () {
+        return bleHci.execCmd('Gatt', 'DiscPrimaryServiceByUuid', {connHandle: 0, value: new Buffer([0xF0, 0xFF])}).should.be.fulfilled();
+    });
+    it('Gatt Level: FindIncludedServices', function () {
+        return bleHci.execCmd('Gatt', 'FindIncludedServices', {connHandle: 0, startHandle: 1, endHandle: 65535}).should.be.rejected();
+    });
+    it('Gatt Level: DiscAllChars', function () {
+        return bleHci.execCmd('Gatt', 'DiscAllChars', {connHandle: 0, startHandle: 1, endHandle: 65535}).should.be.fulfilled();
+    });
+    this.timeout(25000);
+    it('Gatt Level: DiscCharsByUuid', function () {
+        return bleHci.execCmd('Gatt', 'DiscCharsByUuid', {connHandle: 0, startHandle: 1, endHandle: 65535, type: new Buffer([0xF1, 0xFF])}).should.be.fulfilled();
+    });
+    it('Gatt Level: DiscAllCharDescs', function () {
+        return bleHci.execCmd('Gatt', 'DiscAllCharDescs', {connHandle: 0, startHandle: 1, endHandle: 65535}).should.be.fulfilled();
+    });
+    this.timeout(15000);
+    it('Gatt Level: ReadCharValue', function () {
+        return bleHci.execCmd('Gatt', 'ReadCharValue', {connHandle: 0, handle: 37}).should.be.fulfilled();
+    });
+    it('Gatt Level: ReadUsingCharUuid', function () {
+        return bleHci.execCmd('Gatt', 'ReadUsingCharUuid', {connHandle: 0, startHandle: 1, endHandle: 65535, type: new Buffer([0xF1, 0xFF])}).should.be.fulfilled();
+    });
+    it('Gatt Level: ReadLongCharValue', function () {
+        return bleHci.execCmd('Gatt', 'ReadLongCharValue', {connHandle: 0, handle: 37, offset: 0}).should.be.fulfilled();
+    });
+    it('Gatt Level: ReadMultiCharValues', function () {
+        return bleHci.execCmd('Gatt', 'ReadMultiCharValues', {connHandle: 0, handles: {handle0: 0x0025, handle1: 0x0026}}).should.be.fulfilled();
+    });
+    it('Gatt Level: WriteCharValue', function () {
+        return bleHci.execCmd('Gatt', 'WriteCharValue', {connHandle: 0, handle: 37, value: new Buffer([0])}).should.be.fulfilled();
+    });
+    it('Gatt Level: WriteLongCharValue', function () {
+        return bleHci.execCmd('Gatt', 'WriteLongCharValue', {connHandle: 0, handle: 37, offset: 0, value: new Buffer([0])}).should.be.fulfilled();
+    });
+    it('Gatt Level: ReadCharDesc', function () {
+        return bleHci.execCmd('Gatt', 'ReadCharDesc', {connHandle: 0, handle: 37}).should.be.fulfilled();
+    });
+    it('Gatt Level: ReadLongCharDesc', function () {
+        return bleHci.execCmd('Gatt', 'ReadLongCharDesc', {connHandle: 0, handle: 37, offset: 0}).should.be.fulfilled();
+    });
+    it('Gatt Level: WriteCharDesc', function () {
+        return bleHci.execCmd('Gatt', 'WriteCharDesc', {connHandle: 0, offset: 0, value: new Buffer([37])}).should.be.rejected();
     });
 
     it('Gap Level: TerminateLink', function () {
         return bleHci.execCmd('Gap', 'TerminateLink', {connHandle: 0, reason: 19}).should.be.fulfilled();
     });
-
-    it('Gatt Level: ', function () {
-
-    });
-})
+});
 
 
 function genCmdArgObj(subGrp, cmd) {
@@ -172,17 +236,17 @@ function randomArg(type) {
         case 'uint8':
             // return chance.integer({min: 0, max: 255});
             return 5;
-            break;
+
         case 'uint16be':
         case 'uint16le':
             return chance.integer({min: 0, max: 65535});
-            break;
+
         case 'uint32le':
             return chance.integer({min: 0, max: 4294967295});
-            break;
+
         case 'uint64':
             return chance.integer({min: 0, max: 18446744073709551615});
-            break;
+
         case 'buffer':
         case 'buffer6':
         case 'buffer8':
@@ -202,14 +266,18 @@ function randomArg(type) {
                 testBuf[k] = chance.integer({min: 0, max: 255});
             }
             return testBuf;
-            break;
+
         case 'string':
             return chance.string();
-            break;
 
         default:
-        break;
+            break;
     }
 
     return;
+}
+
+function delay(count) {
+    count -= 1;
+    if (count === 0) {  return; }
 }

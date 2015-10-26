@@ -108,7 +108,7 @@ ArgObj.prototype.getHciCmdBuf = function () {
                 break;
             case 'obj':
                 dataBuf = generateObjBuf(dataBuf, self.constr_name, paramVal, cmdAttrs.objInfo, self[cmdAttrs.params[idx-1]]);
-                break
+                break;
             default:
                 throw new Error("Unknown Data Type");
         }
@@ -194,7 +194,7 @@ function checkType(data, type, param) {
         buffer8: 8,
         buffer16: 16,
         addr: 6
-    }
+    };
 
     switch (type) {
         case 'uint8':
@@ -273,7 +273,7 @@ function processAppendCmdAttrs (argObj, bufLen, objName) {
             throw new Error(argObj.constr_name + 'event packet error!');
     }
     return extChunkRule;
-};
+}
 
 // for test
 /*************************************************************************************************/

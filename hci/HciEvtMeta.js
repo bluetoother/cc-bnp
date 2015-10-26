@@ -226,7 +226,7 @@ var hciEvtMeta = {
         params: ['status', 'connHandle', 'pduLen'],
         types: ['uint8', 'uint16le', 'uint8'],
         extra: {
-            precedingLen: 7,
+            precedingLen: 6,
             minLen: 2,
             params: ['length', 'format'],
             types: ['uint8', 'obj'],
@@ -304,10 +304,10 @@ var hciEvtMeta = {
     },
     AttReadByGrpTypeRsp: {
         paramLens: 'variable',
-        params: ['status', 'connHandle', 'pduLen', 'length'],
-        types: ['uint8', 'uint16le', 'uint8', 'uint8'],
+        params: ['status', 'connHandle', 'pduLen'],
+        types: ['uint8', 'uint16le', 'uint8'],
         extra: {
-            precedingLen: 7,
+            precedingLen: 6,
             minLen: 2,
             params: ['length', 'data'],
             types: ['uint8', 'obj'],

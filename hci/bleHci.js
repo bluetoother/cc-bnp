@@ -44,7 +44,7 @@ function BleHci() {
 
         return deferred.promise.nodeify(callback);
     };
-};
+}
 
 util.inherits(BleHci, EventEmitter);
 var bleHci = new BleHci();
@@ -100,7 +100,7 @@ BleHci.prototype.invokeCmd = function (cmdSto, callback) {
         defr = Q.defer();
 
     if (!rawUnit.sp) {
-        deferred.reject(new Error('You must register the serial port first.'));
+        defr.reject(new Error('You must register the serial port first.'));
     }
 
     this.sendCmd(cmdSto).then(function() {
@@ -141,18 +141,26 @@ BleHci.prototype.sendCmd = function (cmdSto, callback) {
 /*************************************************************************************************/
 BleHci.prototype._addListenerAndInvokeCmd = function (subGroup, cmd) {
     var self = this,
-        promsToResolve = [],
         cmdName = subGroup + cmd,
         cmdPromiseHolder = this.cmdPromiseHolders[cmdName],
         cmdSto = cmdPromiseHolder[0],
         evtHdlrs = cmdSto.evtHandlersTable,
-        expired_ms = 1000,
-        tmrOut;
+        result = {},
+        expired_ms;
 
     _.forEach(evtHdlrs, function (hdlr, evt) {
-        promsToResolve.push((function () {
+        cmdSto.promsToResolve.push((function () {
             var deferred = Q.defer();
-            evtHdlrs[evt] = hdlr(deferred);
+            
+            if (cmdName === 'GapDeviceDiscReq' && evt === 'GapDeviceInfo') {
+                evtHdlrs[evt] = hdlr(result);
+                self.once('GapDeviceDiscovery', function () {
+                    deferred.resolve(result);
+                });
+            } else {
+                evtHdlrs[evt] = hdlr(deferred);
+            }
+
             return deferred.promise;
         }()));
     });
@@ -160,39 +168,31 @@ BleHci.prototype._addListenerAndInvokeCmd = function (subGroup, cmd) {
     cmdSto.addListenersToBleHci();
 
     //TODO, Some command processing time is very short, but some command is very long
-    if (subGroup === 'L2cap' || subGroup === 'Gap') {
-        expired_ms = 15000;
+    if (subGroup === 'Hci' || subGroup === 'Util') {
+        expired_ms = 2000;
+    }else if (subGroup === 'L2cap' || subGroup === 'Gap') {
+        expired_ms = 20000;
     } else {
         expired_ms = 30000;
     }
 
-    var rejectAll = function (errStr) {
-        // reject deferred from exec()
-        cmdSto.deferred.reject(new Error(errStr));
-        // reject all promises in promsToResolve array, and the reset it to []
-        _.forEach(promsToResolve, function (prom) {
-            if (prom.isPending()) { Q.reject(prom); } //prom.reject(new Error(errStr));
-        });
-        promsToResolve = [];
-    };
-
-    tmrOut = setTimeout(function() {
-        rejectAll(cmdSto.cmdName + ' timeout.');
+    cmdSto.tmrOut = setTimeout(function() {
+        cmdSto._rejectAll(cmdName + ' timeout.');
+        self._removeErrListener(cmdSto);
         self._invokeNextCmd(subGroup, cmd);
     }, expired_ms);
 
     this.invokeCmd(cmdSto).then(function () {
-        return Q.all(promsToResolve);
+        return Q.all(cmdSto.promsToResolve);
     }, function (err) {
-        rejectAll('Serial port is unavailable');
+        cmdSto._rejectAll('Serial port is unavailable');
     }).then(function (result) {
-        clearTimeout(tmrOut);
         cmdSto.deferred.resolve(result);
     }).fail(function (err) {
-        rejectAll(err);
-        clearTimeout(tmrOut);
-        cmdSto.deferred.reject(err);
+        cmdSto._rejectAll(err);
     }).finally(function () {
+        clearTimeout(cmdSto.tmrOut);
+        self._removeErrListener(cmdSto);
         self._invokeNextCmd(subGroup, cmd);
     }).done();
 };
@@ -214,9 +214,22 @@ BleHci.prototype._invokeNextCmd = function (subGroup, cmd) {
     }
 };
 
-/*************************************************************************************************/
-/*** Private Functions                                                                         ***/
-/*************************************************************************************************/
+BleHci.prototype._removeErrListener = function (cmdSto) {
+    var cmdId;
+
+    if (cmdSto.subGroup === 'Att') {
+        cmdId = cmdSto.cmdId;
+    } else if (cmdSto.subGroup === 'Gatt') {
+        cmdId = cmdSto.rspCmdId;
+    } else {
+        return;
+    }
+
+    if (this.listenerCount('AttErrorRsp:' + cmdId) !== 0) {
+        this.removeListener('AttErrorRsp:' + cmdId, cmdSto.attErrHdlr);
+    }
+};
+
 /***************************************************/
 /*** Message Handlers                            ***/
 /***************************************************/
@@ -243,6 +256,7 @@ function appLevelHandler(msg) {
                 name: evtApiName,
                 data: parsed
             };
+
         if (evtApiName === 'GapCmdStatus') {
             objToEmit.name = objToEmit.name + ':' + parsed.data.opCode;
         } else if (evtApiName === 'AttErrorRsp') {
@@ -258,15 +272,15 @@ function appLevelHandler(msg) {
 /***************************************************/
 /*** Basic Event Handler Generators              ***/
 /***************************************************/
-function genNormalEvtHandler(deferred) {
+function genNormalEvtHdlr(deferred) {
     return function (msg) {
         var result = {};
         result[msg.evtName] = msg.data;
         deferred.resolve(result);
-    }
+    };
 }
 
-function genCmdStatusEvtHandler(deferred) {
+function genCmdStatusEvtHdlr(deferred) {
     return function (msg) {
         var result = {};
         if (msg.data.status !== 0) {
@@ -276,10 +290,10 @@ function genCmdStatusEvtHandler(deferred) {
             result[msg.evtName] = msg.data;
             deferred.resolve(result);
         }
-    }
+    };
 }
 
-function genMultiAttEvtHandler(deferred) {
+function genMultiAttEvtHdlr(deferred) {
     var result = {},
         count = 0;
 
@@ -292,7 +306,15 @@ function genMultiAttEvtHandler(deferred) {
             result[msg.evtName + count] = msg.data;
             deferred.resolve(result);
         }
-    }
+    };
+}
+
+function genUnpromHdlr(result) {
+    var count = 0;
+
+    return function (msg) {
+        result[msg.evtName + count] = msg.data;
+    };
 }
 
 /***************************************************/
@@ -306,10 +328,15 @@ function CmdStore(subGroup, cmd, argInst, deferred) {
     this.cmdName = subGroup + cmd;
     this.cmdId = BHCI.SubGroupCmd[subGroup].get(cmd).value;
     this.opCode = null;
+    this.rspCmdId = null;
+    //for error handling
+    this.attErrHdlr = null;
+    this.tmrOut = null;
 
     this.args = argInst;
     this.deferred = deferred;
     this.evtHandlersTable = {};
+    this.promsToResolve = [];
 
     (function () {
         var vendorCmdGroupDef = BHCI.CmdGroup.get('VENDOR_SPECIFIC'),
@@ -328,6 +355,22 @@ CmdStore.prototype.exportCmdPacket = function () {
         len: cmdBuf.length,
         data: cmdBuf
     };
+};
+
+CmdStore.prototype._rejectAll = function (err) {
+    var self = this;
+
+    if (_.isString(err)) { 
+        this.deferred.reject(new Error(err)); 
+    } else {
+        this.deferred.reject(err);
+    }
+
+    //reject all unprocess promise
+    _.forEach(self.promsToResolve, function (prom, idx) {
+        if (Q.isPending(prom)) { delete self.promsToResolve[idx]; } // TODO
+    });
+    this.promsToResolve = [];
 };
 
 CmdStore.prototype._assignHandler = function (hdlrKey, hdlr) {
@@ -350,7 +393,6 @@ CmdStore.prototype.removeListenersFromBleHci = function () {
 
 CmdStore.prototype.buildHandlers = function () {
     var self = this,
-        defr = this.deferred,
         subGroup = this.subGroup,
         cmdName = this.cmdName,
         cmdId = this.cmdId,
@@ -358,23 +400,22 @@ CmdStore.prototype.buildHandlers = function () {
 
     if (subGroup !== 'Hci') {
         // there is a basic handler
-        // _.merge(deferExecObj.evtHandlers, buildEvtHandler('General', 'Gap', 'CmdStatus', this.opCode));
-        this._assignHandler(('GapCmdStatus:' + this.opCode), genCmdStatusEvtHandler);
+        this._assignHandler(('GapCmdStatus:' + this.opCode), genCmdStatusEvtHdlr);
     }
 
     switch (subGroup) {
         case 'Hci':
             if (cmdName === 'HciDisconnectImmed') {
-                this._assignHandler('GapTerminateLink', genNormalEvtHandler);
+                this._assignHandler('GapLinkTerminated', genNormalEvtHdlr);
             }
 
             if (cmdName !== 'HciEnablePtm' && cmdName !== 'HciAdvEventNotice' && cmdName !== 'HciConnEventNotice' && cmdName !== 'HciPerByChan') {
-                this._assignHandler(hdlrKey, genNormalEvtHandler);
+                this._assignHandler(hdlrKey, genNormalEvtHdlr);
             }
             break;
 
         case 'L2cap':
-            this._assignHandler('L2capParamUpdateRsp', genNormalEvtHandler); //[TODO]L2capCmdReject
+            this._assignHandler('L2capParamUpdateRsp', genNormalEvtHdlr); //[TODO]L2capCmdReject
             break;
 
         case 'Att':
@@ -382,33 +423,39 @@ CmdStore.prototype.buildHandlers = function () {
             hdlrKey = BHCI.cmdEvtCorrTable[subGroup][cmdName];
             if (!hdlrKey) { break; }
 
+            if (_.isArray(hdlrKey)) {
+                hdlrKey = hdlrKey[0];
+                this._assignHandler(hdlrKey, genMultiAttEvtHdlr);
+            } else {
+                this._assignHandler(hdlrKey, genNormalEvtHdlr);
+            }
+
             if (subGroup === 'Gatt') {
                 cmdId = BHCI.SubGroupCmd.Att.get(hdlrKey.replace('Rsp', 'Req').slice(3)).value;
+                this.rspCmdId = cmdId;
             }
 
-            if (_.isArray(hdlrKey)) {
-                this._assignHandler(hdlrKey[0], genMultiAttEvtHandler);
-            } else {
-                this._assignHandler(hdlrKey, genNormalEvtHandler);
-            }
-
-            this.bleHci.once('AttErrorRsp:' + cmdId, function (msg) {
-                defr.reject({ AttErrorRsp: msg });
-                self.bleHci._invokeNextCmd(subGroup, self.cmd);
-                // [TODO] remove promiseHolder from holders
-            })
+            this.attErrHdlr = function (msg) {
+                self._rejectAll({ AttErrorRsp: msg });
+                clearTimeout(self.tmrOut);
+                self.bleHci._invokeNextCmd(self.subGroup, self.cmd);                
+            };
+            this.bleHci.once('AttErrorRsp:' + cmdId, this.attErrHdlr);
             break;
 
         case 'Gap':
             hdlrKey = BHCI.cmdEvtCorrTable.Gap[cmdName];
-            if (!hdlrKey || (cmdName === 'GapConfigDeviceAddr' && argInst.addrType === '0')) { break; }
+            if (!hdlrKey || (cmdName === 'GapConfigDeviceAddr' && this.args.addrType === '0')) { break; }
 
-            if (_.isArray(hdlrKey)) {
+            if (cmdName === 'GapDeviceDiscReq') {
+                this._assignHandler(hdlrKey[0], genUnpromHdlr);
+                this._assignHandler(hdlrKey[1], genNormalEvtHdlr);
+            } else if (_.isArray(hdlrKey)) {
                 _.forEach(hdlrKey, function (ev) {
-                    self._assignHandler(ev, genNormalEvtHandler);
-                })
+                    self._assignHandler(ev, genNormalEvtHdlr);
+                });
             } else {
-                this._assignHandler(hdlrKey, genNormalEvtHandler);
+                this._assignHandler(hdlrKey, genNormalEvtHdlr);
             }
             break;
 

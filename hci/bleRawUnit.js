@@ -108,7 +108,7 @@ BleRawUint.prototype.openSp = function (callback) {
         self.setSpState('OPENED');
 
         self.sp.on('error', function () {
-            if (!zself.isClosed()) {
+            if (!self.isClosed()) {
                 self.close();
             }
         });
@@ -123,7 +123,7 @@ BleRawUint.prototype.openSp = function (callback) {
 };
 
 BleRawUint.prototype.closeSp = function (callback) {
-    var self = this;
+    var self = this,
         deferred = Q.defer();
 
     if (!this.isClosed()) {
@@ -141,7 +141,7 @@ BleRawUint.prototype.closeSp = function (callback) {
     });
 
     return deferred.promise.nodeify(callback);
-}
+};
 // bleRawUint.parser.on('data', spDataHandler); //TODO
 /*************************************************************************************************/
 /*** Event Handler                                                                             ***/

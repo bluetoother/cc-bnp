@@ -165,18 +165,20 @@ ru.clause('GapDeviceDiscovery', function () {
         var inrCount = 0,
             name = 'dev' + count;
 
-        this.loop(name, function (inrEnd) {
-            if (inrCount < 2) {
-                this.uint8();
-            } else {
-                ru.addr('addr')(this);
-            }
+        if (this.vars.numDevs !== 0) {
+            this.loop(name, function (inrEnd) {
+                if (inrCount < 2) {
+                    this.uint8();
+                } else {
+                    ru.addr('addr')(this);
+                }
 
-            inrCount += 1;
-            if (inrCount === 3) { inrEnd(); }
-        }).tap(function () {
-            this.vars[name] = [this.vars[name][0]['undefined'], this.vars[name][1]['undefined'], this.vars[name][2].addr];
-        });
+                inrCount += 1;
+                if (inrCount === 3) { inrEnd(); }
+            }).tap(function () {
+                this.vars[name] = [this.vars[name][0]['undefined'], this.vars[name][1]['undefined'], this.vars[name][2].addr];
+            });
+        }
 
         count += 1;
         if (count === this.vars.numDevs) { end(); }
@@ -223,7 +225,7 @@ function buildExtraEvtAttrsRules (argObj, bufLen) {
 
     if (_.startsWith(constrName, 'Att')) {
         bufLen = bufLen - extAttrs.precedingLen;
-        if (bufLen === 0) { return extraRules; }    
+        if (bufLen === 0) { return extraRules; }   
         if (bufLen < extAttrs.minLen) { throw new Error('The length of the ' + extParams[0] + ' field of ' + constrName + ' is incorrect.'); }
     }
 
@@ -281,6 +283,6 @@ function buildExtraEvtAttrsRules (argObj, bufLen) {
             throw new Error(argObj.constr_name + ' event packet error!');
     }
     return extraRules;
-};
+}
 
 module.exports = hciEvtDiscriminator;

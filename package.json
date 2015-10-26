@@ -14,6 +14,7 @@
     "joi": "^6.9.0",
     "lodash": "^3.10.1",
     "q": "^1.4.1",
+    "redis": "^2.2.5",
     "serialport": "^2.0.1",
     "should": "^7.1.0",
     "should-promised": "^0.3.1"

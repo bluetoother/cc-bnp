@@ -325,7 +325,7 @@ module.exports = {
         preBufLen: 6
     },
     GattDiscAllCharDescs: {
-        params: ['connHandle', 'handle', 'offset'],
+        params: ['connHandle', 'startHandle', 'endHandle'],
         types: ['uint16le', 'uint16le', 'uint16le']
     },
     GattReadCharValue: {
@@ -367,8 +367,8 @@ module.exports = {
         preBufLen: 4
     },
     GattWriteCharValue: {
-        params: ['connHandle', 'signature', 'command', 'handle', 'value'],
-        types: ['uint16le', 'uint8', 'uint8', 'uint16le', 'buffer'],
+        params: ['connHandle', 'handle', 'value'],
+        types: ['uint16le', 'uint16le', 'buffer'],
         //for test
         preBufLen: 6
     },
@@ -398,8 +398,8 @@ module.exports = {
         types: ['uint16le', 'uint16le', 'uint16le']
     },
     GattWriteCharDesc: {
-        params: ['connHandle', 'signature', 'command', 'handle', 'value'],
-        types: ['uint16le', 'uint8', 'uint8', 'uint16le', 'buffer'],
+        params: ['connHandle', 'offset', 'value'],
+        types: ['uint16le', 'uint8', 'buffer'],
         //for test
         preBufLen: 6
     },
