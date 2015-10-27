@@ -58,7 +58,7 @@ var hciEvtMeta = {
     /*** Metadata of GAP APIs***/
     GapDeviceInitDone: {
         paramLens: 44,
-        params: ['status', 'devAddr', 'dataPltLen', 'numDataPkts', 'IRK', 'CSRK'],
+        params: ['status', 'devAddr', 'dataPktLen', 'numDataPkts', 'IRK', 'CSRK'],
         types: ['uint8', 'addr', 'uint16le', 'uint8', 'buffer16', 'buffer16']
     },
     GapDeviceDiscovery: {

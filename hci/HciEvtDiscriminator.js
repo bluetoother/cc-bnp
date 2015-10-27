@@ -176,8 +176,10 @@ ru.clause('GapDeviceDiscovery', function () {
                 inrCount += 1;
                 if (inrCount === 3) { inrEnd(); }
             }).tap(function () {
-                this.vars[name] = [this.vars[name][0]['undefined'], this.vars[name][1]['undefined'], this.vars[name][2].addr];
+                this.vars[name] = {evtType: this.vars[name][0]['undefined'], addrType: this.vars[name][1]['undefined'], addr: this.vars[name][2].addr};
             });
+        } else {
+            end();
         }
 
         count += 1;

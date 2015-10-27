@@ -30,7 +30,7 @@ function BleHci() {
 
         rawUnit.openSp().then(function () {
             deferred.resolve();
-        });
+        }).done();
 
         return deferred.promise.nodeify(callback);
     };
@@ -40,7 +40,7 @@ function BleHci() {
 
         rawUnit.closeSp().then(function () {
             deferred.resolve(  );
-        });
+        }).done();
 
         return deferred.promise.nodeify(callback);
     };
@@ -314,6 +314,7 @@ function genUnpromHdlr(result) {
 
     return function (msg) {
         result[msg.evtName + count] = msg.data;
+        count += 1;
     };
 }
 
@@ -366,9 +367,8 @@ CmdStore.prototype._rejectAll = function (err) {
         this.deferred.reject(err);
     }
 
-    //reject all unprocess promise
-    _.forEach(self.promsToResolve, function (prom, idx) {
-        if (Q.isPending(prom)) { delete self.promsToResolve[idx]; } // TODO
+    _.forEach(self.promsToResolve, function (prom) {
+        if (Q.isPending(prom)) { /*[TODO]*/ }
     });
     this.promsToResolve = [];
 };
