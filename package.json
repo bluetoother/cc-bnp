@@ -1,23 +1,35 @@
 {
-  "name": "bluetooth",
-  "version": "0.0.0",
-  "private": false,
-  "scripts": {
-    "start": "node ./bin/www"
+  "name": "ccbnp",
+  "version": "0.0.1",
+  "description": "The interface for communicating with TI CC254X BLE Network Processor over a serial port.",
+  "main": "index.js",
+  "directories": {
+    "example": "examples"
   },
   "dependencies": {
-    "chance": "^0.7.7",
     "concentrate": "^0.2.3",
     "dissolve": "^0.3.3",
-    "dissolve-chunks": "^1.0.0",
     "enum": "^2.2.0",
-    "joi": "^6.9.0",
-    "lodash": "^3.10.1",
+    "serialport": "^2.0.2",
+    "dissolve-chunks": "^1.0.0",
     "q": "^1.4.1",
-    "redis": "^2.2.5",
-    "serialport": "^2.0.1",
-    "should": "^7.1.0",
-    "should-promised": "^0.3.1"
+    "lodash": "^3.10.1"
   },
-  "devDependencies": {}
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hedywings/ccBnp.git"
+  },
+  "keywords": [
+    "ble"
+  ],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hedywings/ccBnp/issues"
+  },
+  "homepage": "https://github.com/hedywings/ccBnp"
 }
