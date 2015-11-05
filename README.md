@@ -1,18 +1,18 @@
 ccBnp
 ===============
 
-**ccBnp** is the interface for communicating with TI **CC**254X **B**LE **N**etwork **P**rocessor over a serial port.
+**ccBnp** is the interface for communicating with TI **CC**254X **B**LE **N**etwork **P**rocessor(BNP) over a serial port.
 
 <br>
 Overview
 --------
-**ccBnp** allows you to interact with TI's CC254X BLE network processor on node.js via *TI BLE Vendor-Specific HCI Command APIs*. Each command API function is in an asynchronous manner and supports both err-back callback style and promise-style.
+**ccBnp** allows you to interact with TI's CC254X BLE network processor(BNP) on node.js via *TI BLE Vendor-Specific HCI Command APIs*. Each Command API function is in an asynchronous manner and supports both err-back callback style and promise-style.
 
-**ccBnp** helps you to get rid of multiple *Vendor-Specific Events* from each invoked command. **ccBnp** gathers the multiple responses up, and finally passes the result to the command callback. With convenience of the **ccBnp**, it's easy and fun in designing BLE applications on node.js.
+**ccBnp** helps you to get rid of multiple *Vendor-Specific Events* handling of each command. **ccBnp** gathers the multiple responses up, and finally passes the result to the Command API callback. With **ccBnp**, it's easy and fun in designing BLE applications on node.js.
 
-BLE Network Processor
+BLE Network Processor (BNP)
 --------
-The following diagram shows the scenario when CC254X operates as a BLE network processor. In this case, the controller and host are implemented together on the CC2540/41, and the application can be externally developed on an application processor (e.g., another mcu or PC). The application and profiles can communicate with the CC2540/41 via TI's vendor-specific HCI commands using an UART interface.
+The following diagram shows the scenario when CC254X operates as a BNP. In this case, the controller and host are implemented together on the CC2540/41, and the application can be externally developed on an application processor (e.g., another mcu or PC). The application and profiles can communicate with BNP via TI's vendor-specific HCI commands upon an UART interface.
 
 ![Network Processor Configuration](https://github.com/hedywings/ccBnp/blob/master/documents/bnp.png)
 
@@ -22,15 +22,15 @@ Basic and Command APIs
 **ccBnp** provides two kinds of APIs:
 
 #### 1. [Basic APIs and Events](#basic_apis)
-The basic APIs are about how to initialize the network processor with a given role and how to close the connection from the processor. After the network process accomplishes the initializing procedure, the `'ready'` event will be fired by **ccBnp** . When there comes a BLE indication message, **ccBnp** will fire the `'ind'` event along with the message content.
+The basic APIs are about how to initialize the BNP with a given role and how to close the connection from the processor. After the BNP accomplishes the initializing procedure, a `'ready'` event will be fired by **ccBnp** . When there comes a BLE indication message, **ccBnp** will fire an `'ind'` event along with the message content.
 
 * [.init(config, role, [callback])](#init)
 * [.close([callback])](#close)
 * [.on('ready', callback)](#onReady)
 * [.on('ind', callback)](#onInd)
  
-#### 2. [TI's BLE Vendor-Specific HCI Commands](#vendorHci)
-TI's BLE Vendor-Specific HCI Commands are used to communicate with the CC254X BLE network processor. These commands are organized in API subgroubps: hci, l2cap, att, gatt, gap, and util.
+#### 2. [TI's BLE Vendor-Specific HCI Command APIs](#vendorHci)
+TI's BLE Vendor-Specific HCI Commands are used to communicate with the CC254X BNP. These commands are organized in API subgroubps: hci, l2cap, att, gatt, gap, and util.
 
 | Command SubGroup (CSG) |  Namespace  | Number of Commands |
 |:----------------------:|:-----------:|:------------------:|
@@ -45,20 +45,20 @@ TI's BLE Vendor-Specific HCI Commands are used to communicate with the CC254X BL
 Installation
 ------------
 Available via [npm](https://www.npmjs.com/package/ccbnp):
-> $ npm install ccbnp
+> $ npm install ccbnp --save
 
 <br>
 Usage
 --------
-To begin with **ccBnp**, you must firstly set up the serial port and initialize the network processor with a given role. This can be accomplished by simply call the .init() method.
+To begin with **ccBnp**, you must firstly set up the serial port and initialize the BNP with a given role. To do this, simply call the .init() method:
 ```javascript
-    var ccBnp = require('ccbnp'),
+    var ccBnp = require('ccbnp');
     var cfg = {
         path: '/dev/ttyUSB0'
     };
 
     ccBnp.on('ready', function () {
-        console.log('Initialize completes.');       
+        console.log('Initialization completes.');
     });
 
     ccBnp.init(cfg, 'central');
@@ -71,12 +71,12 @@ Basic APIs and Events
 -------
 
 <a name="init"></a>
-### .init(config, role, callback)
-> This method will open the serial port that connects to the CC254X SoC as well as initialize the BLE device with a given role.
+### .init(config, role, [callback])
+> This method will connect to the CC254X SoC upon a serial port as well as initialize the BNP with a given role.
 
 **Arguments**
 
-- config (*Object*): This value-object has two properties `path` and `options` for configuring the serial port. The `path` field is a string that refers to the system path of the serial port, e.g., `'/dev/ttyUSB0'`. The `options` field is a value-object for setting up the [seiralport](https://www.npmjs.com/package/serialport#to-use) instance. The default value of the `options` is shown in the following example.
+- config (*Object*): This value-object has two properties `path` and `options` for configuring the serial port. The `path` property is a string that refers to the system path of the serial port, e.g., `'/dev/ttyUSB0'`. The `options` property is a value-object for setting up the [seiralport](https://www.npmjs.com/package/serialport#to-use) instance. The default value of `options` is shown in the following example.
 - role (*String*): The device role. **ccBnp** supports four types of single role and two types of multi-roles:
     - `'broadcaster'` - Single role. An advertiser that is non-connectable.
     - `'observer'` - Single role. An observer that scans for advertisements. It can not initiate connections.
@@ -86,12 +86,12 @@ Basic APIs and Events
     - `'peripheral_observer'` - Multi-roles. The processor plays as a peripheral and an observer.
 - callback(err, result)
     - `'err'` (*Error*) - [Error Message](#errcodes)
-    - `'result'` (*Object*)- Device information that contains the following properties:
+    - `'result'` (*Object*) - Device information that contains the following properties:
 ```sh
     {
-        devAddr: <Buffer 78 c5 e5 9b 5e f8>,  // The device’s public address
-        IRK: <Buffer 72 74 73 20 3d 20 44 75 70 6c 65 78 3b 0a 0a 2f>,      // 16 byte Identity Resolving Key (IRK)
-        CSRK: <Buffer 2a 3c 72 65 70 6c 61 63 65 6d 65 6e 74 3e 2a 2f>      // 16 byte Connection Signature Resolving Key (CSRK)
+        devAddr: '0x78c5e59b5ef8',                           // Device public address
+        IRK: <Buffer 72 74 73 20 3d 20 44 75 70 6c 65 78 3b 0a 0a 2f>, // 16 bytes Identity Resolving Key
+        CSRK: <Buffer 2a 3c 72 65 70 6c 61 63 65 6d 65 6e 74 3e 2a 2f> // 16 bytes Connection Signature Resolving Key
     }
 ```
 
@@ -114,18 +114,18 @@ Basic APIs and Events
 ```
 <br>
 <a name="close"></a>
-### .close(callback)
-> This method closes the opened serial port.
+### .close([callback])
+> This method will close the opened serial port.
 
 **Arguments**
 
 - callback(err)
-    - `'err'` (*Error*) - Error Message
+    - `'err'` (*Error*) - [Error Message](#errcodes)
 
 **Example**
 ```javascript
     ccBnp.close(function (err) {
-        if (err) throw err;
+        if (err) console.log(err);
     });
 ```
 <br>
@@ -139,108 +139,112 @@ Basic APIs and Events
     - `'result'` (*Object*)- Device information that contains the properties:
 ```sh
     {
-        devAddr: <Buffer 78 c5 e5 9b 5e f8>,  // The device’s public address
-        IRK: <Buffer 72 74 73 20 3d 20 44 75 70 6c 65 78 3b 0a 0a 2f>,      // 16 byte Identity Resolving Key (IRK)
-        CSRK: <Buffer 2a 3c 72 65 70 6c 61 63 65 6d 65 6e 74 3e 2a 2f>      // 16 byte Connection Signature Resolving Key (CSRK)
+        devAddr: '0x78c5e59b5ef8',                            // Device public address
+        IRK: <Buffer 72 74 73 20 3d 20 44 75 70 6c 65 78 3b 0a 0a 2f>,  // 16 bytes IRK
+        CSRK: <Buffer 2a 3c 72 65 70 6c 61 63 65 6d 65 6e 74 3e 2a 2f>  // 16 bytes CSRK
     }
 ```
 
 **Example**
 ```javascript
     ccBnp.on('ready', function (result) {
+        console.log(result);
         // do your work here
     });
 ```
 <br>
 <a name="onInd"></a>
-### .on('ind', listener)
-> When there is a *BLE indication* message coming from CC254X, the **ccBnp** fires an `'ind'` event along with a message object.    
+### .on('ind', callback)
+> When there is a *BLE indication* message coming from BNP, the **ccBnp** fires an `'ind'` event along with a message object.    
 
 **Arguments**
 
 - callback(msg)
-    - msg (*Object*): This message object has two properties of `type` and `data`. The `type` denotes the type of the *BLE indication* message. The `data` is the content of the corresponding message.  
+    - msg (*Object*): This message object has two properties of `type` and `data`. The `type` denotes the type of the *BLE indication* message. The `data` is the content of the corresponding message. With the indication type of `'linkTerminated'`, you can find the reason of link termination from the [reason codes table](#reasoncodes).
     ```javascript
-    ccBnp.on('ind', function(msg) {
+    ccBnp.on('ind', function (msg) {
         console.log(msg.type);
         console.log(msg.data);
     });
     ```
 
     - msg.type (*String*)
-        * `'linkEstablished'` - TI Vendor-Specific Event **GAP\_LinkEstablished**
-        * `'linkTerminated'` - TI Vendor-Specific Event **GAP\_LinkTerminated**
-        * `'linkParamUpdate'` - TI Vendor-Specific Event **GAP\_LinkParamUpdate**
-        * `'attNoti'` - TI Vendor-Specific Event **ATT\_HandleValueNoti**
-        * `'attInd'` - TI Vendor-Specific Event **ATT\_HandleValueInd**
+        * `'linkEstablished'`   - TI Vendor-Specific Event **GAP\_LinkEstablished**
+        * `'linkTerminated'`    - TI Vendor-Specific Event **GAP\_LinkTerminated**
+        * `'linkParamUpdate'`   - TI Vendor-Specific Event **GAP\_LinkParamUpdate**
+        * `'attNoti'`           - TI Vendor-Specific Event **ATT\_HandleValueNoti**
+        * `'attInd'`            - TI Vendor-Specific Event **ATT\_HandleValueInd**
 
     - msg.data (*Object*)   
 
     ```sh
     When (msg.type === 'linkEstablished'):
     msg.data = {
-        addr: <Buffer 90 59 af 0b 81 59>,    // Address of the connected device
-        connHandle: 0,    // Handle of the connection
-        connInterval: 80,   //Connection interval used on this connection, time = 80 * 1.25 msec
-        connLatency: 0,    //Connection latency used on this connection
-        connTimeout: 2000,    //Connection supervision timeout, time = 2000 * 10 msec
-        clockAccuracy: 0,  //The accuracy of clock 
+        addr: '0x9059af0b8159,   // Address of the connected device
+        connHandle: 0,      // Handle of the connection
+        connInterval: 80,   // Connection interval used on this connection, time = 80 * 1.25 msec
+        connLatency: 0,     // Connection latency used on this connection
+        connTimeout: 2000,  // Connection supervision timeout, time = 2000 * 10 msec
+        clockAccuracy: 0,   // The accuracy of clock 
     }
     ```
+
     ```sh
     When (msg.type === 'linkTerminated'):
     msg.data = {
-        connHandle: 0,    // Connection Handle of terminated link
-        reason: 8,        // The reason code of link terminated
+        connHandle: 0,      // Connection Handle of the terminated link
+        reason: 8,          // The reason of termination
     }
     ```
-    The description of [reason code](#reasoncodes)
+
     ```sh
     When (msg.type === 'linkParamUpdate'):
     msg.data = {
-        connHandle: 0,   // Connection Handle of link
-        connInterval: 80, // Connection interval used on this connection, time = 80 * 1.25 msec
-        connLatency: 0,  // Connection latency used on this connection
-        connTimeout: 2000   // Connection supervision timeout, time = 2000 * 10 msec
+        connHandle: 0,
+        connInterval: 80,
+        connLatency: 0,
+        connTimeout: 2000
     }
     ```
+
     ```sh
     When (msg.type === 'attNoti'):
     msg.data = {
-        connHandle: 0,    // Handle of the connection
-        authenticated: 0, // Whether or not an authenticated link is required
-        handle: 93,       // The handle of the attribute
-        value: <Buffer C3 01>    // The value of the handle 
+        connHandle: 0,
+        authenticated: 0,       // Whether or not an authenticated link is required
+        handle: 93,             // The handle of the attribute
+        value: <Buffer C3 01>   // The value of the attribute 
     }
     ```
+
     ```sh
     When (msg.type === 'attInd'):
     msg.data = {
-        connHandle: 0,    // Handle of the connection
-        authenticated: 0, // Whether or not an authenticated link is required
-        handle: 94,       // The handle of the attribute
-        value: <Buffer 08 00>    // The value of the handle 
+        connHandle: 0,
+        authenticated: 0,
+        handle: 94,
+        value: <Buffer 08 00>
     }    
     ```
 
 <br>
 <a name="vendorHci"></a>
-Calling the TI BLE Vendor-Specific HCI Commands
+Calling the TI BLE Vendor-Specific HCI Command APIs
 --------------------------
-The **ccBnp** organizes the *TI's Vendor-Specific HCI Commands* into 6 subgroups. All vendor-specific HCI APIs in **ccBnp** support the [err-back](#errcodes) callback style and promise-style. Each API description is documented in [TI\_BLE\_Vendor\_Specific\_HCI_Guide.pdf](https://github.com/hedywings/ccBnp/blob/master/documents/TI_BLE_Vendor_Specific_HCI_Guide.pdf). 
+The **ccBnp** organizes the *TI's Vendor-Specific HCI Commands* into 6 API subgroups. Each Command API in **ccBnp** supports both the err-back callback style and promise-style. The description of commands is documented in [TI\_BLE\_Vendor\_Specific\_HCI_Guide.pdf](https://github.com/hedywings/ccBnp/blob/master/documents/TI_BLE_Vendor_Specific_HCI_Guide.pdf). 
 
 To invoke the Command API:
 
     ccBnp[subGroup][cmdName](..., callback);
 
-**subGroup** can be 'hci', 'l2cap', 'att', 'gatt', 'gap', or 'util'. In addition, **cmdName** is the command name in string. You can find the command names for the APIs 
+**subGroup** can be 'hci', 'l2cap', 'att', 'gatt', 'gap', or 'util'. In addition, **cmdName** is the Command API function name in string. You can find the function name of a Command API from this [reference table](#cmdTables).
 
-Here is an example of calling the **_deviceDiscReq()_** from the subgroup **_gap_**:
+Here is an example of calling **_deviceDiscReq()_** from the subgroup **_gap_**:
 
     // Please see Section 12.3 in TI BLE Vendor Specific HCI Reference Guide for API details.
     // argumens: (mode, activeScan, whiteList)
 ```javascript
-    ccBnp.gap.deviceDiscReq(3, 1, 0, function(err, result) {
+    ccBnp.gap.deviceDiscReq(3, 1, 0, function (err, result) {
     	if (err) {
     		console.log(err);
     	} else {
@@ -260,13 +264,17 @@ In promise-style:
 <a name="cmdTables"></a>
 Vendor-Specific HCI Command Reference Tables
 --------------------------
-These tables are *TI's Vendor-Specific HCI Commands* reference tables, you can use these table to find the **ccBnp** command API **cmdName** by *TI's Vendor-Specific HCI Commands*.
+These tables are the cross-references between the **Vendor-Specific HCI Command** and **ccBnp** Command API names.
 
+* 'BLE Vendor-Cmd' is the the command name documented in [TI\_BLE\_Vendor\_Specific\_HCI_Guide.pdf](https://github.com/hedywings/ccBnp/blob/master/documents/TI_BLE_Vendor_Specific_HCI_Guide.pdf).
+* 'ccBnp Cmd-API' is the API function name according to a vendor-specfic HCI command.
+* 'Arguments' is the required paramters to invoke the API.
+* 'Result' is the result passing to the callback.
 
 <a name="tblHci"></a>
 #### 1. ccBnp.hci APIs
 
-| TI BLE HCI commands | ccBnp API name | Arguments | result |
+| BLE Vendor-Cmd | ccBnp Cmd-API | Arguments | Result |
 | ------------- | ------------- | ------------- | ------------- |
 |HCI_EXT_SetRxGainCmd|setRxGain|rxGain|status|
 |HCI_EXT_SetTxPowerCmd|setTxPower|txPower|status|
@@ -304,14 +312,14 @@ These tables are *TI's Vendor-Specific HCI Commands* reference tables, you can u
 <a name="tblL2cap"></a>
 #### 2. ccBnp.l2cap APIs
 
-| TI BLE HCI commands | ccBnp commands | Arguments | result |
+| BLE Vendor-Cmd | ccBnp Cmd-API | Arguments | Result |
 | ------------- | ------------- | ------------- | ------------- |
 |L2CAP_ConnParamUpdateReq|paramUpdateReq|connHandle, intervalMin, intervalMax, slaveLatency, timeoutMultiplier|status, connHandle, reason|
 
 <a name="tblAtt"></a>
 #### 3. ccBnp.att APIs
 
-| TI BLE HCI commands | ccBnp commands | Arguments | result |
+| BLE Vendor-Cmd | ccBnp Cmd-API | Arguments | Result |
 | ------------- | ------------- | ------------- | ------------- |
 |ATT_ErrorRsp|errorRsp|connHandle, reqOpcode, handle, errCode|status, connHandle, pduLen, reqOpcode, handle, errCode|
 |ATT_ExchangeMtuReq|exchangeMtuReq|connHandle, clientRxMTU|status, connHandle, pduLen, clientRxMTU|
@@ -343,7 +351,7 @@ These tables are *TI's Vendor-Specific HCI Commands* reference tables, you can u
 <a name="tblGatt"></a>
 #### 4. ccBnp.gatt APIs
 
-| TI BLE HCI commands | ccBnp commands | Arguments | result |
+| BLE Vendor-Cmd | ccBnp Cmd-API | Arguments | Result |
 | ------------- | ------------- | ------------- | ------------- |
 |GATT_ExchangeMtu|exchangeMtu|connHandle, clientRxMTU|status, connHandle, pduLen, clientRxMTU|
 |GATT_DiscAllPrimaryServices|discAllPrimaryServices|connHandle|status, connHandle, pduLen, startHandle, endHandle|
@@ -374,7 +382,7 @@ These tables are *TI's Vendor-Specific HCI Commands* reference tables, you can u
 <a name="tblGap"></a>
 #### 5. ccBnp.gap APIs
 
-| TI BLE HCI commands | ccBnp commands | Arguments | result |
+| BLE Vendor-Cmd | ccBnp Cmd-API | Arguments | Result |
 | ------------- | ------------- | ------------- | ------------- |
 |GAP_DeviceInit|deviceInit|profileRole, maxScanResponses, IRK, CSRK, signCounter|status, devAddr, dataPktLen, numDataPkts, IRK, CSRK|
 |GAP_ConfigDeviceAddr|configDeviceAddr|BitMask, Addr|status, addrType, newRandomAddr|
@@ -404,7 +412,7 @@ These tables are *TI's Vendor-Specific HCI Commands* reference tables, you can u
 <a name="tblUtil"></a>
 #### 6. ccBnp.util APIs
 
-| TI BLE HCI commands | ccBnp commands | Arguments | result |
+| BLE Vendor-Cmd | ccBnp Cmd-API | Arguments | Result |
 | ------------- | ------------- | ------------- | ------------- |
 |UTIL_NVRead|nvRead|nvID, nvDataLen|status, nvData|
 |UTIL_NVWrite|nvWrite|nvID, nvDataLen, nvData|status|
@@ -412,22 +420,15 @@ These tables are *TI's Vendor-Specific HCI Commands* reference tables, you can u
 
 <br>
 <a name="errcodes"></a>
-Error Codes
+Error Message
 --------------------------
-When command occurs error, callback err parameter will be error object. 
-
-**Example**
-```javascript
-    function(err, result) {
-        if (err) throw err;
-    }
-```
+The error returned from BNP will pass to the callback as an error object with a message formatted in
 
 ```sh
-    ccBnpError: AttError, Error message: The attribute cannot be written
+    HciError(10): Synch conn limit exceeded
 ```
 
-There are three type of errors. You can find error message by error code.
+, where 'HciError' denotes the type of error and the number 10 within the parentheses is the corresponding error code.
 
 #### 1. HciError
 |Error code|Description|
@@ -553,9 +554,8 @@ There are three type of errors. You can find error message by error code.
 | 67 | Ble Insufficient KeySize |
 
 <a name="reasoncodes"></a>
-Reason Codes
+Reason Code of Link-termination
 --------------------------
-The reason code of link terminated.
 
 |Value|Description|
 | ------------- | ------------- |
@@ -566,3 +566,18 @@ The reason code of link terminated.
 |  40 | Control Packet Instant Passed |
 |  59 | LSTO Violation |
 |  61 | MIC Failure |
+
+Further Work
+--------
+1. Parse the attribte value according to its data type specified in SIG-defined GATT [Characteristic](https://developer.bluetooth.org/gatt/characteristics/Pages/CharacteristicsHome.aspx).
+
+Contributors
+--------
+
+* [Hedy Wang](https://www.npmjs.com/~hedywings)
+* [Peter Yi](https://www.npmjs.com/~petereb9)
+* [Simen Li](https://www.npmjs.com/~simenkid)
+
+License
+--------
+MIT

@@ -1,6 +1,6 @@
 var ccBnp = require('../index.js');
 var cfg = {
-    path: '/dev/ttyACM3',
+    path: '/dev/ttyUSB0',
     baudRate: 115200
 };
 

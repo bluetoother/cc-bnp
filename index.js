@@ -22,7 +22,9 @@ CcBpn.prototype.init = function (spConfig, role, callback) {
             'broadcaster': 0x0001,
             'observer': 0x0002,
             'peripheral': 0x0004,
-            'central': 0x0008
+            'central': 0x0008,
+            'central_broadcaster': 0x0009,
+            'peripheral_observer': 0x0006
         }),
         sp, 
         path = spConfig.path, 
