@@ -14,7 +14,7 @@ BLE Network Processor (BNP)
 --------
 The following diagram shows the scenario when CC254X operates as a BNP. In this case, the controller and host are implemented together on the CC2540/41, and the application can be externally developed on an application processor (e.g., another mcu or PC). The application and profiles can communicate with BNP via TI's vendor-specific HCI commands upon an UART interface.
 
-![Network Processor Configuration](https://github.com/hedywings/ccBnp/blob/master/documents/bnp.png)
+![Network Processor Configuration](https://raw.githubusercontent.com/hedywings/ccBnp/master/documents/bnp.png)
 
 
 Basic and Command APIs
