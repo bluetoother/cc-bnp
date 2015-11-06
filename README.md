@@ -180,7 +180,7 @@ Basic APIs and Events
     ```sh
     When (msg.type === 'linkEstablished'):
     msg.data = {
-        addr: '0x9059af0b8159,   // Address of the connected device
+        addr: '0x9059af0b8159',   // Address of the connected device
         connHandle: 0,      // Handle of the connection
         connInterval: 80,   // Connection interval used on this connection, time = 80 * 1.25 msec
         connLatency: 0,     // Connection latency used on this connection
