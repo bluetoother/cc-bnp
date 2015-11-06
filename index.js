@@ -46,7 +46,7 @@ CcBpn.prototype.init = function (spConfig, role, callback) {
             deferred.reject(err);
         });
     }, function(err) {
-        deferred.reject(err);;
+        deferred.reject(err);
     });
 
     return deferred.promise.nodeify(callback);
@@ -161,6 +161,39 @@ hci.on('AttHandleValueInd', function (data) {
     };
     delete msg.data.status;
     delete msg.data.pduLen;
+    ccBpn.emit('ind', msg);
+});
+
+hci.on('GapAuthenticationComplete', function (data) {
+    var msg = {
+        type: 'authenComplete',
+        data: {
+            connHdl: data.data.connHandle,
+            mitm: data.data.authState & 0x04,
+            bond: data.data.authState & 0x01,
+            ltk: data.data.dev_ltk,
+            div: data.data.dev_div,
+            rand: data.data.dev_rand
+        }
+    };
+    ccBpn.emit('ind', msg);
+});
+
+hci.on('GapPasskeyNeeded', function (data) {
+    var msg = {
+        type: 'passkeyNeeded',
+        data: data.data
+    };
+    delete msg.data.status;
+    ccBpn.emit('ind', msg);
+});
+
+hci.on('GapBondComplete', function (data) {
+    var msg = {
+        type: 'bondComplete',
+        data: data.data
+    };
+    delete msg.data.status;
     ccBpn.emit('ind', msg);
 });
 
