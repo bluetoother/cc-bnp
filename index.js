@@ -28,9 +28,8 @@ CcBpn.prototype.init = function (spConfig, role, callback) {
         }),
         sp, 
         path = spConfig.path, 
-        config = spConfig;
+        config = spConfig.options;
 
-    delete config.path;
     sp = new SerialPort(path, config, false);
     hci.registerSp(sp);
     hci.openSp().then(function(result) {
