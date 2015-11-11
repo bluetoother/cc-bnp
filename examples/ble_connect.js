@@ -1,7 +1,7 @@
 var ccBnp = require('../index.js');
 
 var cfg = {
-    path: '/dev/ttyUSB0',
+    path: '/dev/ttyACM0',
     options: {
         baudRate: 115200
     }
@@ -15,7 +15,9 @@ ccBnp.on('ready', function(result) {
         if (result[1].GapDeviceInfo0) {
             ccBnp.gap.estLinkReq(0, 0, 0, result[1].GapDeviceInfo0.addr, function (err, result) {
                 if (err) throw err;
-                console.log(result);
+                ccBnp.gap.deviceDiscReq(3, 1, 0).then(function (result) {
+                    console.log(result);
+                });
             });
         }
     });

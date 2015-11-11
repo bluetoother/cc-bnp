@@ -167,7 +167,7 @@ hci.on('GapAuthenticationComplete', function (data) {
     var msg = {
         type: 'authenComplete',
         data: {
-            connHdl: data.data.connHandle,
+            connHandle: data.data.connHandle,
             mitm: data.data.authState & 0x04,
             bond: data.data.authState & 0x01,
             ltk: data.data.dev_ltk,
