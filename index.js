@@ -33,7 +33,7 @@ CcBpn.prototype.init = function (spConfig, role, callback) {
     sp = new SerialPort(path, config, false);
     hci.registerSp(sp);
     hci.openSp().then(function(result) {
-        self.gap.deviceInit(roles.get(role).value, 5, new Buffer(16), new Buffer(16), 1).then(function (result) {
+        self.gap.deviceInit(roles.get(role).value, 5, new Buffer(16).fill(0), new Buffer(16).fill(0), 1).then(function (result) {
             var msg = result[1].GapDeviceInitDone;
 
             delete msg.status;
@@ -168,8 +168,8 @@ hci.on('GapAuthenticationComplete', function (data) {
         type: 'authenComplete',
         data: {
             connHandle: data.data.connHandle,
-            mitm: data.data.authState & 0x04,
-            bond: data.data.authState & 0x01,
+            mitm: (data.data.authState & 0x04) >> 2,
+            bond: (data.data.authState & 0x01),
             ltk: data.data.dev_ltk,
             div: data.data.dev_div,
             rand: data.data.dev_rand
