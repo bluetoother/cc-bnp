@@ -1,6 +1,6 @@
 {
   "name": "ccbnp",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "The interface for communicating with TI CC254X BLE Network Processor over a serial port.",
   "main": "index.js",
   "directories": {
