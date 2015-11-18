@@ -5,9 +5,10 @@ var util = require('util'),
     SerialPort = require('serialport').SerialPort,
     _ = require('lodash'),
     Enum = require('enum'),
-    Q = require('q');;
+    Q = require('q');
 
 var hciCmdMeta = require('./lib/hci/HciCmdMeta'),
+    hciCharDisc = require('./lib/hci/HciCharDiscriminator'),
     BHCI = require('./lib/defs/blehcidefs'),
     hci = require('./lib/hci/bleHci');
 
@@ -100,7 +101,7 @@ CcBpn.prototype.util = {};
                     data[hciCmdMeta[cmdName].params[i]] = arg[i];
                 }
 
-                hci.execCmd(subGroup, cmd, data).then(function(result) {
+                hci.execCmd(subGroup, cmd, data).then(function (result) {
                     deferred.resolve(result);
                 }, function(err) {
                     deferred.reject(err);
@@ -113,6 +114,209 @@ CcBpn.prototype.util = {};
     });
 })();
 
+/***************************************************/
+/*** Overwrite command                          ***/
+/***************************************************/
+CcBpn.prototype.att.readReq = function (connHandle, handle, callback) {
+    var deferred = Q.defer(),
+        uuid,
+        charDisc,
+        charObj;
+
+    hci.execCmd('Gatt', 'DiscAllChars', {connHandle: connHandle, startHandle: handle-1, endHandle: handle}).then(function (result) {
+        var charObj = result[1].AttReadByTypeRsp0.data.attrVal0;
+        uuid = '0x';
+        for(var j = charObj.length; j > 3; j -= 1) {
+            if (charObj[j - 1] <= 15) {
+                uuid += '0' + charObj[j - 1].toString(16);
+            } else {
+                uuid += charObj[j - 1].toString(16);
+            }
+        }
+        charDisc = hciCharDisc(uuid);
+        return hci.execCmd('Att', 'ReadReq', {connHandle: connHandle, handle: handle});
+    }).then(function (result) {
+        charObj = result;
+        return charDisc.getCharValPacket(result[1].AttReadRsp.value);
+    }).then(function (result) {
+        charObj[1].AttReadRsp.value = result;
+        deferred.resolve(charObj);
+    }).fail(function (err) {
+        deferred.reject(err);
+    });
+    
+    return deferred.promise.nodeify(callback);
+};
+
+CcBpn.prototype.att.readByTypeReq = function (connHandle, startHandle, endHandle, type, callback) {
+    var deferred = Q.defer(),
+        uuid = '0x',
+        charDisc,
+        count = 0, 
+        total = 0,
+        temp = [];
+
+    for(var j = type.length; j > 0; j -= 1) {
+        if (type[j - 1] <= 15) {
+            uuid += '0' + type[j - 1].toString(16);
+        } else {
+            uuid += type[j - 1].toString(16);
+        }
+    }
+    charDisc = hciCharDisc(uuid);
+
+    hci.execCmd('Att', 'ReadByTypeReq', {connHandle: connHandle, startHandle: startHandle, endHandle: endHandle, type: type}).then(function (result) {
+        charDisc.on('parsed', function (value) {
+            temp.push(value);
+            count += 1;
+            if (count === total) {
+                count = 0;
+                for (var i = 0; i < (_.keys(result[1]).length); i += 1) {
+                    var charObj = result[1]['AttReadByTypeRsp' + i];
+                    if (charObj.status === 0) { 
+                        for (var j = 0; j < (_.keys(charObj.data).length / 2); j += 1) {
+                            result[1]['AttReadByTypeRsp' + i].data['attrVal' + j] = temp[count];
+                            count += 1;
+                        }
+                    }
+                }
+                deferred.resolve(result);
+            }
+        });
+
+        _.forEach(result[1], function (evtObj) {
+            if (evtObj.status === 0) {
+                total += _.keys(evtObj.data).length / 2;
+            }
+        });
+
+        for (var i = 0; i < (_.keys(result[1]).length); i += 1) {
+            var charObj = result[1]['AttReadByTypeRsp' + i];
+            if (charObj.status === 0) { 
+                for (var j = 0; j < (_.keys(charObj.data).length / 2); j += 1) {
+                    charDisc.getCharValPacket(charObj.data['attrVal' + j]);
+                }
+            }
+        }
+    }).fail(function (err) {
+        deferred.reject(err);
+    });
+    
+    return deferred.promise.nodeify(callback);
+};
+
+//TODO AttReadBlobReq
+//TODO AttReadMultiReq
+
+CcBpn.prototype.gatt.readCharValue = function (connHandle, handle, callback) {
+    var deferred = Q.defer(),
+        uuid,
+        charDisc,
+        charObj;
+
+    hci.execCmd('Gatt', 'DiscAllChars', {connHandle: connHandle, startHandle: handle-1, endHandle: handle}).then(function (result) {
+        var charObj = result[1].AttReadByTypeRsp0.data.attrVal0;
+        uuid = '0x';
+        for(var j = charObj.length; j > 3; j -= 1) {
+            if (charObj[j - 1] <= 15) {
+                uuid += '0' + charObj[j - 1].toString(16);
+            } else {
+                uuid += charObj[j - 1].toString(16);
+            }
+        }
+        charDisc = hciCharDisc(uuid);
+        return hci.execCmd('Gatt', 'ReadCharValue', {connHandle: connHandle, handle: handle});
+    }).then(function (result) {
+        charObj = result;
+        return charDisc.getCharValPacket(result[1].AttReadRsp.value);
+    }).then(function (result) {
+        charObj[1].AttReadRsp.value = result;
+        deferred.resolve(charObj);
+    }).fail(function (err) {
+        deferred.reject(err);
+    });
+    
+    return deferred.promise.nodeify(callback);
+};
+
+CcBpn.prototype.gatt.readUsingCharUuid = function (connHandle, startHandle, endHandle, type, callback) {
+    var deferred = Q.defer(),
+        uuid = '0x',
+        charDisc,
+        count = 0, 
+        total = 0,
+        temp = [];
+
+    for(var j = type.length; j > 0; j -= 1) {
+        if (type[j - 1] <= 15) {
+            uuid += '0' + type[j - 1].toString(16);
+        } else {
+            uuid += type[j - 1].toString(16);
+        }
+    }
+    charDisc = hciCharDisc(uuid);
+
+    hci.execCmd('Gatt', 'ReadUsingCharUuid', {connHandle: connHandle, startHandle: startHandle, endHandle: endHandle, type: type}).then(function (result) {
+        charDisc.on('parsed', function (value) {
+            temp.push(value);
+            count += 1;
+            if (count === total) {
+                count = 0;
+                for (var i = 0; i < (_.keys(result[1]).length); i += 1) {
+                    var charObj = result[1]['AttReadByTypeRsp' + i];
+                    if (charObj.status === 0) { 
+                        for (var j = 0; j < (_.keys(charObj.data).length / 2); j += 1) {
+                            result[1]['AttReadByTypeRsp' + i].data['attrVal' + j] = temp[count];
+                            count += 1;
+                        }
+                    }
+                }
+                deferred.resolve(result);
+            }
+        });
+
+        for (var i = 0; i < (_.keys(result[1]).length); i += 1) {
+            var charObj = result[1]['AttReadByTypeRsp' + i];
+            if (charObj.status === 0) { 
+                for (var j = 0; j < (_.keys(charObj.data).length / 2); j += 1) {
+                    total += 1;
+                    charDisc.getCharValPacket(charObj.data['attrVal' + j]);
+                }
+            }
+        }
+    }).fail(function (err) {
+        deferred.reject(err);
+    });
+    
+    return deferred.promise.nodeify(callback);
+};
+
+//TODO GattReadLongCharValue
+//TODO GattReadMultiReq
+/***************************************************/
+/*** ble-shepherd command                        ***/
+/***************************************************/
+CcBpn.prototype.att.readReqWithUuid = function (connHandle, handle, uuid, callback) {
+    var deferred = Q.defer(),
+        charDisc = hciCharDisc(uuid),
+        charObj;
+
+    hci.execCmd('Att', 'ReadReq', {connHandle: connHandle, handle: handle}).then(function (result) {
+        charObj = result;
+        return charDisc.getCharValPacket(result[1].AttReadRsp.value);
+    }).then(function (result) {
+        charObj[1].AttReadRsp.value = result;
+        deferred.resolve(charObj);
+    }).fail(function (err) {
+        deferred.reject(err);
+    });
+    
+    return deferred.promise.nodeify(callback);
+};
+
+/***************************************************/
+/***                                             ***/
+/***************************************************/
 var ccBpn = new CcBpn();
 
 hci.on('GapLinkEstablished', function (data) {
