@@ -136,6 +136,22 @@ CcBnp.prototype.util = {};
 
 var ccBnp = new CcBnp();
 
+var attEvtArr = [
+    'AttExchangeMtuReq', 'AttFindInfoReq', 'AttFindByTypeValueReq', 'AttReadByTypeReq', 
+    'AttReadReq', 'AttReadBlobReq', 'AttReadMultiReq', 'AttReadByGrpTypeReq', 'AttWriteReq',
+    'AttPrepareWriteReq', 'AttExecuteWriteReq'
+];
+
+_.forEach(attEvtArr, function (evtName) {
+    hci.on(evtName, function (data) {
+        var msg = {
+            type: 'attReq',
+            data: data
+        };
+        ccBpn.emit('ind', msg);
+    });
+});
+
 hci.on('GapLinkEstablished', function (data) {
     var msg = {
         type: 'linkEstablished',
