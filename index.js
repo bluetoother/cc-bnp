@@ -8,6 +8,7 @@ var util = require('util'),
     Q = require('q');
 
 var hciCmdMeta = require('./lib/hci/HciCmdMeta'),
+    hciCharMeta = require('./lib/hci/HciCharMeta'),
     charDiscrim = require('./lib/hci/HciCharDiscriminator'),
     charBuild = require('./lib/hci/HciCharBuilder'),
     BHCI = require('./lib/defs/blehcidefs'),
@@ -96,7 +97,10 @@ CcBnp.prototype.util = {};
                     callback,
                     uuid;
 
-                if (arg.length > hciCmdMeta[cmdName].params.length) {
+                if (_.isObject(arg[0])) {
+                    if (_.size(arg) === 2) { callback = arg[1]; }
+                    data = arg[0];
+                }else if (arg.length > hciCmdMeta[cmdName].params.length) {
                     if (_.isFunction(arg[arg.length - 1])) {
                         callback = arg.splice(arg.length - 1, 1)[0];
                     }
@@ -104,10 +108,10 @@ CcBnp.prototype.util = {};
                     if(arg.length > hciCmdMeta[cmdName].params.length) {
                         uuid = arg.splice(arg.length - 1, 1)[0];
                     }
-                }
 
-                for (var i = 0; i < arg.length; i++) {
-                    data[hciCmdMeta[cmdName].params[i]] = arg[i];
+                    for (var i = 0; i < arg.length; i++) {
+                        data[hciCmdMeta[cmdName].params[i]] = arg[i];
+                    }
                 }
 
                 if(uuid) {
@@ -126,6 +130,15 @@ CcBnp.prototype.util = {};
         });
     });
 })();
+
+CcBnp.prototype.regCharMeta = function (regObj) {
+    if (hciCharMeta[regObj.uuid]) { throw new Error('Characteristic uuid alreadt exist.'); }
+
+    hciCharMeta[regObj.uuid] = {
+        params: regObj.params,
+        types: regObj.types
+    };
+};
 
 /***************************************************/
 /*** Overwrite command                          ***/
@@ -148,7 +161,7 @@ _.forEach(attEvtArr, function (evtName) {
             type: 'attReq',
             data: data
         };
-        ccBpn.emit('ind', msg);
+        ccBnp.emit('ind', msg);
     });
 });
 
