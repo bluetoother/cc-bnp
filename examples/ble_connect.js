@@ -4,7 +4,7 @@ var cfg = {
     path: '/dev/ttyACM0',
     options: {
         baudRate: 115200
-    }
+    }   
 };
 
 ccBnp.on('ready', function(result) {
@@ -12,21 +12,28 @@ ccBnp.on('ready', function(result) {
     ccBnp.gap.deviceDiscReq(3, 1, 0, function(err, result) {
         console.log(result);
         if (result[1].GapDeviceInfo0) {
-            ccBnp.gap.estLinkReq(0, 0, 0, result[1].GapDeviceInfo0.addr, function (err, result) {
+            ccBnp.gap.estLinkReq(0, 0, 0, '0x9059af0b8159', function (err, result) {    //'0x9059af0b8159'  '0x78c5e5707a06'
                 if (err) console.log(err);
-                ccBnp.att.readReq(result[1].GapLinkEstablished.connHandle, 3).then(function (result) {
-                    console.log(result[1].AttReadRsp);
+                // ccBnp.gatt.writeCharValue(result[1].GapLinkEstablished.connHandle, 0xaa01, {Flags: 2, TempC: 25.6, Year: 2015, Month: 12, Day: 10, Hours: 18, Minutes: 37, Seconds: 41}).then(function (result) {
+                //     console.log(result[1]);
+                // }).fail(function (err) {
+                //     console.log(err);
+                // });
+
+                ccBnp.gatt.writeCharValue(0, 38, new Buffer([0x01, 0x00])).then(function (result) {
+                    console.log(result);
+                    return ccBnp.gatt.writeCharValue(0, 41, new Buffer([0x01]));
+                }).then(function (result) {
+                    console.log(result);
                 }).fail(function (err) {
                     console.log(err);
                 });
 
-                // ccBnp.att.writeReqWithUuid(result[1].GapLinkEstablished.connHandle, 0, 0, 37, {Flags: 2, TempC: 28.75, Year: 1991, Month: 9, Day: 17, Hours: 22, Minutes: 32, Seconds: 11}, '0x2a1c').then(function (result) {
+                // ccBnp.gatt.readCharValue(0, 18, '0x2a23', function (err, result) {
                 //     console.log(result);
-                //     return ccBnp.att.readReqWithUuid(result[1].AttWriteRsp.connHandle, 37, '0x2a1c');
-                // }).then(function (result) {
-                //     console.log(result[1].AttReadRsp);
-                // }).fail(function (err) {
-                //     console.log(err);
+                //     ccBnp.gatt.readCharValue(0, 18, '0x2a23', function (err, result) {
+                //         console.log(result);
+                //     });
                 // });
             });
         }
