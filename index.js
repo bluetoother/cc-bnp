@@ -48,6 +48,7 @@ CcBnp.prototype.init = function (spConfig, role, callback) {
             deferred.reject(err);
         });
     }, function(err) {
+
         deferred.reject(err);
     });
 
@@ -100,17 +101,20 @@ CcBnp.prototype.util = {};
                 if (_.isObject(arg[0])) {
                     if (_.size(arg) === 2) { callback = arg[1]; }
                     data = arg[0];
-                }else if (arg.length > hciCmdMeta[cmdName].params.length) {
-                    if (_.isFunction(arg[arg.length - 1])) {
-                        callback = arg.splice(arg.length - 1, 1)[0];
-                    }
-
-                    if(arg.length > hciCmdMeta[cmdName].params.length) {
-                        uuid = arg.splice(arg.length - 1, 1)[0];
-                    }
-
-                    for (var i = 0; i < arg.length; i++) {
+                } else {
+                    for (var i = 0; i < hciCmdMeta[cmdName].params.length; i++) {
                         data[hciCmdMeta[cmdName].params[i]] = arg[i];
+                    }
+
+                    if (arg.length > hciCmdMeta[cmdName].params.length) {
+
+                        if (_.isFunction(arg[arg.length - 1])) {
+                            callback = arg.splice(arg.length - 1, 1)[0];
+                        }
+
+                        if(arg.length > hciCmdMeta[cmdName].params.length) {
+                            uuid = arg.splice(arg.length - 1, 1)[0];
+                        }
                     }
                 }
 
