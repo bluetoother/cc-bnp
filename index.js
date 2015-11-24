@@ -147,9 +147,111 @@ CcBnp.prototype.regCharMeta = function (regObj) {
 /***************************************************/
 /*** Overwrite command                          ***/
 /***************************************************/
-//TODO AttReadMultiReq
-//TODO AttReadByGrpTypeReq
-//TODO GattReadMultiReq
+function readMulti (connHandle, handles, uuids, callback) {
+    var self = this,
+        deferred = Q.defer(),
+        charToResolve = [],
+        uuidToResolve = [],
+        value = {},
+        uuid = ( uuids || {} ),
+        pduLen = 0,
+        evtObj,
+        opCode,
+        uuidFlag = 0;
+
+    for (var i = 0; i < (_.size(handles)); i += 1) {
+        if(!uuid['uuid' + i]) {
+            uuidToResolve.push((function () {
+                var deferred = Q.defer(),
+                    count = i;
+
+                hci.execCmd('Gatt', 'DiscAllChars', {connHandle: connHandle, startHandle: handles['handle' + i] - 1, endHandle: handles['handle' + i]}).then(function (result) {
+                    uuid['uuid' + count] = result[1].AttReadByTypeRsp0.data.attrVal0.uuid;
+                    deferred.resolve();
+                }).fail(function (err) {
+                    deferred.reject(err);
+                });
+
+                return deferred.promise.nodeify(callback);
+            }()));
+        }
+    }
+
+    Q.all(uuidToResolve).then(function () {
+        _.forEach(uuid, function (val, key) {
+            if (hciCharMeta[val]) {
+                _.forEach(hciCharMeta[val].types, function (type) {
+                    if (type === 'string' || type === 'uuid') { uuidFlag = 1; }
+                });
+            } else {
+                uuidFlag = 1;
+            }
+        });
+
+        if (uuidFlag === 1) {
+            for (var i = 0; i < (_.size(handles)); i += 1) {
+                charToResolve.push((function () {
+                    return hci.execCmd('Att', 'ReadReq', {connHandle: connHandle, handle: handles['handle' + i], uuid: uuid['uuid' + i]});
+                }()));
+            }
+        } else {
+            charToResolve.push((function () {
+                return hci.execCmd('Att', 'ReadMultiReq', {connHandle: connHandle, handles: handles});
+            }()));
+        }
+    }).then(function () {
+        return Q.all(charToResolve);
+    }).then(function (result) {
+        if (uuidFlag === 1) {
+            if ( self.readMultiReq ) {
+                opCode = 64782;
+            } else {
+                opCode = 64910;
+            }
+
+            for (var i = 0; i < result.length; i += 1) {
+                pduLen += result[i][1].AttReadRsp.pduLen;
+                value[handles['handle' + i]] = result[i][1].AttReadRsp.value;
+            }
+            evtObj = [
+                { 
+                    GapCmdStatus: {
+                        status: 0,
+                        opCode: opCode,
+                        dataLen: 0,
+                        payload: new Buffer(0)
+                    }
+                },
+                {
+                    AttReadMultiRsp: {
+                        status: 0,
+                        connHandle: connHandle,
+                        pduLen: pduLen,
+                        value: value
+                    }
+                }
+            ];
+            deferred.resolve(evtObj);
+        } else {
+            evtObj = result[0];
+            charDiscrim(uuid).getCharValPacket(evtObj[1].AttReadMultiRsp.value).then(function (result) {
+                evtObj[1].AttReadMultiRsp.value = {};
+                for (var i = 0; i < (_.size(result)); i += 1) {
+                    evtObj[1].AttReadMultiRsp.value[handles['handle' + i]] = result['uuid' + i];
+                }
+                deferred.resolve(evtObj);
+            });
+           
+        }
+    }).fail(function (err) {
+        deferred.reject(err);
+    });
+
+    return deferred.promise.nodeify(callback);
+}
+
+CcBnp.prototype.att.readMultiReq = readMulti;
+CcBnp.prototype.gatt.readMultiCharValues = readMulti;
 
 var ccBnp = new CcBnp();
 
