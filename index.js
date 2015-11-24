@@ -136,12 +136,27 @@ CcBnp.prototype.util = {};
 })();
 
 CcBnp.prototype.regCharMeta = function (regObj) {
+    if (_.isNumber(regObj.uuid)) { regObj.uuid = '0x' + regObj.uuid.toString(16); }
     if (hciCharMeta[regObj.uuid]) { throw new Error('Characteristic uuid alreadt exist.'); }
 
     hciCharMeta[regObj.uuid] = {
         params: regObj.params,
         types: regObj.types
     };
+};
+
+CcBnp.prototype.regUuidHdlTable = function (table) {
+    if (!_.isObject(table)) { return new Error('table must be an object'); }
+
+    _.forEach(table, function (devTable, connHdl) {
+        if (!hci._uuidHdlTable[connHdl]) {
+            hci._uuidHdlTable[connHdl] = devTable;
+        } else {
+            _.forEach(devTable, function (uuid, hdl) {
+                hci._uuidHdlTable[connHdl][hdl] = uuid;
+            });
+        }
+    });
 };
 
 /***************************************************/
