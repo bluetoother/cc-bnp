@@ -214,7 +214,6 @@ function readMulti (connHandle, handles, uuids, callback) {
                 return hci.execCmd('Att', 'ReadMultiReq', {connHandle: connHandle, handles: handles});
             }()));
         }
-    }).then(function () {
         return Q.all(charToResolve);
     }).then(function (result) {
         if (uuidFlag === 1) {
