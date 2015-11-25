@@ -26,14 +26,20 @@ ccBnp.on('ready', function(result) {
                 //     console.log(err);
                 // });
 
-                ccBnp.att.writeReq(0, 0, 0, 38, new Buffer([0x01, 0x00])).then(function (result) {
-                    console.log(result);
-                    return ccBnp.att.writeReq(0, 0, 0, 41, new Buffer([0x01]));
-                }).then(function (result) {
-                    console.log(result);
-                }).fail(function (err) {
-                    console.log(err);
-                });
+                // ccBnp.att.writeReq(0, 0, 0, 38, new Buffer([0x01, 0x00])).then(function (result) {
+                //     console.log(result);
+                //     return ccBnp.att.writeReq(0, 0, 0, 41, new Buffer([0x01]));
+                // }).then(function (result) {
+                //     console.log(result);
+                // }).fail(function (err) {
+                //     console.log(err);
+                // });
+
+                // ccBnp.att.readRsp(0, {value: 1}, '0xfff0').then(function (err, result) {
+                //     console.log(result);
+                // }).fail(function (err) {
+                //     console.log(err);
+                // });
 
                 // ccBnp.gatt.readCharValue(0, 18, '0x2a23', function (err, result) {
                 //     console.log(result);
