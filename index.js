@@ -47,10 +47,9 @@ CcBnp.prototype.init = function (spConfig, role, callback) {
         }, function(err) {
             deferred.reject(err);
         });
-    }, function(err) {
-
+    }).fail(function (err) {
         deferred.reject(err);
-    });
+    }).done();
 
     return deferred.promise.nodeify(callback);
 };
@@ -63,9 +62,9 @@ CcBnp.prototype.close = function (callback) {
         hci.closeSp().then(function (result) {
             self.emit('closed');
             deferred.resolve(result);
-        }, function(err) {
+        }).fail(function (err) {
             deferred.reject(err);
-        });
+        }).done();
     }, 500);
 
     return deferred.promise.nodeify(callback);
@@ -124,9 +123,9 @@ CcBnp.prototype.util = {};
 
                 hci.execCmd(subGroup, cmd, data).then(function (result) {
                     deferred.resolve(result);
-                }, function(err) {
+                }).fail(function (err) {
                     deferred.reject(err);
-                });
+                }).done();
 
                 return deferred.promise.nodeify(callback);
             };
@@ -185,7 +184,7 @@ function readMulti (connHandle, handles, uuids, callback) {
                     deferred.resolve();
                 }).fail(function (err) {
                     deferred.reject(err);
-                });
+                }).done();
 
                 return deferred.promise.nodeify(callback);
             }()));
@@ -254,12 +253,14 @@ function readMulti (connHandle, handles, uuids, callback) {
                     evtObj[1].AttReadMultiRsp.value[handles['handle' + i]] = result['uuid' + i];
                 }
                 deferred.resolve(evtObj);
-            });
+            }).fail(function (err) {
+                deferred.reject(err);
+            }).done();
            
         }
     }).fail(function (err) {
         deferred.reject(err);
-    });
+    }).done();
 
     return deferred.promise.nodeify(callback);
 }
