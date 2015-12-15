@@ -54,9 +54,9 @@ ccBnp.on('ready', function(result) {
                 //     console.log(err);
                 // });
 
-                // ccBnp.gatt.readCharValue(0, 37, function (err, result) {
-                //     console.log(result[1].AttReadRsp.value);
-                // });
+                ccBnp.gatt.readCharValue(0, 37, function (err, result) {
+                    console.log(result[1].AttReadRsp.value);
+                });
             });
         }
     });

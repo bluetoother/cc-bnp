@@ -113,12 +113,9 @@ CcBnp.prototype.util = {};
 
                         if(arg.length > hciCmdMeta[cmdName].params.length) {
                             uuid = arg.splice(arg.length - 1, 1)[0];
+                            data.uuid = uuid.toLowerCase();
                         }
                     }
-                }
-
-                if(uuid) {
-                    data.uuid = uuid;
                 }
 
                 hci.execCmd(subGroup, cmd, data).then(function (result) {
