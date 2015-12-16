@@ -198,19 +198,15 @@ function randomArg(type) {
         bufLen;
 
     switch (type) {
-        case 'bit8':
         case 'uint8':
             return chance.integer({min: 0, max: 255});
             break;
-        case 'bit16':
         case 'uint16':
             return chance.integer({min: 0, max: 65535});
             break;
-        case 'bit24':
         case 'uint24':
             return chance.integer({min: 0, max: 16777215});
             break;
-        case 'bit32':
         case 'uint32':
             return chance.integer({min: 0, max: 4294967295});
             break;

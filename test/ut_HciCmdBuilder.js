@@ -16,11 +16,11 @@ var furtherProcessArr = [
 //define argobj which requires further processing
 var attFindInfoRspObj = {
         handle0: 1,
-        uuid0: 11,
+        uuid0: '0x2a11',
         handle1: 2,
-        uuid1: 22,
+        uuid1: '0x2a22',
         handle2: 3,
-        uuid2: 33
+        uuid2: '0x2a33'
     },
     attFindByTypeValueRspObj = {
         attrHandle0: 0x0102,
@@ -158,6 +158,13 @@ function randomArg(type) {
         	break;
         case 'addr':
             return '0x123456789011';
+            break;
+        case 'uuid':
+            return '0x2a00';
+            break;
+        case 'passkey':
+            return '012345';
+            break; 
         case 'string':
         	return chance.string();
         	break;
