@@ -126,17 +126,13 @@ function randomArg(type) {
     switch (type) {
         case 'uint8':
         	return chance.integer({min: 0, max: 255});
-        	break;
         case 'uint16be':
         case 'uint16le':
         	return chance.integer({min: 0, max: 65535});
-        	break;
         case 'uint32le':
         	return chance.integer({min: 0, max: 4294967295});
-        	break;
         case 'uint64':
             return chance.integer({min: 0, max: 18446744073709551615});
-        	break;
         case 'buffer':
         case 'buffer6':
         case 'buffer8':
@@ -155,20 +151,14 @@ function randomArg(type) {
                 testBuf[k] = chance.integer({min: 0, max: 255});
             }
             return testBuf;
-        	break;
         case 'addr':
             return '0x123456789011';
-            break;
         case 'uuid':
             return '0x2a00';
-            break;
         case 'passkey':
             return '012345';
-            break; 
         case 'string':
         	return chance.string();
-        	break;
-
         default:
         break;
     }

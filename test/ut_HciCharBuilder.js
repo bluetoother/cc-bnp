@@ -124,6 +124,32 @@ var uuidObj = {
             CumulativeCrankRevolutions: 3,
             LastCrankEventTime: 4
         },
+        '0x2a5e': {
+            Flags: 15, 
+            SpO2: 1.2,
+            PR: 3.4,
+            Year: 1996, 
+            Month: 1, 
+            Day: 4, 
+            Hours: 15, 
+            Minutes: 23, 
+            Seconds: 59, 
+            MeasurementStatus: 1, 
+            DeviceAndSensorStatus: 3, 
+            PulseAmplitudeIndex: 3
+        },
+        '0x2a5f': {
+            Flags: 31,
+            SpO2: 0.99,
+            PR: 1.01,
+            FastSpO2: 0.998, 
+            FastPR: 1.001, 
+            SlowSpO2: 0.999, 
+            SlowPR: 1.0001,
+            MeasurementStatus: 1, 
+            DeviceAndSensorStatus: 3, 
+            PulseAmplitudeIndex: 2
+        },
         '0x2a9c': {
             Flags: 4094,
             BodyFatPercentage: 15,
@@ -200,60 +226,41 @@ function randomArg(type) {
     switch (type) {
         case 'uint8':
             return chance.integer({min: 0, max: 255});
-            break;
         case 'uint16':
             return chance.integer({min: 0, max: 65535});
-            break;
         case 'uint24':
             return chance.integer({min: 0, max: 16777215});
-            break;
         case 'uint32':
             return chance.integer({min: 0, max: 4294967295});
-            break;
         case 'uint64':
             return chance.integer({min: 0, max: 18446744073709551615});
-            break;
         case 'int8' :
             return chance.integer({min: -128, max: 127});
-            break;
         case 'int16' :
             return chance.integer({min: -32768, max: 32767});
-            break;
         case 'int24' :
             return chance.integer({min: -8388608, max: 8388607});
-            break;
         case 'int32' :
             return chance.integer({min: -2147483648, max: 2147483647});
-            break;
         case 'uuid':
             return '0x2a00';
-            break;
         case 'addr3':
             return '0x112233';
-            break;
         case 'addr5':
             return '0x1234567890';
-            break;
         case 'addr6':
             return '0x123456789011';
-            break;
         case 'boolean':
             return chance.bool();
-            break;
         case 'nibble':
             return chance.integer({min: 0, max: 15});
-            break;
         case 'sfloat':
             return chance.floating();
-            break;
         case 'float':
             return chance.floating();
-            break;
         case 'string':
             return chance.string();
-            break;
-
         default:
-        break;
+            break;
     }
 }

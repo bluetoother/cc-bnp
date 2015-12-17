@@ -11,14 +11,18 @@ var bleHci = require('../lib/hci/bleHci'),
     hciCmdBuilder = require('../lib/hci/HciCmdBuilder');
     BHCI = require('../lib/defs/blehcidefs');
 
-var sp = new SerialPort("/dev/ttyACM0", {
+var sp = new SerialPort("/dev/ttyACM5", {
     baudrate: 115200,
     rtscts: true,
     flowControl: true
 }, false);
+
 bleHci.registerSp(sp);
 
 bleHci.openSp();
+
+
+
 describe('Testing Command Response From Local Controller', function () {
     var gapCmdNameArr = ['PasskeyUpdate', 'SlaveSecurityReqUpdate', 'Signable', 'SetParam', 'GetParam', 
                          'ResolvePrivateAddr', 'SetAdvToken', 'RemoveAdvToken', 'UpdateAdvTokens', 'BondSetParam', 'BondGetParam'],
@@ -27,11 +31,11 @@ describe('Testing Command Response From Local Controller', function () {
         gattCmdNameArr = ['WriteNoRsp', 'SignedWriteNoRsp'],
         attFindInfoRspObj = {
             handle0: 1,
-            uuid0: 11,
+            uuid0: '0x2a11',
             handle1: 2,
-            uuid1: 22,
+            uuid1: '0x2a22',
             handle2: 3,
-            uuid2: 33
+            uuid2: '0x2a33'
         },
         attFindByTypeValueRspObj = {
             attrHandle0: 0x0102,
@@ -59,11 +63,11 @@ describe('Testing Command Response From Local Controller', function () {
             AttReadByTypeRsp: {connHandle: 100, length: 4, data: attReadByTypeRspObj}, 
             AttReadByGrpTypeRsp: {connHandle: 100, length: 6, data: attReadByGrpTypeRspObj} 
         };
+    this.timeout(10000);
 
     _.forEach(BHCI.SubGroupCmd.Hci._enumMap, function (val, key) {
         it('Hci Level: ' + key, function () {
             var argObj = genCmdArgObj('Hci', key);
-
             if (key === 'DisconnectImmed' || key === 'ResetSystem') { return; }
             return bleHci.execCmd('Hci', key, argObj).should.be.fulfilled();
         });
@@ -112,13 +116,13 @@ describe('Testing Command Response From Local Controller And Remote Slave', func
     this.timeout(15000);
 
     /*---Hci---*/
-    // it('Hci Level: DisconnectImmed', function () {
-    //     bleHci.execCmd('Gap', 'DeviceInit', {profileRole: 8, maxScanResponses: 5, IRK: buffer16, CSRK: buffer16, signCounter: 1}).then(function () {
-    //         return bleHci.execCmd('Gap', 'EstLinkReq', {highDutyCycle: 0, whiteList: 0, addrtypePeer: 0, peerAddr: new Buffer([0x78, 0xC5, 0xE5, 0x70, 0x79, 0x6E])});
-    //     }).then(function () {
-    //         return bleHci.execCmd('Hci', 'DisconnectImmed', argObj).should.be.fulfilled();
-    //     });
-    // });
+    it('Hci Level: DisconnectImmed', function () {
+        bleHci.execCmd('Gap', 'DeviceInit', {profileRole: 8, maxScanResponses: 5, IRK: buffer16, CSRK: buffer16, signCounter: 1}).then(function () {
+            return bleHci.execCmd('Gap', 'EstLinkReq', {highDutyCycle: 0, whiteList: 0, addrtypePeer: 0, peerAddr: '0x78c5e570796e'});
+        }).then(function () {
+            return bleHci.execCmd('Hci', 'DisconnectImmed', argObj).should.be.fulfilled();
+        });
+    });
 
     /*---GAP---*/
     it('Gap Level: DeviceInit', function () {
@@ -137,7 +141,7 @@ describe('Testing Command Response From Local Controller And Remote Slave', func
         return bleHci.execCmd('Att', 'FindInfoReq', {connHandle: 0, startHandle: 0x0001, endHandle: 0xFFFF}).should.be.fulfilled();
     });
     it('Att Level: ReadByTypeReq', function () {
-        return bleHci.execCmd('Att', 'ReadByTypeReq', {connHandle: 0, startHandle: 1, endHandle: 65535, type: new Buffer([0xF1, 0xFF])}).should.be.fulfilled();
+        return bleHci.execCmd('Att', 'ReadByTypeReq', {connHandle: 0, startHandle: 1, endHandle: 65535, type: '0xfff1'}).should.be.fulfilled();
     });
     it('Att Level: ReadReq', function () {
         return bleHci.execCmd('Att', 'ReadReq', {connHandle: 0, handle: 3}).should.be.fulfilled();
@@ -149,7 +153,7 @@ describe('Testing Command Response From Local Controller And Remote Slave', func
         return bleHci.execCmd('Att', 'ReadMultiReq', {connHandle: 0, handles: {handle0: 0x0025, handle1: 0x0026}}).should.be.fulfilled();
     });
     it('Att Level: ReadByGrpTypeReq', function () {
-        return bleHci.execCmd('Att', 'ReadByGrpTypeReq', {connHandle: 0, startHandle: 1, endHandle: 65535, type: new Buffer([0x00, 0x28])}).should.be.fulfilled();
+        return bleHci.execCmd('Att', 'ReadByGrpTypeReq', {connHandle: 0, startHandle: 1, endHandle: 65535, type: '0x2800'}).should.be.fulfilled();
     });
     it('Att Level: WriteReq', function () {
         return bleHci.execCmd('Att', 'WriteReq', {connHandle: 0, signature: 0, command: 0, handle: 37, value: new Buffer([0x00])}).should.be.fulfilled();
@@ -163,7 +167,7 @@ describe('Testing Command Response From Local Controller And Remote Slave', func
         return bleHci.execCmd('Gatt', 'DiscAllPrimaryServices', {connHandle: 0}).should.be.fulfilled();
     });
     it('Gatt Level: DiscPrimaryServiceByUuid', function () {
-        return bleHci.execCmd('Gatt', 'DiscPrimaryServiceByUuid', {connHandle: 0, value: new Buffer([0xF0, 0xFF])}).should.be.fulfilled();
+        return bleHci.execCmd('Gatt', 'DiscPrimaryServiceByUuid', {connHandle: 0, value: '0xfff0'}).should.be.fulfilled();
     });
     it('Gatt Level: FindIncludedServices', function () {
         return bleHci.execCmd('Gatt', 'FindIncludedServices', {connHandle: 0, startHandle: 1, endHandle: 65535}).should.be.rejected();
@@ -173,7 +177,7 @@ describe('Testing Command Response From Local Controller And Remote Slave', func
     });
     this.timeout(25000);
     it('Gatt Level: DiscCharsByUuid', function () {
-        return bleHci.execCmd('Gatt', 'DiscCharsByUuid', {connHandle: 0, startHandle: 1, endHandle: 65535, type: new Buffer([0xF1, 0xFF])}).should.be.fulfilled();
+        return bleHci.execCmd('Gatt', 'DiscCharsByUuid', {connHandle: 0, startHandle: 1, endHandle: 65535, type: '0xfff1'}).should.be.fulfilled();
     });
     it('Gatt Level: DiscAllCharDescs', function () {
         return bleHci.execCmd('Gatt', 'DiscAllCharDescs', {connHandle: 0, startHandle: 1, endHandle: 65535}).should.be.fulfilled();
@@ -183,7 +187,7 @@ describe('Testing Command Response From Local Controller And Remote Slave', func
         return bleHci.execCmd('Gatt', 'ReadCharValue', {connHandle: 0, handle: 3}).should.be.fulfilled();
     });
     it('Gatt Level: ReadUsingCharUuid', function () {
-        return bleHci.execCmd('Gatt', 'ReadUsingCharUuid', {connHandle: 0, startHandle: 1, endHandle: 65535, type: new Buffer([0xF1, 0xFF])}).should.be.fulfilled();
+        return bleHci.execCmd('Gatt', 'ReadUsingCharUuid', {connHandle: 0, startHandle: 1, endHandle: 65535, type: '0xfff1'}).should.be.fulfilled();
     });
     it('Gatt Level: ReadLongCharValue', function () {
         return bleHci.execCmd('Gatt', 'ReadLongCharValue', {connHandle: 0, handle: 37, offset: 0}).should.be.fulfilled();
@@ -223,7 +227,6 @@ function genCmdArgObj(subGrp, cmd) {
         argObj[params[i]] = randomArg(types[i]);
     }
     delete argObj.constr_name;
-
     return argObj;
 }
 
@@ -234,19 +237,15 @@ function randomArg(type) {
 
     switch (type) {
         case 'uint8':
-            // return chance.integer({min: 0, max: 255});
-            return 5;
-
+            //return chance.integer({min: 0, max: 255});
+            return 1;
         case 'uint16be':
         case 'uint16le':
             return chance.integer({min: 0, max: 65535});
-
         case 'uint32le':
             return chance.integer({min: 0, max: 4294967295});
-
         case 'uint64':
             return chance.integer({min: 0, max: 18446744073709551615});
-
         case 'buffer':
         case 'buffer6':
         case 'buffer8':
@@ -267,9 +266,12 @@ function randomArg(type) {
             return testBuf;
         case 'addr':
             return '0x123456789011';
+        case 'uuid':
+            return '0x2a00';
+        case 'passkey':
+            return '012345';
         case 'string':
             return chance.string();
-
         default:
             break;
     }
