@@ -59,6 +59,27 @@ var uuidObj = {
             Seconds: 10,
             TempType: 1
         },
+        '0x2a22': {
+            BootKeyboardInputReport: {
+                Value0: 3,
+                Value1: 4,
+                Value2: 5
+            }
+        },
+        '0x2a32': {
+            BootKeyboardOutputReport: {
+                Value0: 3,
+                Value1: 4,
+                Value2: 5
+            }
+        },
+        '0x2a33': {
+            BootMouseInputReport: {
+                Value0: 3,
+                Value1: 4,
+                Value2: 5
+            }
+        },
         '0x2a34': {
             Flags: 255,
             SequenceNumber: 8,
@@ -110,6 +131,20 @@ var uuidObj = {
             EnergyExpended: 46,
             RRInterval: 68
         },
+        '0x2a4b': {
+            ReportMap: {
+                Value0: 3,
+                Value1: 4,
+                Value2: 5
+            }
+        },
+        '0x2a4d': {
+            Report: {
+                Value0: 3,
+                Value1: 4,
+                Value2: 5
+            }
+        },
         '0x2a53': {
             Flags: 3,
             Speed: 2,
@@ -149,6 +184,45 @@ var uuidObj = {
             MeasurementStatus: 1, 
             DeviceAndSensorStatus: 3, 
             PulseAmplitudeIndex: 2
+        },
+        '0x2a67': {
+            Flags: 255,
+            InstantaneousSpeed: 0, 
+            TotalDistance: 1, 
+            Latitude: 2, 
+            Longitude: 3, 
+            Elevation: 4, 
+            Heading: 5, 
+            RollingTime: 6,
+            Year: 1991,
+            Month: 9,
+            Day: 17,
+            Hours: 20,
+            Minutes: 30,
+            Seconds: 40
+        },
+        '0x2a68': {
+            Flags: 255,
+            Bearing: 1, 
+            Heading: 2,
+            RemainingDistance: 3, 
+            RemainingVerticalDistance: 4,
+            Year: 1991,
+            Month: 9,
+            Day: 17,
+            Hours: 20,
+            Minutes: 30,
+            Seconds: 40
+        },
+        '0x2a69': {
+            Flags: 255,
+            NumberOfBeaconsInSolution: 0,
+            NumberOfBeaconsInView: 1,
+            TimeToFirstFix: 2,
+            EHPE: 3,
+            EVPE: 4,
+            HDOP: 5,
+            VDOP: 6
         },
         '0x2a9c': {
             Flags: 4094,
