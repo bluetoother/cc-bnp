@@ -493,9 +493,10 @@ Command `'ATT_ReadBlobReq'`, `'ATT_ReadBlobRsp'`, `'ATT_PrepareWriteReq'`, `'ATT
 
 #### 2.Descriptors
 
-If the descriptor has 'Condition' field, the descriptor fields are determined according to the 'Condition' field. Which fields will exist depends on field's condition value whether to include 'Condition' field's value.
+If the descriptor has 'Condition' field, the descriptor fields are determined according to the 'Condition' field. Which fields will exist depends on field's condition value whether to include 'Condition' field's value. 
 
 Field's condition bit value is behind Field's Name in the table.
+
 ```JavaScript
 {   //0x290a instance object
     Condition: 5,
@@ -523,7 +524,7 @@ Field's condition bit value is behind Field's Name in the table.
 
 If the characteristic has 'Flags' field, the descriptor fields are determined according to the 'Flags' field. Which fields will exist depends on field's condition bit values whether equal to 'Flags' field's bits.
 
-Field's condition bit is behind Field's Name in the table. `bit0` represent if Field's bit0 equal to 1, the field will exist; `!bit0` represent if Field's bit0 equal to 0, the field will exist.
+Field's condition bit is behind Field Name in the table. `bit0` represent if Flags's bit0 equal to 1, the field will exist; `!bit0` represent if Flags's bit0 equal to 0, the field will exist.
 ```JavaScript
 {   //0x2a1c instance object
     Flags: 2,    //bit0 = 0, bit1 = 1, bit2 = 0
