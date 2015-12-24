@@ -10,252 +10,259 @@ var hciCharBuilder = require('../lib/hci/HciCharBuilder'),
     hciCharDiscrim = require('../lib/hci/HciCharDiscriminator');
 
 var furtherProcessArr = [
-    '0x290a', '0x290e', '0x2a18', '0x2a1c', '0x2a1e', '0x2a34', '0x2a35', 
-    '0x2a36', '0x2a37', '0x2a53', '0x2a5b', '0x2a9c', '0x2a9d'];
+    '0x2905', '0x290a', '0x290e', '0x2a18', '0x2a1c', '0x2a1e', '0x2a22', '0x2a32', '0x2a33', 
+    '0x2a34', '0x2a35', '0x2a36', '0x2a37', '0x2a53', '0x2a5b', '0x2a9c', '0x2a9d'];
 
 var uuidObj = {
+        '0x2905': {
+            listOfHandles: {
+                handle0: 3,
+                handle1: 4,
+                handle2: 5
+            }
+        },
         '0x290a': {
-            Condition: 1,
-            ValueAnalog: 0x0101
+            condition: 1,
+            analog: 0x0101
     	},
     	'0x290e': {
-            Condition: 2,
-            ValueTimeInterval: 0x010203
+            condition: 2,
+            timeInterval: 0x010203
     	},
     	'0x2a18': {
-            Flags: 15,
-            SequenceNumber: 8,
-            Year: 2015, 
-            Month: 12, 
-            Day: 15, 
-            Hours: 13, 
-            Minutes: 20, 
-            Seconds: 10,
-            TimeOffset: 0,
-            GlucoseMol: 12.34,
-            Type: 2, 
-            SampleLocation: 3,
-            SensorStatus: 4
+            flags: 15,
+            sequenceNum: 8,
+            year: 2015, 
+            month: 12, 
+            day: 15, 
+            hours: 13, 
+            minutes: 20, 
+            seconds: 10,
+            timeOffset: 0,
+            glucoseMol: 12.34,
+            type: 2, 
+            sampleLocation: 3,
+            sensorStatus: 4
     	},
         '0x2a1c': {
-            Flags: 7,
-            TempF: 96.5,
-            Year: 2015, 
-            Month: 12, 
-            Day: 15, 
-            Hours: 13, 
-            Minutes: 20, 
-            Seconds: 10,
-            TempType: 1
+            flags: 7,
+            tempF: 96.5,
+            year: 2015, 
+            month: 12, 
+            day: 15, 
+            hours: 13, 
+            minutes: 20, 
+            seconds: 10,
+            tempType: 1
         },
         '0x2a1e': {
-            Flags: 6,
-            TempC: 23.24,
-            Year: 2015, 
-            Month: 12, 
-            Day: 15, 
-            Hours: 13, 
-            Minutes: 20, 
-            Seconds: 10,
-            TempType: 1
+            flags: 6,
+            tempC: 23.24,
+            year: 2015, 
+            month: 12, 
+            day: 15, 
+            hours: 13, 
+            minutes: 20, 
+            seconds: 10,
+            tempType: 1
         },
         '0x2a22': {
-            BootKeyboardInputReport: {
-                Value0: 3,
-                Value1: 4,
-                Value2: 5
+            bootKeyboardInput: {
+                value0: 3,
+                value1: 4,
+                value2: 5
             }
         },
         '0x2a32': {
-            BootKeyboardOutputReport: {
-                Value0: 3,
-                Value1: 4,
-                Value2: 5
+            bootKeyboardOutput: {
+                value0: 3,
+                value1: 4,
+                value2: 5
             }
         },
         '0x2a33': {
-            BootMouseInputReport: {
-                Value0: 3,
-                Value1: 4,
-                Value2: 5
+            bootMouseInput: {
+                value0: 3,
+                value1: 4,
+                value2: 5
             }
         },
         '0x2a34': {
-            Flags: 255,
-            SequenceNumber: 8,
-            ExtendedFlags: 1, 
-            CarbohydrateID: 12, 
-            Carbohydrate: 12.34,
-            Meal: 10,
-            Tester: 1,
-            Health: 2,
-            ExerciseDuration: 20,
-            ExerciseIntensity: 30,
-            MedicationID: 40,
-            MedicationL: 56.78,
-            HbA1c: 123.456
+            flags: 255,
+            sequenceNum: 8,
+            extendedFlags: 1, 
+            carbohydrateID: 12, 
+            carbohydrate: 12.34,
+            meal: 10,
+            tester: 1,
+            health: 2,
+            exerciseDuration: 20,
+            exerciseIntensity: 30,
+            medicationID: 40,
+            medicationL: 56.78,
+            hbA1c: 123.456
         },
         '0x2a35': {
-            Flags: 255,
-            SystolicKPa: 1.2,
-            DiastolicKPa: 2.3,
-            MeanArterialPressureKPa: 3.4,
-            Year: 2015, 
-            Month: 12, 
-            Day: 15, 
-            Hours: 13, 
-            Minutes: 20, 
-            Seconds: 10,
-            PulseRate: 11.11,
-            UserID: 1,
-            Status: 1
+            flags: 255,
+            systolicKpa: 1.2,
+            diastolicKpa: 2.3,
+            arterialPresKpa: 3.4,
+            year: 2015, 
+            month: 12, 
+            day: 15, 
+            hours: 13, 
+            minutes: 20, 
+            seconds: 10,
+            pulseRate: 11.11,
+            userID: 1,
+            status: 1
         },
         '0x2a36': {
-            Flags: 254,
-            SystolicMmHg: 1.2,
-            DiastolicMmHg: 2.3,
-            MeanArterialPressureMmHg: 3.4,
-            Year: 2015, 
-            Month: 12, 
-            Day: 15, 
-            Hours: 13, 
-            Minutes: 20, 
-            Seconds: 10,
-            PulseRate: 11.11,
-            UserID: 1,
-            Status: 1
+            flags: 254,
+            systolicMmHg: 1.2,
+            diastolicMmHg: 2.3,
+            arterialPresMmHg: 3.4,
+            year: 2015, 
+            month: 12, 
+            day: 15, 
+            hours: 13, 
+            minutes: 20, 
+            seconds: 10,
+            pulseRate: 11.11,
+            userID: 1,
+            status: 1
         },
         '0x2a37': {
-            Flags: 31,
-            HeartRate16: 24,
-            EnergyExpended: 46,
-            RRInterval: 68
+            flags: 31,
+            heartRate16: 24,
+            energyExpended: 46,
+            rrInterval: 68
         },
         '0x2a4b': {
-            ReportMap: {
-                Value0: 3,
-                Value1: 4,
-                Value2: 5
+            reportMap: {
+                value0: 3,
+                value1: 4,
+                value2: 5
             }
         },
         '0x2a4d': {
-            Report: {
-                Value0: 3,
-                Value1: 4,
-                Value2: 5
+            report: {
+                value0: 3,
+                value1: 4,
+                value2: 5
             }
         },
         '0x2a53': {
-            Flags: 3,
-            Speed: 2,
-            Cadence: 1,
-            StrideLength: 0,
-            TotalDistance: 1
+            flags: 3,
+            speed: 2,
+            cadence: 1,
+            strideLength: 0,
+            totalDist: 1
         },
         '0x2a5b': {
-            Flags: 7,
-            CumulativeWheelRevolutions: 1,
-            LastWheelEventTime: 2,
-            CumulativeCrankRevolutions: 3,
-            LastCrankEventTime: 4
+            flags: 7,
+            cumulativeWheelRev: 1,
+            lastWheelEventTime: 2,
+            cumulativeCrankRev: 3,
+            lastCrankEventTime: 4
         },
         '0x2a5e': {
-            Flags: 15, 
-            SpO2: 1.2,
-            PR: 3.4,
+            flags: 15, 
+            spOs2: 1.2,
+            pr: 3.4,
             Year: 1996, 
             Month: 1, 
             Day: 4, 
             Hours: 15, 
             Minutes: 23, 
             Seconds: 59, 
-            MeasurementStatus: 1, 
+            MeasureStatus: 1, 
             DeviceAndSensorStatus: 3, 
-            PulseAmplitudeIndex: 3
+            PulseAmpIndex: 3
         },
         '0x2a5f': {
             Flags: 31,
-            SpO2: 0.99,
-            PR: 1.01,
-            FastSpO2: 0.998, 
-            FastPR: 1.001, 
-            SlowSpO2: 0.999, 
-            SlowPR: 1.0001,
-            MeasurementStatus: 1, 
-            DeviceAndSensorStatus: 3, 
-            PulseAmplitudeIndex: 2
+            normalSpO2: 0.99,
+            normalPR: 1.01,
+            fastSpO2: 0.998, 
+            fastPR: 1.001, 
+            slowSpO2: 0.999, 
+            slowPR: 1.0001,
+            measureStatus: 1, 
+            deviceAndSensorStatus: 3, 
+            pulseAmpIndex: 2
         },
         '0x2a67': {
-            Flags: 255,
-            InstantaneousSpeed: 0, 
-            TotalDistance: 1, 
-            Latitude: 2, 
-            Longitude: 3, 
-            Elevation: 4, 
-            Heading: 5, 
-            RollingTime: 6,
-            Year: 1991,
-            Month: 9,
-            Day: 17,
-            Hours: 20,
-            Minutes: 30,
-            Seconds: 40
+            flags: 255,
+            instantSpeed: 0, 
+            totalDistance: 1, 
+            latitude: 2, 
+            longitude: 3, 
+            elevation: 4, 
+            heading: 5, 
+            rollingTime: 6,
+            year: 1991,
+            month: 9,
+            day: 17,
+            hours: 20,
+            minutes: 30,
+            seconds: 40
         },
         '0x2a68': {
-            Flags: 255,
-            Bearing: 1, 
-            Heading: 2,
-            RemainingDistance: 3, 
-            RemainingVerticalDistance: 4,
-            Year: 1991,
-            Month: 9,
-            Day: 17,
-            Hours: 20,
-            Minutes: 30,
-            Seconds: 40
+            flags: 255,
+            bearing: 1, 
+            heading: 2,
+            remainingDist: 3, 
+            remainingVertDist: 4,
+            year: 1991,
+            month: 9,
+            day: 17,
+            hours: 20,
+            minutes: 30,
+            seconds: 40
         },
         '0x2a69': {
-            Flags: 255,
-            NumberOfBeaconsInSolution: 0,
-            NumberOfBeaconsInView: 1,
-            TimeToFirstFix: 2,
-            EHPE: 3,
-            EVPE: 4,
-            HDOP: 5,
-            VDOP: 6
+            flags: 255,
+            beaconsInSolution: 0,
+            beaconsInView: 1,
+            timeToFirstFix: 2,
+            ehpe: 3,
+            evpe: 4,
+            hdop: 5,
+            vdop: 6
         },
         '0x2a9c': {
-            Flags: 4094,
-            BodyFatPercentage: 15,
-            Year: 1991,
-            Month: 9,
-            Day: 17,
-            Hours: 20,
-            Minutes: 30,
-            Seconds: 40,
-            UserID: 4,
-            BasalMetabolism: 1,
-            MusclePercentage: 2,
-            MuscleMassKg: 3,
-            FatFreeMassKg: 4,
-            SoftLeanMassKg: 5,
-            BodyWaterMassKg: 6,
-            Impedance: 7,
-            WeightKg: 8,
-            HeightMeters: 9
+            flags: 4094,
+            bodyFatPercent: 15,
+            year: 1991,
+            month: 9,
+            day: 17,
+            hours: 20,
+            minutes: 30,
+            seconds: 40,
+            userID: 4,
+            basalMetabolism: 1,
+            musclePercent: 2,
+            muscleMassKg: 3,
+            fatFreeMassKg: 4,
+            softLeanMassKg: 5,
+            bodyWaterMassKg: 6,
+            impedance: 7,
+            weightKg: 8,
+            heightMeters: 9
         },
         '0x2a9d': {
-            Flags: 15,
-            WeightImperial: 60,
-            Year: 1991,
-            Month: 9,
-            Day: 17,
-            Hours: 20,
-            Minutes: 30,
-            Seconds: 40,
-            UserID: 4,
-            BMI: 15,
-            HeightImperial: 170
+            flags: 15,
+            weightImperial: 60,
+            year: 1991,
+            month: 9,
+            day: 17,
+            hours: 20,
+            minutes: 30,
+            seconds: 40,
+            userID: 4,
+            bmi: 15,
+            heightImperial: 170
         }
     };
 

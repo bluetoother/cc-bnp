@@ -28,7 +28,7 @@ The basic APIs are about how to initialize the BNP with a given role and how to 
 * [.close([callback])](#close)
 * [.on('ready', callback)](#onReady)
 * [.on('ind', callback)](#onInd)
-* [.regCharMeta(regObj)](#regCharMeta)
+* [.regChar(regObj)](#regChar)
  
 #### 2. [TI's BLE Vendor-Specific HCI Command APIs](#vendorHci)
 TI's BLE Vendor-Specific HCI Commands are used to communicate with the CC254X BNP. These commands are organized in API subgroubps: hci, l2cap, att, gatt, gap, and util.
@@ -64,7 +64,7 @@ To begin with **ccBnp**, you must firstly set up the serial port and initialize 
 
     ccBnp.init(cfg, 'central');
 ```
-Here are some [examples](https://github.com/hedywings/blob/master/ccBnp/examples/ble_connect.js).
+Here are some [examples](https://github.com/hedywings/ccBnp/blob/master/examples/ble_connect.js).
 
 <br>
 <a name="basic_apis"></a>
@@ -91,8 +91,8 @@ Basic APIs and Events
 ```sh
     {
         devAddr: '0x78c5e59b5ef8',                           // Device public address
-        IRK: <Buffer 72 74 73 20 3d 20 44 75 70 6c 65 78 3b 0a 0a 2f>, // 16 bytes Identity Resolving Key
-        CSRK: <Buffer 2a 3c 72 65 70 6c 61 63 65 6d 65 6e 74 3e 2a 2f> // 16 bytes Connection Signature Resolving Key
+        irk: <Buffer 72 74 73 20 3d 20 44 75 70 6c 65 78 3b 0a 0a 2f>, // 16 bytes Identity Resolving Key
+        csrk: <Buffer 2a 3c 72 65 70 6c 61 63 65 6d 65 6e 74 3e 2a 2f> // 16 bytes Connection Signature Resolving Key
     }
 ```
 
@@ -141,8 +141,8 @@ Basic APIs and Events
 ```sh
     {
         devAddr: '0x78c5e59b5ef8',                            // Device public address
-        IRK: <Buffer 72 74 73 20 3d 20 44 75 70 6c 65 78 3b 0a 0a 2f>,  // 16 bytes IRK
-        CSRK: <Buffer 2a 3c 72 65 70 6c 61 63 65 6d 65 6e 74 3e 2a 2f>  // 16 bytes CSRK
+        irk: <Buffer 72 74 73 20 3d 20 44 75 70 6c 65 78 3b 0a 0a 2f>,  // 16 bytes IRK
+        csrk: <Buffer 2a 3c 72 65 70 6c 61 63 65 6d 65 6e 74 3e 2a 2f>  // 16 bytes CSRK
     }
 ```
 
@@ -229,24 +229,24 @@ Basic APIs and Events
     ```
 
 <br>
-<a name="regCharMeta"></a>
-### .regCharMeta(regObj)
-> This method will register characteristic's UUID, Field Name and Format types, which characteristics belong that UUID will be parsed.
+<a name="regChar"></a>
+### .regChar(regObj)
+> This method will register characteristic uuid, field Name and format types, if characteristic belong that uuid, it will be parsed.
 
-If the [UUID](#gattdata) is exist, this will overwrite that.
+If the [uuid](#gattdata) is exist, this will overwrite that.
 
 **Arguments**
 
-- regObj (*Object*): This object has three properties of `uuid`, `params` and `types`. The `uuid` is the characteristic's uuid. The `params` is the characteristic's Field Name.The `types` is the characteristic's Format types.
+- regObj (*Object*): This object has three properties of `uuid`, `params` and `types`. The `uuid` is the characteristic uuid. The `params` is the characteristic field Name.The `types` is the characteristic format types.
    
 **Example**
 ```javascript
 	var regObj = {
 		uuid: '0xfff1',
-		params: ['FieldName0', 'FieldName1', 'FieldName2'],
+		params: ['fieldName0', 'fieldName1', 'fieldName2'],
 		types: ['uint8', 'uint16', 'float']
 	};
-    ccBnp.regCharMeta(regObj);
+    ccBnp.regChar(regObj);
 ```
 	
 <br>
@@ -277,7 +277,7 @@ Here is an example of calling **_deviceDiscReq()_** from the subgroup **_gap_**:
 In promise-style:
 ```javascript
     ccBnp.gap.deviceDiscReq(3, 1, 0).then(function (result) {
-        console.log(result)
+        console.log(result);
     }).fail(function (err) {
         console.log(err);
     }).done();
@@ -289,29 +289,29 @@ Here is another example of calling **_writeCharValue()_** from the subgroup **_g
     // argumens: (connHandle, handle, value, [uuid])
 ```javascript
     var valObj = {
-        Flags: 15,   //bit0 = 1, bit1 = 1, bit2 = 1, bit3 = 1
-        SequenceNumber: 1, 
-        Year: 2015, 
-        Month: 12, 
-        Day: 22, 
-        Hours: 18, 
-        Minutes: 37, 
-        Seconds: 41,
-        TimeOffset: 0,
-        GlucoseMol: 0.0068,
-        Type: 1,
-        SampleLocation: 1, 
-        SensorStatus: 0
+        flags: 15,   //bit0 = 1, bit1 = 1, bit2 = 1, bit3 = 1
+        sequenceNum: 1, 
+        year: 2015, 
+        month: 12, 
+        day: 22, 
+        hours: 18, 
+        minutes: 37, 
+        seconds: 41,
+        timeOffset: 0,
+        glucoseMol: 0.0068,
+        type: 1,
+        sampleLocation: 1, 
+        sensorStatus: 0
         };
     //When 'value' is a object, you can add argument 'uuid' in the last. 
     //If you don't add 'uuid', ccBnp will automatically sends a request to the target.
     ccBnp.gatt.writeCharValue(0, 37, valObj, '0x2a18').then(function (result) {    
-        console.log(result;
+        console.log(result);
     }).fail(function (err) {
         console.log(err);
-    });
+    }).done();
 ```
-Characteristic's 'uuid' corresponding data type can use API [.regCharMeta()](#regCharMeta) to register or find in [default](#gattdata).
+Characteristic 'uuid' corresponding data type can use API [.regChar()](#regChar) to register or find in [default](#gattdata).
 <br>
 <a name="cmdTables"></a>
 Vendor-Specific HCI Command Reference Tables
@@ -427,17 +427,17 @@ These tables are the cross-references between the **Vendor-Specific HCI Command*
 |GATT_WriteLongCharDesc|writeLongCharDesc|connHandle, handle, offset, value|status, connHandle, pduLen, value|
 |GATT_Notification|notification|connHandle, authenticated, handle, value, [uuid]|none|
 |GATT_Indication|indication|connHandle, authenticated, handle, value, [uuid]|status, connHandle, pduLen, authenticated, handle|
-|GATT_AddService|addService|UUID, numAttrs|none|
+|GATT_AddService|addService|uuid, numAttrs|none|
 |GATT_DelService|delService|handle|none|
-|GATT_AddAttribute|addAttribute|UUID, permissions|none|
+|GATT_AddAttribute|addAttribute|uuid, permissions|none|
 
 <a name="tblGap"></a>
 #### 5. ccBnp.gap APIs
 
 | BLE Vendor-Cmd | ccBnp Cmd-API | Arguments | Result |
 | ------------- | ------------- | ------------- | ------------- |
-|GAP_DeviceInit|deviceInit|profileRole, maxScanResponses, IRK, CSRK, signCounter|status, devAddr, dataPktLen, numDataPkts, IRK, CSRK|
-|GAP_ConfigDeviceAddr|configDeviceAddr|BitMask, Addr|status, addrType, newRandomAddr|
+|GAP_DeviceInit|deviceInit|profileRole, maxScanResponses, irk, csrk, signCounter|status, devAddr, dataPktLen, numDataPkts, irk, csrk|
+|GAP_ConfigDeviceAddr|configDeviceAddr|bitMask, addr|status, addrType, newRandomAddr|
 |GAP_DeviceDiscoveryRequest|deviceDiscReq|mode, activeScan, whiteList|status, eventType, addrType, addr, rssi, dataField|
 |GAP_DeviceDiscoveryCancel|deviceDiscCancel|none|status, numDevs, eventType, addrType, addr|
 |GAP_MakeDiscoverable|makeDiscoverable|eventType, initiatorAddrType, initiatorAddr, channelMap, filterPolicy|status, interval|
@@ -449,12 +449,12 @@ These tables are the cross-references between the **Vendor-Specific HCI Command*
 |GAP_UpdateLinkParamReq|updateLinkParamReq|connHandle, intervalMin, intervalMax, connLatency, connTimeout|status|
 |GAP_PasskeyUpdate|passkeyUpdate|connHandle, passkey|status, connHandle, connInterval, connLatency, connTimeout|
 |GAP_SlaveSecurityRequest|slaveSecurityReqUpdate|connHandle, authReq|status|
-|GAP_Signable|signable|connHandle, authenticated, CSRK, signCounter|status|
-|GAP_Bond|bond|connHandle, authenticated, LTK, DIV, rand, LTKsize|status|
+|GAP_Signable|signable|connHandle, authenticated, csrk, signCounter|status|
+|GAP_Bond|bond|connHandle, authenticated, ltk, div, rand, ltkSize|status|
 |GAP_TerminateAuth|terminateAuth|connHandle, reason|status, connHandle|
 |GAP_SetParam|setParam|paramID, paramValue|status|
 |GAP_GetParam|getParam|paramID|status, paramValue|
-|GAP_ResolvePrivateAddr|resolvePrivateAddr|IRK, Addr|status|
+|GAP_ResolvePrivateAddr|resolvePrivateAddr|irk, addr|status|
 |GAP_SetAdvToken|setAdvToken|adType, advDataLen, advData|status|
 |GAP_RemoveAdvToken|removeAdvToken|adType|status|
 |GAP_UpdateAdvToken|updateAdvTokens|none|status|
@@ -486,226 +486,226 @@ Command `'ATT_ReadBlobReq'`, `'ATT_ReadBlobRsp'`, `'ATT_PrepareWriteReq'`, `'ATT
 
 | UUID | Field Name | Format types | 
 |  -------------  |  -------------  |  -------------  | 
-| 0x2800 | UUID | uuid | 
-| 0x2801 | UUID | uuid | 
-| 0x2802 | ServiceAttrHandle, EndGroupHandle, UUID | uint16, uint16, uuid | 
-| 0x2803 | Properties, Handle, UUID | uint8, uint16, uuid | 
+| 0x2800 | uuid | uuid | 
+| 0x2801 | uuid | uuid | 
+| 0x2802 | serviceAttrHandle, endGroupHandle, uuid | uint16, uint16, uuid | 
+| 0x2803 | properties, handle, uuid | uint8, uint16, uuid | 
 
 #### 2.Descriptors
 
-If the descriptor has 'Condition' field, the descriptor fields are determined according to the 'Condition' field. Which fields will exist depends on field's condition value whether to include 'Condition' field's value. 
+If the descriptor has 'Condition' field, the descriptor fields are determined according to the 'Condition' field. Which fields will exist depends on field condition value whether to include 'Condition' field value. 
 
-Field's condition bit value is behind Field's Name in the table.
+Field condition bit value is behind field name in the table.
 
 ```JavaScript
 {   //0x290a instance object
-    Condition: 5,
-    ValueAnalogInterval: 3000
+    condition: 5,
+    valueAnalogInterval: 3000
 }
 ```
 
 | UUID | Field Name | Format types | 
 | ------------- | ------------- | ------------- | 
-| 0x2900 | Properties | uint16 | 
-| 0x2901 | UserDescription | string | 
-| 0x2902 | Properties | uint16 | 
-| 0x2903 | Properties | uint16 | 
-| 0x2904 | Format, Exponent, Unit, Namespace, Description | uint8, int8, uint16, uint8, uint16 | 
-| 0x2905 | ListOfHandles | uint16 | 
-| 0x2907 | ExternalReportReference | uuid | 
-| 0x2908 | ReportID, ReportType | uint8, uint8 | 
-| 0x2909 | NoOfDigitals | uint8 | 
-| 0x290a | Condition, ValueAnalog(`1,2,3`), ValueBitMask(`4`), ValueAnalogInterval(`5,6`) | uint8, uint16, uint8, uint32 | 
-| 0x290b | TriggerLogic | uint8 | 
-| 0x290c | Flags, SamplFunc, MeasurementPeriod, UpdateInterval, Application, MeasurementUncertainty | uint16, uint8, uint24, uint24, uint8, uint8 | 
-| 0x290e | Condition, ValueNone(`0`), ValueTimeInterval(`1,2`), ValueCount(`3`) | uint8, uint8, uint24, uint16 | 
+| 0x2900 | properties | uint16 | 
+| 0x2901 | userDescription | string | 
+| 0x2902 | properties | uint16 | 
+| 0x2903 | properties | uint16 | 
+| 0x2904 | format, exponent, unit, namespace, description | uint8, int8, uint16, uint8, uint16 | 
+| 0x2905 | listOfHandles | uint16 | 
+| 0x2907 | extReportRef | uuid | 
+| 0x2908 | reportID, reportType | uint8, uint8 | 
+| 0x2909 | noOfDigitals | uint8 | 
+| 0x290a | condition, analog(`1,2,3`), bitMask(`4`), analogInterval(`5,6`) | uint8, uint16, uint8, uint32 | 
+| 0x290b | triggerLogic | uint8 | 
+| 0x290c | flags, samplFunc, measurePeriod, updateInterval, application, measureUncertainty | uint16, uint8, uint24, uint24, uint8, uint8 | 
+| 0x290e | condition, none(`0`), timeInterval(`1,2`), count(`3`) | uint8, uint8, uint24, uint16 | 
 
 #### 3.Characteristics
 
-If the characteristic has 'Flags' field, the descriptor fields are determined according to the 'Flags' field. Which fields will exist depends on field's condition bit values whether equal to 'Flags' field's bits.
+If the characteristic has 'flags' field, the descriptor fields are determined according to the 'flags' field. Which fields will exist depends on field condition bit values whether equal to 'flags' field bits.
 
-Field's condition bit is behind Field Name in the table. `bit0` represent if Flags's bit0 equal to 1, the field will exist; `!bit0` represent if Flags's bit0 equal to 0, the field will exist.
+Field condition bit is behind field name in the table. `bit0` represent if flags bit0 equal to 1, the field will exist; `!bit0` represent if flags bit0 equal to 0, the field will exist.
 ```JavaScript
 {   //0x2a1c instance object
-    Flags: 2,    //bit0 = 0, bit1 = 1, bit2 = 0
-    TempC: 21.5, 
-    Year: 2015, 
-    Month: 12, 
-    Day: 25, 
-    Hours: 21, 
-    Minutes: 36, 
-    Seconds: 12, 
+    flags: 2,    //bit0 = 0, bit1 = 1, bit2 = 0
+    tempC: 21.5, 
+    year: 2015, 
+    month: 12, 
+    day: 25, 
+    hours: 21, 
+    minutes: 36, 
+    seconds: 12, 
 }
 ```
 
 Format 'obj' meaning field may be repeated.
 ```JavaScript
 {   //0x2a22 instance object
-    BootKeyboardInputReport: {
-        Value0: 1,
-        Value1: 2,
-        Value2: 3
+    bootKeyboardInputReport: {
+        value0: 1,
+        value1: 2,
+        value2: 3
     }
 }
 ```
 
 | UUID | Field Name | Format types |
 |  -------------  |  -------------  |  -------------  | 
-| 0x2a00 | Name | string | 
-| 0x2a01 | Category | uint16 | 
-| 0x2a02 | Flag | boolean | 
-| 0x2a03 | Addr | addr6 | 
-| 0x2a04 | MinConnInterval, MaxConnInterval, Latency, Timeout | uint16, uint16, uint16, uint16 | 
-| 0x2a05 | StartHandle, EndHandle | uint16, uint16 | 
-| 0x2a06 | AlertLevel | uint8 | 
-| 0x2a07 | TxPower | int8 | 
-| 0x2a08 | Year, Month, Day, Hours, Minutes, Seconds | uint16, uint8, uint8, uint8, uint8, uint8 | 
-| 0x2a09 | DayofWeek | uint8 | 
-| 0x2a0a | Year, Month, Day, Hours, Minutes, Seconds, DayofWeek | uint16, uint8, uint8, uint8, uint8, uint8, uint8 | 
-| 0x2a0c | Year, Month, Day, Hours, Minutes, Seconds, DayofWeek, Fractions256 | uint16, uint8, uint8, uint8, uint8, uint8, uint8, uint8 | 
-| 0x2a0d | DSTOffset | uint8 | 
-| 0x2a0e | TimeZone | int8 | 
-| 0x2a0f | TimeZone, DSTOffset | int8, uint8 | 
-| 0x2a11 | Year, Month, Day, Hours, Minutes, Seconds, DSTOffset | uint16, uint8, uint8, uint8, uint8, uint8, uint8 | 
-| 0x2a12 | Accuracy | uint8 | 
-| 0x2a13 | TimeSource | uint8 | 
-| 0x2a14 | Source, Accuracy, DaySinceUpdate, HourSinceUpdate | uint8, uint8, uint8, uint8 | 
-| 0x2a16 | TimeUpdateCtrlPoint | uint8 | 
-| 0x2a17 | CurrentState, Result | uint8, uint8 | 
-| 0x2a18 | Flags, SequenceNumber, Year, Month, Day, Hours, Minutes, Seconds, TimeOffset(`bit0`), GlucoseKg(`bit1 & !bit2`), GlucoseMol(`bit1 & bit2`), Type(`bit2`), SampleLocation(`bit2`), SensorStatus(`bit3`) | uint8, uint16, uint16, uint8, uint8, uint8, uint8, uint8,  | int16, sfloat, sfloat, nibble, nibble, uint16 | 
-| 0x2a19 | Level | uint8 | 
-| 0x2a1c | Flags, TempC(`!bit0`), TempF(`bit0`), Year(`bit1`), Month(`bit1`), Day(`bit1`), Hours(`bit1`), Minutes(`bit1`), Seconds(`bit1`), TempType(`bit2`) | uint8, float, float, uint16, uint8, uint8, uint8, uint8, uint8, uint8 | 
-| 0x2a1d | TempTextDescription | uint8 | 
-| 0x2a1e | Flags, TempC(`!bit0`), TempF(`bit0`), Year(`bit1`), Month(`bit1`), Day(`bit1`), Hours(`bit1`), Minutes(`bit1`), Seconds(`bit1`), TempType(`bit2`) | uint8, float, float, uint16, uint8, uint8, uint8, uint8, uint8, uint8 | 
-| 0x2a21 | MeasurementInterval | uint16 | 
-| 0x2a22 | BootKeyboardInputReport | obj | 
-| 0x2a23 | ManufacturerIdentifier, OrganizationallyUniqueIdentifier | addr5, addr3 | 
-| 0x2a24 | ModelNumber | string | 
-| 0x2a25 | SerialNumber | string | 
-| 0x2a26 | FirmwareRevision | string | 
-| 0x2a27 | HardwareRevision | string | 
-| 0x2a28 | SoftwareRevision | string | 
-| 0x2a29 | ManufacturerName | string | 
-| 0x2a2b | Year, Month, Day, Hours, Minutes, Seconds, DayofWeek, Fractions256, AdjustReason | uint16, uint8, uint8, uint8, uint8, uint8, uint8, uint8, uint8 | 
-| 0x2a2c | MagneticDeclination | uint16 | 
-| 0x2a31 | ScanRefreshValue | uint8 | 
-| 0x2a32 | BootKeyboardOutputReport | obj | 
-| 0x2a33 | BootMouseInputReport | obj | 
-| 0x2a34 | Flags, SequenceNumber, ExtendedFlags(`bit7`), CarbohydrateID(`bit0`), Carbohydrate(`bit0`), Meal(`bit1`), Tester(`bit1`), Health(`bit2`), ExerciseDuration(`bit3`), ExerciseIntensity(`bit3`), MedicationID(`bit4`), MedicationKg(`bit4 & !bit5`), MedicationL(`bit4 & bit5`), HbA1c(`bit6`) | uint8, uint16, uint8, uint8, sfloat, uint8, nibble, nibble, uint16, uint8, uint8, sfloat, sfloat, sfloat | 
-| 0x2a35 | Flags, SystolicMmHg(`!bit0`), DiastolicMmHg(`!bit0`), MeanArterialPressureMmHg(`!bit0`), SystolicKPa(`bit0`), DiastolicKPa(`bit0`), MeanArterialPressureKPa(`bit0`), Year(`bit1`), Month(`bit1`), Day(`bit1`), Hours(`bit1`), Minutes(`bit1`), Seconds(`bit1`), PulseRate(`bit2`), UserID(`bit3`), Status(`bit4`) | uint8, sfloat, sfloat, sfloat, sfloat, sfloat, sfloat, uint16, uint8, uint8, uint8, uint8, uint8, sfloat, uint8, uint16 | 
-| 0x2a36 | Flags, SystolicMmHg(`!bit0`), DiastolicMmHg(`!bit0`), MeanArterialPressureMmHg(`!bit0`), SystolicKPa(`bit0`), DiastolicKPa(`bit0`), MeanArterialPressureKPa(`bit0`), Year(`bit1`), Month(`bit1`), Day(`bit1`), Hours(`bit1`), Minutes(`bit1`), Seconds(`bit1`), PulseRate(`bit2`), UserID(`bit3`), Status(`bit4`) | uint8, sfloat, sfloat, sfloat, sfloat, sfloat, sfloat, uint16, uint8, uint8, uint8, uint8, uint8, sfloat, uint8, uint16 | 
-| 0x2a37 | Flags, HeartRate8(`!bit0`), HeartRate16(`bit0`), EnergyExpended(`bit3`), RRInterval(`bit4`) | uint8, uint8, uint16, uint16, uint16 | 
-| 0x2a38 | BodySensorLocation | uint8 | 
-| 0x2a39 | HeartRateCtrlPoint | uint8 | 
-| 0x2a3f | AlertStatus | uint8 | 
-| 0x2a40 | RingerCtrlPoint | uint8 | 
-| 0x2a41 | RingerSetting | uint8 | 
-| 0x2a42 | CategoryIDBitMask0, CategoryIDBitMask0 | uint8, uint8 | 
-| 0x2a43 | CategoryID | uint8 | 
-| 0x2a44 | CommandID, CategoryID | uint8, uint8 | 
-| 0x2a45 | CategoryID, UnreadCount | uint8, uint8 | 
-| 0x2a46 | CategoryID, NumberOfNewAlert, TextStringInfo | uint8, uint8, string | 
-| 0x2a47 | CategoryIDBitMask0, CategoryIDBitMask0 | uint8, uint8 | 
-| 0x2a48 | CategoryIDBitMask0, CategoryIDBitMask0 | uint8, uint8 | 
-| 0x2a49 | BloodPressureFeature | uint16 | 
-| 0x2a4a | bcdHID, bCountryCode, Flags | uint16, uint8, uint8 | 
-| 0x2a4b | ReportMap | obj | 
-| 0x2a4c | HIDCtrlPointCommand | uint8 | 
-| 0x2a4d | Report | obj | 
-| 0x2a4e | ProtocolModeValue | uint8 | 
-| 0x2a4f | LEScanInterval, LEScanWindow | uint16, uint16 | 
-| 0x2a50 | VendorIDSource, VendorID, ProductID, ProductVersion | uint8, uint16, uint16, uint16 | 
-| 0x2a51 | GlucoseFeature | uint16 | 
-| 0x2a52 | OpCode, Operator, Operand | uint8, uint8, uint8 | 
-| 0x2a53 | Flags, Speed, Cadence, StrideLength(`bit0`), TotalDistance(`bit1`) | uint8, uint16, uint8, uint16, uint32 | 
-| 0x2a54 | RSCFeature | uint16 | 
-| 0x2a56 | Digital | uint8 | 
-| 0x2a58 | Analog | uint16 | 
-| 0x2a5b | Flags, CumulativeWheelRevolutions(`bit0`), LastWheelEventTime(`bit0`), CumulativeCrankRevolutions(`bit1`), LastCrankEventTime(`bit1`) | uint8, uint32, uint16, uint16, uint16 | 
-| 0x2a5c | CSCFeature | uint16 | 
-| 0x2a5d | SensorLocation | uint8 | 
-| 0x2a5e | Flags, SpO2, PR, Year(`bit0`), Month(`bit0`), Day(`bit0`), Hours(`bit0`), Minutes(`bit0`), Seconds(`bit0`), MeasurementStatus(`bit1`), DeviceAndSensorStatus(`bit2`), PulseAmplitudeIndex(`bit3`) | uint8, sfloat, sfloat, uint16, uint8, uint8, uint8, uint8, uint8, uint16, uint24, sfloat | 
-| 0x2a5f | Flags, NormalSpO2, NormalPR, FastSpO2(`bit0`), FastPR(`bit0`), SlowSpO2(`bit1`), SlowPR(`bit1`), MeasurementStatus(`bit2`), DeviceAndSensorStatus(`bit3`), PulseAmplitudeIndex(`bit4`) | uint8, sfloat, sfloat, sfloat, sfloat, sfloat, sfloat, uint16, uint24, sfloat | 
-| 0x2a65 | CyclingPowerFeature | uint32 | 
-| 0x2a67 | Flags, InstantaneousSpeed(`bit0`), TotalDistance(`bit1`), Latitude(`bit2`), Longitude(`bit2`), Elevation(`bit3`), Heading(`bit4`), RollingTime(`bit5`), Year(`bit6`), Month(`bit6`), Day(`bit6`), Hours(`bit6`), Minutes(`bit6`), Seconds(`bit6`) | uint8, uint16, uint24, int32, int32, int24, uint16, uint8, uint16, uint8, uint8, uint8, uint8, uint8 | 
-| 0x2a68 | Flags, Bearing, Heading, RemainingDistance(`bit0`), RemainingVerticalDistance(`bit1`), Year(`bit2`), Month(`bit2`), Day(`bit2`), Hours(`bit2`), Minutes(`bit2`), Seconds(`bit2`) | uint8, uint16, uint16, uint24, int24, uint16, uint8, uint8, uint8, uint8, uint8 | 
-| 0x2a69 | Flags, NumberOfBeaconsInSolution(`bit0`), NumberOfBeaconsInView(`bit1`), TimeToFirstFix(`bit2`), EHPE(`bit3`), EVPE(`bit4`), HDOP(`bit5`), VDOP(`bit6`) | uint8, uint8, uint8, uint16, uint32, uint32, uint8, uint8 | 
-| 0x2a6a | LNFeature | uint32 | 
-| 0x2a6c | Elevation | int24 | 
-| 0x2a6d | Pressure | uint32 | 
-| 0x2a6e | Temp | int16 | 
-| 0x2a6f | Humidity | uint16 | 
-| 0x2a70 | TrueWindSpeed | uint16 | 
-| 0x2a71 | TrueWindDirection | uint16 | 
-| 0x2a72 | ApparentWindSpeed | uint16 | 
-| 0x2a73 | ApparentWindDirection | uint16 | 
-| 0x2a74 | GustFactor | uint8 | 
-| 0x2a75 | PollenConcentration | uint24 | 
-| 0x2a76 | UVIndex | uint8 | 
-| 0x2a77 | Irradiance | uint16 | 
-| 0x2a78 | Rainfall | uint16 | 
-| 0x2a79 | WindChill | int8 | 
-| 0x2a7a | eatIndex | int8 | 
-| 0x2a7b | DewPoint | int8 | 
-| 0x2a7d | Flags, UUID | uint16, uuid | 
-| 0x2a7e | AerobicHeartRateLowerLimit | uint8 | 
-| 0x2a7f | AerobicThreshold | uint8 | 
-| 0x2a80 | Age | uint8 | 
-| 0x2a81 | AnaerobicHeartRateLowerLimit | uint8 | 
-| 0x2a82 | AnaerobicHeartRateUpperLimit | uint8 | 
-| 0x2a83 | AnaerobicThreshold | uint8 | 
-| 0x2a84 | AerobicHeartRateUpperLimit | uint8 | 
-| 0x2a85 | Year, Month, Day | uint16, uint8, uint8 | 
-| 0x2a86 | Year, Month, Day | uint16, uint8, uint8 | 
-| 0x2a87 | EmailAddress | string | 
-| 0x2a88 | FatBurnHeartRateLowerLimit | uint8 | 
-| 0x2a89 | FatBurnHeartRateUpperLimit | uint8 | 
-| 0x2a8a | FirstName | string | 
-| 0x2a8b | VeryLight/Light, Light/Moderate, Moderate/Hard, Hard/Max | uint8, uint8, uint8, uint8 | 
-| 0x2a8c | Gender | uint8 | 
-| 0x2a8d | HeartRateMax | uint8 | 
-| 0x2a8e | Height | uint16 | 
-| 0x2a8f | HipCircumference | uint16 | 
-| 0x2a90 | LastName | string | 
-| 0x2a91 | MaxRecommHeartRate | uint8 | 
-| 0x2a92 | RestingHeartRate | uint8 | 
-| 0x2a93 | SportType | uint8 | 
-| 0x2a94 | Light/Moderate, Moderate/Hard | uint8, uint8 | 
-| 0x2a95 | Fatburn/FitnessLimit | uint8 | 
-| 0x2a96 | VO2Max | uint8 | 
-| 0x2a97 | WaistCircumference | uint16 | 
-| 0x2a98 | Weight | uint16 | 
-| 0x2a99 | DatabaseChangeIncrement | uint32 | 
-| 0x2a9a | UserIndex | uint8 | 
-| 0x2a9b | BodyCompositionFeature | uint32 | 
-| 0x2a9c | Flags, BodyFatPercentage, Year(`bit1`), Month(`bit1`), Day(`bit1`), Hours(`bit1`), Minutes(`bit1`), Seconds(`bit1`), UserID(`bit2`), BasalMetabolism(`bit3`), MusclePercentage(`bit4`), MuscleMassKg(`!bit0 & bit5`), MuscleMassPounds(`bit0 & bit5`), FatFreeMassKg(`!bit0 & bit6`), FatFreeMassPounds(`bit0 & bit6`), SoftLeanMassKg(`!bit0 & bit7`), SoftLeanMassPounds(`bit0 & bit7`), BodyWaterMassKg(`!bit0 & bit8`), BodyWaterMassPounds(`bit0 & bit8`), Impedance(`bit9`), WeightKg(`!bit0 & bit10`), WeightPounds(`bit0 & bit10`), HeightMeters(`!bit0 & bit11`), HeightInches(`bit0 & bit11`) | uint16, uint16, uint16, uint8, uint8, uint8, uint8, uint8, uint8, uint16, uint16, uint16, uint16, uint16, uint16, uint16, uint16, uint16, uint16, uint16, uint16, uint16, uint16, uint16 | 
-| 0x2a9d | Flags, WeightSI(`!bit0`), WeightImperial(`bit0`), Year(`bit1`), Month(`bit1`), Day(`bit1`), Hours(`bit1`), Minutes(`bit1`), Seconds(`bit1`), UserID(`bit2`), BMI(`bit3`), HeightSI(`!bit0 & bit3`), HeightImperial(`bit0 & bit3`) | uint8, uint16, uint16, uint16, uint8, uint8, uint8, uint8, uint8, uint8, uint16, uint16, uint16 | 
-| 0x2a9e | WeightScaleFeature | uint32 | 
-| 0x2aa0 | XAxis, YAxis | int16, int16 | 
-| 0x2aa1 | XAxis, YAxis, ZAxis | int16, int16, int16 | 
-| 0x2aa2 | Language | string | 
-| 0x2aa3 | BarometricPressureTrend | uint8 | 
-| 0x2aa5 | BondManagementFeature | uint24 | 
-| 0x2aa6 | CentralAddrResolutionSupport | uint8 | 
-| 0x2aa8 | CGMFeature, CGMType, CGMSampleLocation, E2E_CRC | uint24, nibble, nibble, uint16 | 
-| 0x2aad | IndoorPositioningConfig | uint8 | 
-| 0x2aae | Latitude | int32 | 
-| 0x2aaf | Longitude | int32 | 
-| 0x2ab0 | LocalNorthCoordinate | int16 | 
-| 0x2ab1 | LocalEastCoordinate | int16 | 
-| 0x2ab2 | FloorNumber | uint8 | 
-| 0x2ab3 | Altitude | uint16 | 
-| 0x2ab4 | Uncertainty | uint8 | 
-| 0x2ab5 | LocationName | string | 
-| 0x2ab6 | URI | string | 
-| 0x2ab7 | HTTPHeaders | string | 
-| 0x2ab8 | StatusCode, DataStatus | uint16, uint8 | 
-| 0x2ab9 | HTTPEntityBody | string | 
-| 0x2aba | OpCode | uint8 | 
-| 0x2abb | HTTPSSecurity | boolean | 
-| 0x2abd | OACPFeatures, OLCPFeatures | uint32, uint32 | 
-| 0x2abe | ObjectName | string | 
-| 0x2abf | ObjectType | uuid | 
+| 0x2a00 | name | string | 
+| 0x2a01 | category | uint16 | 
+| 0x2a02 | flag | boolean | 
+| 0x2a03 | addr | addr6 | 
+| 0x2a04 | minConnInterval, maxConnInterval, latency, timeout | uint16, uint16, uint16, uint16 | 
+| 0x2a05 | startHandle, endHandle | uint16, uint16 | 
+| 0x2a06 | alertLevel | uint8 | 
+| 0x2a07 | txPower | int8 | 
+| 0x2a08 | year, month, day, hours, minutes, seconds | uint16, uint8, uint8, uint8, uint8, uint8 | 
+| 0x2a09 | dayOfWeek | uint8 | 
+| 0x2a0a | year, month, day, hours, minutes, seconds, dayOfWeek | uint16, uint8, uint8, uint8, uint8, uint8, uint8 | 
+| 0x2a0c | year, month, day, hours, minutes, seconds, dayOfWeek, fractions256 | uint16, uint8, uint8, uint8, uint8, uint8, uint8, uint8 | 
+| 0x2a0d | dstOffset | uint8 | 
+| 0x2a0e | timeZone | int8 | 
+| 0x2a0f | timeZone, dstOffset | int8, uint8 | 
+| 0x2a11 | year, month, day, hours, minutes, seconds, dstOffset | uint16, uint8, uint8, uint8, uint8, uint8, uint8 | 
+| 0x2a12 | accuracy | uint8 | 
+| 0x2a13 | timeSource | uint8 | 
+| 0x2a14 | source, accuracy, daySinceUpdate, hourSinceUpdate | uint8, uint8, uint8, uint8 | 
+| 0x2a16 | timeUpdateCtrl | uint8 | 
+| 0x2a17 | currentState, result | uint8, uint8 | 
+| 0x2a18 | flags, sequenceNum, year, month, day, hours, minutes, seconds, timeOffset(`bit0`), glucoseKg(`bit1 & !bit2`), glucoseMol(`bit1 & bit2`), type(`bit2`), sampleLocation(`bit2`), sensorStatus(`bit3`) | uint8, uint16, uint16, uint8, uint8, uint8, uint8, uint8,  | int16, sfloat, sfloat, nibble, nibble, uint16 | 
+| 0x2a19 | level | uint8 | 
+| 0x2a1c | flags, tempC(`!bit0`), tempF(`bit0`), year(`bit1`), month(`bit1`), day(`bit1`), hours(`bit1`), minutes(`bit1`), seconds(`bit1`), tempType(`bit2`) | uint8, float, float, uint16, uint8, uint8, uint8, uint8, uint8, uint8 | 
+| 0x2a1d | tempTextDesc | uint8 | 
+| 0x2a1e | flags, tempC(`!bit0`), tempF(`bit0`), year(`bit1`), month(`bit1`), day(`bit1`), hours(`bit1`), minutes(`bit1`), seconds(`bit1`), tempType(`bit2`) | uint8, float, float, uint16, uint8, uint8, uint8, uint8, uint8, uint8 | 
+| 0x2a21 | measureInterval | uint16 | 
+| 0x2a22 | bootKeyboardInput | obj | 
+| 0x2a23 | manufacturerID, organizationallyUID | addr5, addr3 | 
+| 0x2a24 | modelNum | string | 
+| 0x2a25 | serialNum | string | 
+| 0x2a26 | firmwareRev | string | 
+| 0x2a27 | hardwareRev | string | 
+| 0x2a28 | softwareRev | string | 
+| 0x2a29 | manufacturerName | string | 
+| 0x2a2b | year, month, day, hours, minutes, seconds, dayOfWeek, fractions256, adjustReason | uint16, uint8, uint8, uint8, uint8, uint8, uint8, uint8, uint8 | 
+| 0x2a2c | magneticDeclination | uint16 | 
+| 0x2a31 | scanRefresh | uint8 | 
+| 0x2a32 | bootKeyboardOutput | obj | 
+| 0x2a33 | bootMouseInput | obj | 
+| 0x2a34 | flags, sequenceNum, extendedFlags(`bit7`), carbohydrateID(`bit0`), carbohydrate(`bit0`), meal(`bit1`), tester(`bit1`), health(`bit2`), exerciseDuration(`bit3`), exerciseIntensity(`bit3`), medicationID(`bit4`), medicationKg(`bit4 & !bit5`), medicationL(`bit4 & bit5`), hbA1c(`bit6`) | uint8, uint16, uint8, uint8, sfloat, uint8, nibble, nibble, uint16, uint8, uint8, sfloat, sfloat, sfloat | 
+| 0x2a35 | flags, systolicMmHg(`!bit0`), diastolicMmHg(`!bit0`), arterialPresMmHg(`!bit0`), systolicKpa(`bit0`), diastolicKpa(`bit0`), arterialPresKpa(`bit0`), year(`bit1`), month(`bit1`), day(`bit1`), hours(`bit1`), minutes(`bit1`), seconds(`bit1`), pulseRate(`bit2`), userID(`bit3`), status(`bit4`) | uint8, sfloat, sfloat, sfloat, sfloat, sfloat, sfloat, uint16, uint8, uint8, uint8, uint8, uint8, sfloat, uint8, uint16 | 
+| 0x2a36 | flags, systolicMmHg(`!bit0`), diastolicMmHg(`!bit0`), arterialPresMmHg(`!bit0`), systolicKpa(`bit0`), diastolicKpa(`bit0`), arterialPresKpa(`bit0`), year(`bit1`), month(`bit1`), day(`bit1`), hours(`bit1`), minutes(`bit1`), seconds(`bit1`), pulseRate(`bit2`), userID(`bit3`), status(`bit4`) | uint8, sfloat, sfloat, sfloat, sfloat, sfloat, sfloat, uint16, uint8, uint8, uint8, uint8, uint8, sfloat, uint8, uint16 | 
+| 0x2a37 | flags, heartRate8(`!bit0`), heartRate16(`bit0`), energyExpended(`bit3`), rrInterval(`bit4`) | uint8, uint8, uint16, uint16, uint16 | 
+| 0x2a38 | bodySensorLocation | uint8 | 
+| 0x2a39 | heartRateCtrl | uint8 | 
+| 0x2a3f | alertStatus | uint8 | 
+| 0x2a40 | ringerCtrlPoint | uint8 | 
+| 0x2a41 | ringerSet | uint8 | 
+| 0x2a42 | categoryIDBitMask0, categoryIDBitMask1 | uint8, uint8 | 
+| 0x2a43 | categoryID | uint8 | 
+| 0x2a44 | commID, categoryID | uint8, uint8 | 
+| 0x2a45 | categoryID, unreadCount | uint8, uint8 | 
+| 0x2a46 | categoryID, newAlert, textStringInfo | uint8, uint8, string | 
+| 0x2a47 | categoryIDBitMask0, categoryIDBitMask1 | uint8, uint8 | 
+| 0x2a48 | categoryIDBitMask0, categoryIDBitMask1 | uint8, uint8 | 
+| 0x2a49 | feature | uint16 | 
+| 0x2a4a | bcdHID, bCountryCode, flags | uint16, uint8, uint8 | 
+| 0x2a4b | reportMap | obj | 
+| 0x2a4c | hidCtrl | uint8 | 
+| 0x2a4d | report | obj | 
+| 0x2a4e | protocolMode | uint8 | 
+| 0x2a4f | leScanInterval, leScanWindow | uint16, uint16 | 
+| 0x2a50 | vendorIDSource, vendorID, productID, productVersion | uint8, uint16, uint16, uint16 | 
+| 0x2a51 | feature | uint16 | 
+| 0x2a52 | opCode, operator, operand | uint8, uint8, uint8 | 
+| 0x2a53 | flags, speed, cadence, strideLength(`bit0`), totalDist(`bit1`) | uint8, uint16, uint8, uint16, uint32 | 
+| 0x2a54 | feature | uint16 | 
+| 0x2a56 | digital | uint8 | 
+| 0x2a58 | analog | uint16 | 
+| 0x2a5b | flags, cumulativeWheelRev(`bit0`), lastWheelEventTime(`bit0`), cumulativeCrankRev(`bit1`), lastCrankEventTime(`bit1`) | uint8, uint32, uint16, uint16, uint16 | 
+| 0x2a5c | feature | uint16 | 
+| 0x2a5d | sensorLocation | uint8 | 
+| 0x2a5e | flags, spotCheckSpO2, spotCheckPr, year(`bit0`), month(`bit0`), day(`bit0`), hours(`bit0`), minutes(`bit0`), seconds(`bit0`), measureStatus(`bit1`), deviceAndSensorStatus(`bit2`), pulseAmpIndex(`bit3`) | uint8, sfloat, sfloat, uint16, uint8, uint8, uint8, uint8, uint8, uint16, uint24, sfloat | 
+| 0x2a5f | flags, normalSpO2, normalPR, fastSpO2(`bit0`), fastPR(`bit0`), slowSpO2(`bit1`), slowPR(`bit1`), measureStatus(`bit2`), deviceAndSensorStatus(`bit3`), pulseAmpIndex(`bit4`) | uint8, sfloat, sfloat, sfloat, sfloat, sfloat, sfloat, uint16, uint24, sfloat | 
+| 0x2a65 | feature | uint32 | 
+| 0x2a67 | flags, instantSpeed(`bit0`), totalDist(`bit1`), latitude(`bit2`), longitude(`bit2`), elevation(`bit3`), heading(`bit4`), rollingTime(`bit5`), year(`bit6`), month(`bit6`), day(`bit6`), hours(`bit6`), minutes(`bit6`), seconds(`bit6`) | uint8, uint16, uint24, int32, int32, int24, uint16, uint8, uint16, uint8, uint8, uint8, uint8, uint8 | 
+| 0x2a68 | flags, bearing, heading, remainingDist(`bit0`), remainingVertDist(`bit1`), year(`bit2`), month(`bit2`), day(`bit2`), hours(`bit2`), minutes(`bit2`), seconds(`bit2`) | uint8, uint16, uint16, uint24, int24, uint16, uint8, uint8, uint8, uint8, uint8 | 
+| 0x2a69 | flags, beaconsInSolution(`bit0`), beaconsInView(`bit1`), timeToFirstFix(`bit2`), ehpe(`bit3`), evpe(`bit4`), hdop(`bit5`), vdop(`bit6`) | uint8, uint8, uint8, uint16, uint32, uint32, uint8, uint8 | 
+| 0x2a6a | feature | uint32 | 
+| 0x2a6c | elevation | int24 | 
+| 0x2a6d | pressure | uint32 | 
+| 0x2a6e | temp | int16 | 
+| 0x2a6f | humidity | uint16 | 
+| 0x2a70 | trueWindSpeed | uint16 | 
+| 0x2a71 | trueWindDirection | uint16 | 
+| 0x2a72 | apparentWindSpeed | uint16 | 
+| 0x2a73 | apparentWindDirection | uint16 | 
+| 0x2a74 | gustFactor | uint8 | 
+| 0x2a75 | pollenConc | uint24 | 
+| 0x2a76 | uvIndex | uint8 | 
+| 0x2a77 | irradiance | uint16 | 
+| 0x2a78 | rainfall | uint16 | 
+| 0x2a79 | windChill | int8 | 
+| 0x2a7a | heatIndex | int8 | 
+| 0x2a7b | dewPoint | int8 | 
+| 0x2a7d | flag, uuid | uint16, uuid | 
+| 0x2a7e | lowerLimit | uint8 | 
+| 0x2a7f | threshold | uint8 | 
+| 0x2a80 | age | uint8 | 
+| 0x2a81 | lowerLimit | uint8 | 
+| 0x2a82 | upperLimit | uint8 | 
+| 0x2a83 | threshold | uint8 | 
+| 0x2a84 | upperLimit | uint8 | 
+| 0x2a85 | year, month, day | uint16, uint8, uint8 | 
+| 0x2a86 | year, month, day | uint16, uint8, uint8 | 
+| 0x2a87 | emailAddr | string | 
+| 0x2a88 | lowerLimit | uint8 | 
+| 0x2a89 | upperLimit | uint8 | 
+| 0x2a8a | firstName | string | 
+| 0x2a8b | veryLightAndLight, lightAndModerate, moderateAndHard, hardAndMax | uint8, uint8, uint8, uint8 | 
+| 0x2a8c | gender | uint8 | 
+| 0x2a8d | heartRateMax | uint8 | 
+| 0x2a8e | height | uint16 | 
+| 0x2a8f | hipCircumference | uint16 | 
+| 0x2a90 | lastName | string | 
+| 0x2a91 | maxHeartRate | uint8 | 
+| 0x2a92 | restingHeartRate | uint8 | 
+| 0x2a93 | sportType | uint8 | 
+| 0x2a94 | lightAndModerate, moderateAndHard | uint8, uint8 | 
+| 0x2a95 | fatburnAndFitness | uint8 | 
+| 0x2a96 | vo2Max | uint8 | 
+| 0x2a97 | waistCir | uint16 | 
+| 0x2a98 | weight | uint16 | 
+| 0x2a99 | changeIncrement | uint32 | 
+| 0x2a9a | userIndex | uint8 | 
+| 0x2a9b | feature | uint32 | 
+| 0x2a9c | flags, bodyFatPercent, year(`bit1`), month(`bit1`), day(`bit1`), hours(`bit1`), minutes(`bit1`), seconds(`bit1`), userID(`bit2`), basalMetabolism(`bit3`), musclePercent(`bit4`), muscleMassKg(`!bit0 & bit5`), muscleMassPounds(`bit0 & bit5`), fatFreeMassKg(`!bit0 & bit6`), fatFreeMassPounds(`bit0 & bit6`), softLeanMassKg(`!bit0 & bit7`), softLeanMassPounds(`bit0 & bit7`), bodyWaterMassKg(`!bit0 & bit8`), bodyWaterMassPounds(`bit0 & bit8`), impedance(`bit9`), weightKg(`!bit0 & bit10`), weightPounds(`bit0 & bit10`), heightMeters(`!bit0 & bit11`), heightInches(`bit0 & bit11`) | uint16, uint16, uint16, uint8, uint8, uint8, uint8, uint8, uint8, uint16, uint16, uint16, uint16, uint16, uint16, uint16, uint16, uint16, uint16, uint16, uint16, uint16, uint16, uint16 | 
+| 0x2a9d | flags, weightSI(`!bit0`), weightImperial(`bit0`), year(`bit1`), month(`bit1`), day(`bit1`), hours(`bit1`), minutes(`bit1`), seconds(`bit1`), userID(`bit2`), bmi(`bit3`), heightSI(`!bit0 & bit3`), heightImperial(`bit0 & bit3`) | uint8, uint16, uint16, uint16, uint8, uint8, uint8, uint8, uint8, uint8, uint16, uint16, uint16 | 
+| 0x2a9e | feature | uint32 | 
+| 0x2aa0 | xAxis, yAxis | int16, int16 | 
+| 0x2aa1 | xAxis, yAxis, zAxis | int16, int16, int16 | 
+| 0x2aa2 | language | string | 
+| 0x2aa3 | barometricPresTrend | uint8 | 
+| 0x2aa5 | feature | uint24 | 
+| 0x2aa6 | addrResolutionSup | uint8 | 
+| 0x2aa8 | feature, type, sampleLocation, e2eCrc | uint24, nibble, nibble, uint16 | 
+| 0x2aad | indoorPosition | uint8 | 
+| 0x2aae | latitude | int32 | 
+| 0x2aaf | longitude | int32 | 
+| 0x2ab0 | localNorthCoordinate | int16 | 
+| 0x2ab1 | localEastCoordinate | int16 | 
+| 0x2ab2 | floorNum | uint8 | 
+| 0x2ab3 | altitude | uint16 | 
+| 0x2ab4 | uncertainty | uint8 | 
+| 0x2ab5 | locationName | string | 
+| 0x2ab6 | uri | string | 
+| 0x2ab7 | httpHeaders | string | 
+| 0x2ab8 | statusCode, dataStatus | uint16, uint8 | 
+| 0x2ab9 | httpEntityBody | string | 
+| 0x2aba | opCode | uint8 | 
+| 0x2abb | httpsSecurity | boolean | 
+| 0x2abd | oacpFeatures, olcpFeatures | uint32, uint32 | 
+| 0x2abe | objectName | string | 
+| 0x2abf | objectType | uuid | 
 
 <br>
 <a name="errcodes"></a>
@@ -722,69 +722,69 @@ The error returned from BNP will pass to the callback as an error object with a 
 #### 1. HciError
 |Error code|Description|
 | ------------- | ------------- |
-|   1 |Unknown hci cmd |
-|   2 |Unknown conn id |
-|   3 |Hw failure |
-|   4 |Page timeout |
-|   5 |Auth failure |
-|   6 |Pin key missing |
-|   7 |Mem cap exceeded |
-|   8 |Conn timeout |
-|   9 |Conn limit exceeded |
-|  10 |Synch conn limit exceeded |
-|  11 |Acl conn already exists |
-|  12 |Cmd disallowed |
-|  13 |Conn rej limited resources |
-|  14 |Conn rejected security reasons |
-|  15 |Conn rejected unacceptable bdaddr |
-|  16 |Conn accept timeout exceeded |
-|  17 |Unsupported feature param value |
-|  18 |Invalid hci cmd params |
-|  19 |Remote user term conn |
-|  20 |Remote device term conn low resources |
-|  21 |Remote device term conn power off |
-|  22 |Conn term by local host |
-|  23 |Repeated attempts |
-|  24 |Pairing not allowed |
-|  25 |Unknown lmp pdu |
-|  26 |Unsupported remote feature |
-|  27 |Sco offset rej |
-|  28 |Sco interval rej |
-|  29 |Sco air mode rej |
-|  30 |Invalid lmp params |
-|  31 |Unspecified error |
-|  32 |Unsupported lmp param val |
-|  33 |Role change not allowed |
-|  34 |Lmp ll resp timeout |
-|  35 |Lmp err transaction collision |
-|  36 |Lmp pdu not allowed |
-|  37 |Encrypt mode not acceptable |
-|  38 |Link key can not be changed |
-|  39 |Req qos not supported |
-|  40 |Instant passed |
-|  41 |Pairing with unit key not supported |
-|  42 |Different transaction collision |
-|  43 |Reserved 1 |
-|  44 |Qos unacceptable param |
-|  45 |Qos rej |
-|  46 |Chan assessment not supported |
-|  47 |Insufficient security |
-|  48 |Param out of mandatory range |
-|  49 |Reserved 2 |
-|  50 |Role switch pending |
-|  51 |Reserved 3 |
-|  52 |Reserved slot violation |
-|  53 |Role switch failed |
-|  54 |Extended inquiry resp too large |
-|  55 |Simple pairing not supported by host |
-|  56 |Host busy pairing |
-|  57 |Conn rej no suitable chan found |
-|  58 |Controller busy |
-|  59 |Unacceptable conn interval |
-|  60 |Directed adv timeout |
-|  61 |Conn term mic failure |
-|  62 |Conn failed to establish |
-|  63 |Mac conn failed |
+|   1 | Unknown hci cmd |
+|   2 | Unknown conn id |
+|   3 | Hw failure |
+|   4 | Page timeout |
+|   5 | Auth failure |
+|   6 | Pin key missing |
+|   7 | Mem cap exceeded |
+|   8 | Conn timeout |
+|   9 | Conn limit exceeded |
+|  10 | Synch conn limit exceeded |
+|  11 | Acl conn already exists |
+|  12 | Cmd disallowed |
+|  13 | Conn rej limited resources |
+|  14 | Conn rejected security reasons |
+|  15 | Conn rejected unacceptable bdaddr |
+|  16 | Conn accept timeout exceeded |
+|  17 | Unsupported feature param value |
+|  18 | Invalid hci cmd params |
+|  19 | Remote user term conn |
+|  20 | Remote device term conn low resources |
+|  21 | Remote device term conn power off |
+|  22 | Conn term by local host |
+|  23 | Repeated attempts |
+|  24 | Pairing not allowed |
+|  25 | Unknown lmp pdu |
+|  26 | Unsupported remote feature |
+|  27 | Sco offset rej |
+|  28 | Sco interval rej |
+|  29 | Sco air mode rej |
+|  30 | Invalid lmp params |
+|  31 | Unspecified error |
+|  32 | Unsupported lmp param val |
+|  33 | Role change not allowed |
+|  34 | Lmp ll resp timeout |
+|  35 | Lmp err transaction collision |
+|  36 | Lmp pdu not allowed |
+|  37 | Encrypt mode not acceptable |
+|  38 | Link key can not be changed |
+|  39 | Req qos not supported |
+|  40 | Instant passed |
+|  41 | Pairing with unit key not supported |
+|  42 | Different transaction collision |
+|  43 | Reserved 1 |
+|  44 | Qos unacceptable param |
+|  45 | Qos rej |
+|  46 | Chan assessment not supported |
+|  47 | Insufficient security |
+|  48 | Param out of mandatory range |
+|  49 | Reserved 2 |
+|  50 | Role switch pending |
+|  51 | Reserved 3 |
+|  52 | Reserved slot violation |
+|  53 | Role switch failed |
+|  54 | Extended inquiry resp too large |
+|  55 | Simple pairing not supported by host |
+|  56 | Host busy pairing |
+|  57 | Conn rej no suitable chan found |
+|  58 | Controller busy |
+|  59 | Unacceptable conn interval |
+|  60 | Directed adv timeout |
+|  61 | Conn term mic failure |
+|  62 | Conn failed to establish |
+|  63 | Mac conn failed |
 
 #### 2. AttError
 |Error code|Description|

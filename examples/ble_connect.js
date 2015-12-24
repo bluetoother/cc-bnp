@@ -1,7 +1,7 @@
 var ccBnp = require('../index.js');
 
 var cfg = {
-    path: '/dev/ttyACM2',
+    path: '/dev/ttyACM0',
     options: {
         baudRate: 115200
     }   
@@ -9,34 +9,18 @@ var cfg = {
 
 ccBnp.on('ready', function(result) {
     //console.log(result);
-    ccBnp.hci.setRxGain(0, function(err, result) {
-        console.log(err);
-        console.log(result);
-    });
     ccBnp.gap.deviceDiscReq(3, 1, 0, function(err, result) {
         console.log(result[1].GapDeviceInfo0);
         if (result[1].GapDeviceInfo0) {
-            ccBnp.gap.estLinkReq(0, 0, 0, '0x78c5e5707a06', function (err, result) {    //'0x9059af0b8159'  '0x78c5e5707a06'
-                if (err) console.log(err);
-                
-                ccBnp.gatt.writeCharValue(result[1].GapLinkEstablished.connHandle, 37, {Flags: 2, TempC: 25.6, Year: 2015, Month: 12, Day: 10, Hours: 18, Minutes: 37, Seconds: 41}).then(function (result) {
-                    console.log(result[1]);
-                }).fail(function (err) {
+            ccBnp.gap.estLinkReq(0, 0, 0, '0x78c5e5707a06', function (err, result) {
+                if (err) {
                     console.log(err);
-                });
-
-                ccBnp.att.findByTypeValueReq(0, 11, '0x2902').then(function (result) {
-                    console.log(result);
-                }).fail(function (err) {
-                    console.log(err);
-                });
-
-                ccBnp.att.readMultiReq(0, {handle0: 5, handle1: 37}).then(function (result) {
-                    console.log(result);
-                    console.log(result[1].AttReadMultiRsp.value);
-                }).fail(function (err) {
-                    console.log(err);
-                });
+                } else {
+                    ccBnp.gatt.writeCharValue(result[1].GapLinkEstablished.connHandle, 37, {Flags: 2, TempC: 25.6, Year: 2015, Month: 12, Day: 10, Hours: 18, Minutes: 37, Seconds: 41}, function (err, result) {
+                        if (err) console.log(err);
+                        else console.log(result[1]);
+                    });
+                }
             });
         }
     });
