@@ -9,19 +9,24 @@ var cfg = {
 
 ccBnp.on('ready', function(result) {
     //console.log(result);
-    ccBnp.gap.deviceDiscReq(3, 1, 0, function(err, result) {
-        console.log(result[1].GapDeviceInfo0);
-        if (result[1].GapDeviceInfo0) {
-            ccBnp.gap.estLinkReq(0, 0, 0, '0x78c5e5707a06', function (err, result) {
-                if (err) {
-                    console.log(err);
-                } else {
-                    ccBnp.gatt.writeCharValue(result[1].GapLinkEstablished.connHandle, 37, {Flags: 2, TempC: 25.6, Year: 2015, Month: 12, Day: 10, Hours: 18, Minutes: 37, Seconds: 41}, function (err, result) {
-                        if (err) console.log(err);
-                        else console.log(result[1]);
-                    });
-                }
-            });
+    
+    ccBnp.gap.deviceDiscReq(3, 1, 0, function (err, result) {
+        if (err) {
+            console.log(err);
+        } else {
+            console.log(result[1]);
+            if (result[1].GapDeviceInfo0) {
+                ccBnp.gap.estLinkReq(0, 0, 0, '0x78c5e5707a06', function (err, result) {
+                    if (err) {
+                        console.log(err);
+                    } else {
+                        ccBnp.gatt.writeCharValue(result[1].GapLinkEstablished.connHandle, 37, {flags: 2, tempC: 25.6, year: 2015, month: 12, day: 10, hours: 18, minutes: 37, seconds: 41}, '0x2a1c', function (err, result) {
+                            if (err) console.log(err);
+                            else console.log(result[1]);
+                        });
+                    }
+                });
+            }
         }
     });
 });

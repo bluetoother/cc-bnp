@@ -111,7 +111,7 @@ CcBnp.prototype.util = {};
                             callback = arg.splice(arg.length - 1, 1)[0];
                         }
 
-                        if(arg.length > hciCmdMeta[cmdName].params.length) {
+                        if(arg.length > hciCmdMeta[cmdName].params.length && _.indexOf(BHCI.cmdWithUuid, cmdName) > -1) {
                             uuid = arg.splice(arg.length - 1, 1)[0];
                             data.uuid = uuid.toLowerCase();
                         }
@@ -131,7 +131,7 @@ CcBnp.prototype.util = {};
     });
 })();
 
-CcBnp.prototype.regCharMeta = function (regObj) {
+CcBnp.prototype.regChar = function (regObj) {
     if (_.isNumber(regObj.uuid)) { regObj.uuid = '0x' + regObj.uuid.toString(16); }
     if (hciCharMeta[regObj.uuid]) { throw new Error('Characteristic uuid alreadt exist.'); }
 

@@ -493,7 +493,7 @@ Command `'ATT_ReadBlobReq'`, `'ATT_ReadBlobRsp'`, `'ATT_PrepareWriteReq'`, `'ATT
 
 #### 2.Descriptors
 
-If the descriptor has 'Condition' field, the descriptor fields are determined according to the 'Condition' field. Which fields will exist depends on field condition value whether to include 'Condition' field value. 
+If the descriptor has 'condition' field, the descriptor fields are determined according to the 'condition' field. Which fields will exist depends on field condition value whether to include 'condition' field value. 
 
 Field condition bit value is behind field name in the table.
 
