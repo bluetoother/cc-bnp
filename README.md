@@ -26,10 +26,10 @@ The basic APIs are about how to initialize the BNP with a given role and how to 
 
 * [.init(config, role, [callback])](#init)
 * [.close([callback])](#close)
+* [.regChar(regObj)](#regChar)
 * [.on('ready', callback)](#onReady)
 * [.on('ind', callback)](#onInd)
-* [.regChar(regObj)](#regChar)
- 
+
 #### 2. [TI's BLE Vendor-Specific HCI Command APIs](#vendorHci)
 TI's BLE Vendor-Specific HCI Commands are used to communicate with the CC254X BNP. These commands are organized in API subgroubps: hci, l2cap, att, gatt, gap, and util.
 
@@ -73,7 +73,7 @@ Basic APIs and Events
 
 <a name="init"></a>
 ### .init(config, role, [callback])
-> This method will connect to the CC254X SoC upon a serial port as well as initialize the BNP with a given role.
+This method will connect to the CC254X SoC upon a serial port as well as initialize the BNP with a given role.
 
 **Arguments**
 
@@ -116,7 +116,7 @@ Basic APIs and Events
 <br>
 <a name="close"></a>
 ### .close([callback])
-> This method will close the opened serial port.
+This method will close the opened serial port.
 
 **Arguments**
 
@@ -130,9 +130,31 @@ Basic APIs and Events
     });
 ```
 <br>
+<a name="regChar"></a>
+### .regChar(regObj)
+This method will register uuid, the corresponding field Name ,and format types.
+
+If ccBnp imports/exports the uuid of attribute value which is ruled by [GATT Specifications](#gattdata) or registered already by this method, the attribute value which bases on the corresponding field Name ,and format types of uuid will be parsed.
+
+This method can overwrite the uuid which is ruled by [GATT Specifications](#gattdata).
+
+**Arguments**
+
+- regObj (*Object*): This object has three properties of `uuid`, `params` and `types`. The `uuid` needs to be registered as uuid. The `params` is the field Name of attribute value. The `types` is the format to parse value field.
+
+**Example**
+```javascript
+	var regObj = {
+		uuid: '0xfff1',
+		params: ['fieldName0', 'fieldName1', 'fieldName2'],
+		types: ['uint8', 'uint16', 'float']
+	};
+    ccBnp.regChar(regObj);
+```
+<br>
 <a name="onReady"></a>
 ### .on('ready', callback)
-> The `'ready'` event is fired when the initializing procedure accomplishes.
+The `'ready'` event is fired when the initializing procedure accomplishes.
 
 **Arguments**
 
@@ -156,7 +178,7 @@ Basic APIs and Events
 <br>
 <a name="onInd"></a>
 ### .on('ind', callback)
-> When there is a *BLE indication* message coming from BNP, the **ccBnp** fires an `'ind'` event along with a message object.    
+When there is a *BLE indication* message coming from BNP, the **ccBnp** fires an `'ind'` event along with a message object.    
 
 **Arguments**
 
@@ -227,27 +249,6 @@ Basic APIs and Events
         value: <Buffer 08 00>
     }    
     ```
-
-<br>
-<a name="regChar"></a>
-### .regChar(regObj)
-> This method will register characteristic uuid, field Name and format types, if characteristic belong that uuid, it will be parsed.
-
-If the [uuid](#gattdata) is exist, this will overwrite that.
-
-**Arguments**
-
-- regObj (*Object*): This object has three properties of `uuid`, `params` and `types`. The `uuid` is the characteristic uuid. The `params` is the characteristic field Name.The `types` is the characteristic format types.
-   
-**Example**
-```javascript
-	var regObj = {
-		uuid: '0xfff1',
-		params: ['fieldName0', 'fieldName1', 'fieldName2'],
-		types: ['uint8', 'uint16', 'float']
-	};
-    ccBnp.regChar(regObj);
-```
 	
 <br>
 <a name="vendorHci"></a>
@@ -288,7 +289,7 @@ Here is another example of calling **_writeCharValue()_** from the subgroup **_g
     // Please see Section 18.14 in TI BLE Vendor Specific HCI Reference Guide for API details.
     // argumens: (connHandle, handle, value, [uuid])
 ```javascript
-    var valObj = {
+    var valObj = {   //Instance object of uuid 0x2a18
         flags: 15,   //bit0 = 1, bit1 = 1, bit2 = 1, bit3 = 1
         sequenceNum: 1, 
         year: 2015, 
@@ -303,15 +304,14 @@ Here is another example of calling **_writeCharValue()_** from the subgroup **_g
         sampleLocation: 1, 
         sensorStatus: 0
         };
-    //When 'value' is a object, you can add argument 'uuid' in the last. 
-    //If you don't add 'uuid', ccBnp will automatically sends a request to the target.
+    //If arguments do not contain 'uuid', ccBnp will send the request to 'uuid' automatically.
     ccBnp.gatt.writeCharValue(0, 37, valObj, '0x2a18').then(function (result) {    
         console.log(result);
     }).fail(function (err) {
         console.log(err);
     }).done();
 ```
-Characteristic 'uuid' corresponding data type can use API [.regChar()](#regChar) to register or find in [default](#gattdata).
+The 'uuid' corresponding attribute value can find in [GATT Specifications ](#gattdata) or use API [.regChar()](#regChar) to register.
 <br>
 <a name="cmdTables"></a>
 Vendor-Specific HCI Command Reference Tables
@@ -476,13 +476,15 @@ G​ATT Specifications
 --------------------------
 GATT & ATT Read/Write Cmd-API will parse the attribute value according to its data type specified in SIG-defined GATT [Characteristic](https://developer.bluetooth.org/gatt/characteristics/Pages/CharacteristicsHome.aspx).
 
-* 'UUID' is the SIG provides UUIDs for all the types, services and profiles it defines.
-* 'Field Name' is the result after parsing.
-* 'Format types' is determine how a single value contained in the Characteristic Value is formatted.
+* 'UUID' is provided by the SIG for all the types, services and profiles it defines.
+* 'Field Name' is the field name of attribute value.
+* 'Format types' determine how a single value contained in the Characteristic Value is formatted.
 
 Command `'ATT_ReadBlobReq'`, `'ATT_ReadBlobRsp'`, `'ATT_PrepareWriteReq'`, `'ATT_PrepareWriteRsp'`, `'GATT_ReadLongCharValue'`, `'GATT_WriteLongCharValue'`, `'GATT_ReliableWrites'` will not parse the attribute value.
 
 #### 1.Declarations
+
+Declarations are defined GATT profile attribute types.
 
 | UUID | Field Name | Format types | 
 |  -------------  |  -------------  |  -------------  | 
@@ -493,14 +495,16 @@ Command `'ATT_ReadBlobReq'`, `'ATT_ReadBlobRsp'`, `'ATT_PrepareWriteReq'`, `'ATT
 
 #### 2.Descriptors
 
-If the descriptor has 'condition' field, the descriptor fields are determined according to the 'condition' field. Which fields will exist depends on field condition value whether to include 'condition' field value. 
+Descriptors are defined attributes that describe a characteristic value.
 
-Field condition bit value is behind field name in the table.
+If the descriptor contains 'condition' field, which fields of descriptor will exist depends on 'condition' field value equals to which `field condition values`.
+
+In the table, `field condition values` is behind the field name (e.g., analogInterval(`5,6`)).
 
 ```JavaScript
-{   //0x290a instance object
+{   //Instance object of uuid 0x290a
     condition: 5,
-    valueAnalogInterval: 3000
+    analogInterval: 3000
 }
 ```
 
@@ -522,11 +526,13 @@ Field condition bit value is behind field name in the table.
 
 #### 3.Characteristics
 
-If the characteristic has 'flags' field, the descriptor fields are determined according to the 'flags' field. Which fields will exist depends on field condition bit values whether equal to 'flags' field bits.
+Characteristics are defined attribute types that contain a single logical value.
 
-Field condition bit is behind field name in the table. `bit0` represent if flags bit0 equal to 1, the field will exist; `!bit0` represent if flags bit0 equal to 0, the field will exist.
+If the characteristic contains 'flags' field, which fields of characteristic will exist depends on 'flags' field value meet which `field condition bits`.
+
+In the table, `field condition bits` is behind the field name (e.g., tempC(`!bit0`); tempF(`bit0`)). `bit0` means if bit0 of 'flags' field value equals to 1, the fields will exist; `bit0` means if bit0 of 'flags' field value equals to 0, the fields will exist.
 ```JavaScript
-{   //0x2a1c instance object
+{   //instance object of uuid 0x2a1c 
     flags: 2,    //bit0 = 0, bit1 = 1, bit2 = 0
     tempC: 21.5, 
     year: 2015, 
@@ -540,7 +546,7 @@ Field condition bit is behind field name in the table. `bit0` represent if flags
 
 Format 'obj' meaning field may be repeated.
 ```JavaScript
-{   //0x2a22 instance object
+{   //Instance object of uuid 0x2a22
     bootKeyboardInputReport: {
         value0: 1,
         value1: 2,
