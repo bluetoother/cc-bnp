@@ -298,6 +298,7 @@ hci.on('GapLinkTerminated', function (data) {
         type: 'linkTerminated',
         data: data.data
     };
+
     delete msg.data.status;
     ccBnp.emit('ind', msg);
 });
