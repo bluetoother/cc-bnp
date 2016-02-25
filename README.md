@@ -1,28 +1,28 @@
-ccBnp
+cc-bnp
 ===============
 
-**ccBnp** is the interface for communicating with TI **CC**254X **B**LE **N**etwork **P**rocessor(BNP) over a serial port.
+**cc-bnp** is the interface for communicating with TI **CC**254X **B**LE **N**etwork **P**rocessor(BNP) over a serial port.
 
 <br>
 Overview
 --------
-**ccBnp** allows you to interact with TI's CC254X BLE network processor(BNP) on node.js via *TI BLE Vendor-Specific HCI Command APIs*. Each Command API function is in an asynchronous manner and supports both err-back callback style and promise-style.
+**cc-bnp** allows you to interact with TI's CC254X BLE network processor(BNP) on node.js via *TI BLE Vendor-Specific HCI Command APIs*. Each Command API function is in an asynchronous manner and supports both err-back callback style and promise-style.
 
-**ccBnp** helps you to get rid of multiple *Vendor-Specific Events* handling of each command. **ccBnp** gathers the multiple responses up, and finally passes the result to the Command API callback. With **ccBnp**, it's easy and fun in designing BLE applications on node.js.
+**cc-bnp** helps you to get rid of multiple *Vendor-Specific Events* handling of each command. **cc-bnp** gathers the multiple responses up, and finally passes the result to the Command API callback. With **cc-bnp**, it's easy and fun in designing BLE applications on node.js.
 
 BLE Network Processor (BNP)
 --------
 The following diagram shows the scenario when CC254X operates as a BNP. In this case, the controller and host are implemented together on the CC2540/41, and the application can be externally developed on an application processor (e.g., another mcu or PC). The application and profiles can communicate with BNP via TI's vendor-specific HCI commands upon an UART interface.
 
-![Network Processor Configuration](https://raw.githubusercontent.com/hedywings/ccBnp/master/documents/bnp.png)
+![Network Processor Configuration](https://raw.githubusercontent.com/hedywings/cc-bnp/master/documents/bnp.png)
 
 
 Basic and Command APIs
 --------
-**ccBnp** provides two kinds of APIs:
+**cc-bnp** provides two kinds of APIs, Each Command API in **cc-bnp** supports both the err-back callback style and promise-style.
 
 #### 1. [Basic APIs and Events](#basic_apis)
-The basic APIs are about how to initialize the BNP with a given role and how to close the connection from the processor. After the BNP accomplishes the initializing procedure, a `'ready'` event will be fired by **ccBnp** . When there comes a BLE indication message, **ccBnp** will fire an `'ind'` event along with the message content.
+The basic APIs are about how to initialize the BNP with a given role and how to close the connection from the processor. After the BNP accomplishes the initializing procedure, a `'ready'` event will be fired by **cc-bnp** . When there comes a BLE indication message, **cc-bnp** will fire an `'ind'` event along with the message content.
 
 * [.init(config, role, [callback])](#init)
 * [.close([callback])](#close)
@@ -35,12 +35,12 @@ TI's BLE Vendor-Specific HCI Commands are used to communicate with the CC254X BN
 
 | Command SubGroup (CSG) |  Namespace  | Number of Commands |
 |:----------------------:|:-----------:|:------------------:|
-|           hci          |  [ccBnp.hci](#tblHci)  |         32         |
-|          l2cap         | [ccBnp.l2cap](#tblL2cap) |          1         |
-|           att          |  [ccBnp.att](#tblAtt)  |         26         |
-|          gatt          |  [ccBnp.gatt](#tblGatt) |         25         |
-|           gap          |  [ccBnp.gap](#tblGap)  |         24         |
-|          util          | [ccBnp.util](#tblUtil) |          3         |
+|           hci          |  [ccbnp.hci](#tblHci)  |         32         |
+|          l2cap         | [ccbnp.l2cap](#tblL2cap) |          1         |
+|           att          |  [ccbnp.att](#tblAtt)  |         26         |
+|          gatt          |  [ccbnp.gatt](#tblGatt) |         25         |
+|           gap          |  [ccbnp.gap](#tblGap)  |         24         |
+|          util          | [ccbnp.util](#tblUtil) |          3         |
 
 <br>
 Installation
@@ -51,20 +51,20 @@ Available via [npm](https://www.npmjs.com/package/ccbnp):
 <br>
 Usage
 --------
-To begin with **ccBnp**, you must firstly set up the serial port and initialize the BNP with a given role. To do this, simply call the .init() method:
+To begin with **cc-bnp**, you must firstly set up the serial port and initialize the BNP with a given role. To do this, simply call the .init() method:
 ```javascript
-    var ccBnp = require('ccbnp');
+    var ccbnp = require('ccbnp');
     var cfg = {
         path: '/dev/ttyUSB0'
     };
 
-    ccBnp.on('ready', function () {
+    ccbnp.on('ready', function () {
         console.log('Initialization completes.');
     });
 
-    ccBnp.init(cfg, 'central');
+    ccbnp.init(cfg, 'central');
 ```
-Here are some [examples](https://github.com/hedywings/ccBnp/blob/master/examples/ble_connect.js).
+Here are some [examples](https://github.com/hedywings/cc-bnp/blob/master/examples/ble_connect.js).
 
 <br>
 <a name="basic_apis"></a>
@@ -77,8 +77,10 @@ This method will connect to the CC254X SoC upon a serial port as well as initial
 
 **Arguments**
 
-- config (*Object*): This value-object has two properties `path` and `options` for configuring the serial port. The `path` property is a string that refers to the system path of the serial port, e.g., `'/dev/ttyUSB0'`. The `options` property is a value-object for setting up the [seiralport](https://www.npmjs.com/package/serialport#to-use) instance. The default value of `options` is shown in the following example.
-- role (*String*): The device role. **ccBnp** supports four types of single role and two types of multi-roles:
+- config (*Object*): This value-object has two properties `path` and `options` for configuring the serial port. 
+    - `path` - The `path` property is a string that refers to the system path of the serial port, e.g., `'/dev/ttyUSB0'`. 
+    - `options` - The `options` property is a value-object for setting up the [seiralport](https://www.npmjs.com/package/serialport#to-use) instance. The default value of `options` is shown in the following example.
+- role (*String*): The device role. **cc-bnp** supports four types of single role and two types of multi-roles:
     - `'broadcaster'` - Single role. An advertiser that is non-connectable.
     - `'observer'` - Single role. An observer that scans for advertisements. It can not initiate connections.
     - `'peripheral'` - Single role. An advertiser that operates as a slave in a single link layer connection.
@@ -96,9 +98,13 @@ This method will connect to the CC254X SoC upon a serial port as well as initial
     }
 ```
 
+**Returns**  
+
+- (*Promise*)
+
 **Example**
 ```javascript
-    var ccBnp = require('ccBnp'),
+    var ccbnp = require('ccbnp'),
         role = 'broadcaster',
         cfg = {
             path: '/dev/ttyUSB0',
@@ -111,7 +117,21 @@ This method will connect to the CC254X SoC upon a serial port as well as initial
             }
         };
 
-    ccBnp.init(cfg, role);
+    // In callback-style
+    ccbnp.init(cfg, role, function (err, result) {
+        if (err) {
+            console.log(err);
+        } else {
+            console.log(result);
+        }
+    });
+
+    // In promise-style
+    ccbnp.init(cfg, role).then(function (result) {
+        console.log(result);
+    }).fail(function (err) {
+        console.log(err);
+    }).done();
 ```
 <br>
 <a name="close"></a>
@@ -123,43 +143,56 @@ This method will close the opened serial port.
 - callback(err)
     - `'err'` (*Error*) - [Error Message](#errcodes)
 
+**Returns**  
+
+- (*Promise*)
+
 **Example**
 ```javascript
-    ccBnp.close(function (err) {
+    ccbnp.close(function (err) {
         if (err) console.log(err);
     });
 ```
 <br>
 <a name="regChar"></a>
 ### .regChar(regObj)
-This method will register uuid, the corresponding field Name ,and format types.
+This method is used to register characteristic UUID and characteristic value format.
 
-If ccBnp imports/exports the uuid of attribute value which is ruled by [GATT Specifications](#gattdata) or registered already by this method, the attribute value which bases on the corresponding field Name ,and format types of uuid will be parsed.
+If the characteristic UUID has been defined by [GATT Specifications](#gattdata) or registered by using this method, the corresponding characteristic value will be parsed according to the value format you have registered.
 
-This method can overwrite the uuid which is ruled by [GATT Specifications](#gattdata).
+This method can overwrite UUID definition which is defined by [GATT Specifications](#gattdata).
 
 **Arguments**
 
-- regObj (*Object*): This object has three properties of `uuid`, `params` and `types`. The `uuid` needs to be registered as uuid. The `params` is the field Name of attribute value. The `types` is the format to parse value field.
+- regObj (*Object*): This object has three properties of `uuid`, `params` and `types`. 
+    - `uuid` (*String*) - The characteristic UUID needs to be registered. 
+    - `params` (*Array*) - Field names of characteristic value corresponding to `uuid`.
+    - `types` (*Array*) - `types` used to type each data in the `params` array.
+
+    Note: The order of entries in `types` and `params` array should be exactly matched.
+
+**Returns**  
+
+- (*none*)
 
 **Example**
 ```javascript
-	var regObj = {
-		uuid: '0xfff1',
-		params: ['fieldName0', 'fieldName1', 'fieldName2'],
-		types: ['uint8', 'uint16', 'float']
-	};
-    ccBnp.regChar(regObj);
+    var regObj = {
+        uuid: '0xfff1',
+        params: ['fieldName0', 'fieldName1', 'fieldName2'],
+        types: ['uint8', 'uint16', 'float']
+    };
+    ccbnp.regChar(regObj);
 ```
 <br>
 <a name="onReady"></a>
 ### .on('ready', callback)
-The `'ready'` event is fired when the initializing procedure accomplishes.
+The `'ready'` event is fired when the initializing procedure completes.
 
 **Arguments**
 
 - callback(result)
-    - `'result'` (*Object*)- Device information that contains the properties:
+    - `'result'` (*Object*)- Device information that contains the following properties:
 ```sh
     {
         devAddr: '0x78c5e59b5ef8',                            // Device public address
@@ -170,7 +203,7 @@ The `'ready'` event is fired when the initializing procedure accomplishes.
 
 **Example**
 ```javascript
-    ccBnp.on('ready', function (result) {
+    ccbnp.on('ready', function (result) {
         console.log(result);
         // do your work here
     });
@@ -178,14 +211,14 @@ The `'ready'` event is fired when the initializing procedure accomplishes.
 <br>
 <a name="onInd"></a>
 ### .on('ind', callback)
-When there is a *BLE indication* message coming from BNP, the **ccBnp** fires an `'ind'` event along with a message object.    
+When there is a *BLE indication* message coming from BNP, the **cc-bnp** fires an `'ind'` event along with a message object.    
 
 **Arguments**
 
 - callback(msg)
     - msg (*Object*): This message object has two properties of `type` and `data`. The `type` denotes the type of the *BLE indication* message. The `data` is the content of the corresponding message. With the indication type of `'linkTerminated'`, you can find the reason of link termination from the [reason codes table](#reasoncodes).
     ```javascript
-    ccBnp.on('ind', function (msg) {
+    ccbnp.on('ind', function (msg) {
         console.log(msg.type);
         console.log(msg.data);
     });
@@ -249,46 +282,40 @@ When there is a *BLE indication* message coming from BNP, the **ccBnp** fires an
         value: <Buffer 08 00>
     }    
     ```
-	
+    
 <br>
 <a name="vendorHci"></a>
 Calling the TI BLE Vendor-Specific HCI Command APIs
 --------------------------
-The **ccBnp** organizes the *TI's Vendor-Specific HCI Commands* into 6 API subgroups. Each Command API in **ccBnp** supports both the err-back callback style and promise-style. The description of commands is documented in [TI\_BLE\_Vendor\_Specific\_HCI_Guide.pdf](https://github.com/hedywings/ccBnp/blob/master/documents/TI_BLE_Vendor_Specific_HCI_Guide.pdf). 
+The **cc-bnp** organizes the *TI's Vendor-Specific HCI Commands* into 6 API subgroups. The description of commands is documented in [TI\_BLE\_Vendor\_Specific\_HCI_Guide.pdf](https://github.com/hedywings/cc-bnp/blob/master/documents/TI_BLE_Vendor_Specific_HCI_Guide.pdf). 
 
 To invoke the Command API:
 
-    ccBnp[subGroup][cmdName](..., callback);
+    ccbnp[subGroup][cmdName](..., callback);
 
 **subGroup** can be 'hci', 'l2cap', 'att', 'gatt', 'gap', or 'util'. In addition, **cmdName** is the Command API function name in string. You can find the function name of a Command API from this [reference table](#cmdTables).
 
 Here is an example of calling **_deviceDiscReq()_** from the subgroup **_gap_**:
 
+```javascript
     // Please see Section 12.3 in TI BLE Vendor Specific HCI Reference Guide for API details.
     // argumens: (mode, activeScan, whiteList)
-```javascript
-    ccBnp.gap.deviceDiscReq(3, 1, 0, function (err, result) {
-    	if (err) {
-    		console.log(err);
-    	} else {
-    		console.log(result);
-    	}
+
+    ccbnp.gap.deviceDiscReq(3, 1, 0, function (err, result) {
+        if (err) {
+            console.log(err);
+        } else {
+            console.log(result);
+        }
     };
-```
-In promise-style:
-```javascript
-    ccBnp.gap.deviceDiscReq(3, 1, 0).then(function (result) {
-        console.log(result);
-    }).fail(function (err) {
-        console.log(err);
-    }).done();
 ```
 
 Here is another example of calling **_writeCharValue()_** from the subgroup **_gatt_**:
 
+```javascript
     // Please see Section 18.14 in TI BLE Vendor Specific HCI Reference Guide for API details.
     // argumens: (connHandle, handle, value, [uuid])
-```javascript
+
     var valObj = {   //Instance object of uuid 0x2a18
         flags: 15,   //bit0 = 1, bit1 = 1, bit2 = 1, bit3 = 1
         sequenceNum: 1, 
@@ -304,29 +331,32 @@ Here is another example of calling **_writeCharValue()_** from the subgroup **_g
         sampleLocation: 1, 
         sensorStatus: 0
         };
-    //If arguments do not contain 'uuid', ccBnp will send the request to 'uuid' automatically.
-    ccBnp.gatt.writeCharValue(0, 37, valObj, '0x2a18').then(function (result) {    
-        console.log(result);
-    }).fail(function (err) {
-        console.log(err);
-    }).done();
+
+    //If arguments do not contain 'uuid', ccbnp will send the request to 'uuid' automatically.
+    ccbnp.gatt.writeCharValue(0, 37, valObj, '0x2a18', function (err, result) {
+        if (err) {
+            console.log(err);
+        } else {
+            console.log(result);
+        }
+    });
 ```
-The 'uuid' corresponding attribute value can find in [GATT Specifications ](#gattdata) or use API [.regChar()](#regChar) to register.
+The 'uuid' corresponding characteristic value can find in [GATT Specifications ](#gattdata) or use API [.regChar()](#regChar) to register.
 <br>
 <a name="cmdTables"></a>
 Vendor-Specific HCI Command Reference Tables
 --------------------------
-These tables are the cross-references between the **Vendor-Specific HCI Command** and **ccBnp** Command API names.
+These tables are the cross-references between the **Vendor-Specific HCI Command** and **cc-bnp** Command API names.
 
-* 'BLE Vendor-Cmd' is the the command name documented in [TI\_BLE\_Vendor\_Specific\_HCI_Guide.pdf](https://github.com/hedywings/ccBnp/blob/master/documents/TI_BLE_Vendor_Specific_HCI_Guide.pdf).
-* 'ccBnp Cmd-API' is the API function name according to a vendor-specfic HCI command.
+* 'BLE Vendor-Cmd' is the the command name documented in [TI\_BLE\_Vendor\_Specific\_HCI_Guide.pdf](https://github.com/hedywings/cc-bnp/blob/master/documents/TI_BLE_Vendor_Specific_HCI_Guide.pdf).
+* 'cc-bnp Cmd-API' is the API function name according to a vendor-specfic HCI command.
 * 'Arguments' is the required paramters to invoke the API.
 * 'Result' is the result passing to the callback.
 
 <a name="tblHci"></a>
-#### 1. ccBnp.hci APIs
+#### 1. ccbnp.hci APIs
 
-| BLE Vendor-Cmd | ccBnp Cmd-API | Arguments | Result |
+| BLE Vendor-Cmd | cc-bnp Cmd-API | Arguments | Result |
 | ------------- | ------------- | ------------- | ------------- |
 |HCI_EXT_SetRxGainCmd|setRxGain|rxGain|status|
 |HCI_EXT_SetTxPowerCmd|setTxPower|txPower|status|
@@ -362,16 +392,16 @@ These tables are the cross-references between the **Vendor-Specific HCI Command*
 |HCI_EXT_NumComplPktsLimitCmd|numCompletedPktsLimit|limit, flushOnEvt|status|
 
 <a name="tblL2cap"></a>
-#### 2. ccBnp.l2cap APIs
+#### 2. ccbnp.l2cap APIs
 
-| BLE Vendor-Cmd | ccBnp Cmd-API | Arguments | Result |
+| BLE Vendor-Cmd | cc-bnp Cmd-API | Arguments | Result |
 | ------------- | ------------- | ------------- | ------------- |
 |L2CAP_ConnParamUpdateReq|paramUpdateReq|connHandle, intervalMin, intervalMax, slaveLatency, timeoutMultiplier|status, connHandle, reason|
 
 <a name="tblAtt"></a>
-#### 3. ccBnp.att APIs
+#### 3. ccbnp.att APIs
 
-| BLE Vendor-Cmd | ccBnp Cmd-API | Arguments | Result |
+| BLE Vendor-Cmd | cc-bnp Cmd-API | Arguments | Result |
 | ------------- | ------------- | ------------- | ------------- |
 |ATT_ErrorRsp|errorRsp|connHandle, reqOpcode, handle, errCode|status, connHandle, pduLen, reqOpcode, handle, errCode|
 |ATT_ExchangeMtuReq|exchangeMtuReq|connHandle, clientRxMTU|status, connHandle, pduLen, clientRxMTU|
@@ -401,9 +431,9 @@ These tables are the cross-references between the **Vendor-Specific HCI Command*
 |ATT_HandleValueCfm|handleValueCfm|connHandle|status, connHandle, pduLen|
 
 <a name="tblGatt"></a>
-#### 4. ccBnp.gatt APIs
+#### 4. ccbnp.gatt APIs
 
-| BLE Vendor-Cmd | ccBnp Cmd-API | Arguments | Result |
+| BLE Vendor-Cmd | cc-bnp Cmd-API | Arguments | Result |
 | ------------- | ------------- | ------------- | ------------- |
 |GATT_ExchangeMtu|exchangeMtu|connHandle, clientRxMTU|status, connHandle, pduLen, clientRxMTU|
 |GATT_DiscAllPrimaryServices|discAllPrimaryServices|connHandle|status, connHandle, pduLen, startHandle, endHandle|
@@ -432,9 +462,9 @@ These tables are the cross-references between the **Vendor-Specific HCI Command*
 |GATT_AddAttribute|addAttribute|uuid, permissions|none|
 
 <a name="tblGap"></a>
-#### 5. ccBnp.gap APIs
+#### 5. ccbnp.gap APIs
 
-| BLE Vendor-Cmd | ccBnp Cmd-API | Arguments | Result |
+| BLE Vendor-Cmd | cc-bnp Cmd-API | Arguments | Result |
 | ------------- | ------------- | ------------- | ------------- |
 |GAP_DeviceInit|deviceInit|profileRole, maxScanResponses, irk, csrk, signCounter|status, devAddr, dataPktLen, numDataPkts, irk, csrk|
 |GAP_ConfigDeviceAddr|configDeviceAddr|bitMask, addr|status, addrType, newRandomAddr|
@@ -462,9 +492,9 @@ These tables are the cross-references between the **Vendor-Specific HCI Command*
 |GAP_BondGetParam|bondGetParam|paramID|status, paramDataLen, paramData|
 
 <a name="tblUtil"></a>
-#### 6. ccBnp.util APIs
+#### 6. ccbnp.util APIs
 
-| BLE Vendor-Cmd | ccBnp Cmd-API | Arguments | Result |
+| BLE Vendor-Cmd | cc-bnp Cmd-API | Arguments | Result |
 | ------------- | ------------- | ------------- | ------------- |
 |UTIL_NVRead|nvRead|nvID, nvDataLen|status, nvData|
 |UTIL_NVWrite|nvWrite|nvID, nvDataLen, nvData|status|
@@ -476,11 +506,13 @@ G​ATT Specifications
 --------------------------
 GATT & ATT Read/Write Cmd-API will parse the attribute value according to its data type specified in SIG-defined GATT [Characteristic](https://developer.bluetooth.org/gatt/characteristics/Pages/CharacteristicsHome.aspx).
 
-* 'UUID' is provided by the SIG for all the types, services and profiles it defines.
+* 'UUID' is a 16-bit number defined by SIG which is used to represent a attribute.
 * 'Field Name' is the field name of attribute value.
 * 'Format types' determine how a single value contained in the Characteristic Value is formatted.
 
-Command `'ATT_ReadBlobReq'`, `'ATT_ReadBlobRsp'`, `'ATT_PrepareWriteReq'`, `'ATT_PrepareWriteRsp'`, `'GATT_ReadLongCharValue'`, `'GATT_WriteLongCharValue'`, `'GATT_ReliableWrites'` will not parse the attribute value.
+**Note**: 
+1. Characteristic value of command `'ATT_ReadBlobReq'`, `'ATT_ReadBlobRsp'`, `'ATT_PrepareWriteReq'`, `'ATT_PrepareWriteRsp'`, `'GATT_ReadLongCharValue'`,  `'GATT_WriteLongCharValue'`, `'GATT_ReliableWrites'` not support to be parsed in cc-bnp.
+2. Characteristic value of UUID `'0x2a2a'`, `'0x2a55'`, `'0x2a5a'`, `'0x2a63'`, `'0x2a64'`, `'0x2a66'`, `'0x2a6b'`, `'0x2a9f'`, `'0x2aa4'`, `'0x2aa7'`, `'0x2aa9'`, `'0x2aaa'`, `'0x2aab'`, `'0x2aac'`, `'0x2abc'` not support to be parsed in cc-bnp.
 
 #### 1.Declarations
 
@@ -497,14 +529,15 @@ Declarations are defined GATT profile attribute types.
 
 Descriptors are defined attributes that describe a characteristic value.
 
-If the descriptor contains 'condition' field, which fields of descriptor will exist depends on 'condition' field value equals to which `field condition values`.
+If a descriptor contains 'condition' field, other fields of this descriptor will exist depends on the value of 'condition' field. 
 
-In the table, `field condition values` is behind the field name (e.g., analogInterval(`5,6`)).
+In the table below, `field condition values` inside the parentheses behind the field name (e.g., analogInterval(`5,6`)), `field condition values` representing the field, field will exist only if `field condition values` equals to the value of 'condition' field.
 
+For example, UUID 0x290a has three field names, analog, bitMask, and analogInterval. Since the value of 'condition' field is equal to `field condition values` of analogInterval field, therefore analogInterval field presence.
 ```JavaScript
-{   //Instance object of uuid 0x290a
+{   //Instance object of UUID 0x290a
     condition: 5,
-    analogInterval: 3000
+    analogInterval: 3000    // analogInterval(5,6)
 }
 ```
 
@@ -528,25 +561,31 @@ In the table, `field condition values` is behind the field name (e.g., analogInt
 
 Characteristics are defined attribute types that contain a single logical value.
 
-If the characteristic contains 'flags' field, which fields of characteristic will exist depends on 'flags' field value meet which `field condition bits`.
+If a characteristic contains the 'flags' field, a corresponding field name will be determined by the `field condition bits`.
 
-In the table, `field condition bits` is behind the field name (e.g., tempC(`!bit0`); tempF(`bit0`)). `bit0` means if bit0 of 'flags' field value equals to 1, the fields will exist; `bit0` means if bit0 of 'flags' field value equals to 0, the fields will exist.
+In the table below, there are `field condition bits` inside the parentheses behind the field name (e.g., tempC(`!bit0`); tempF(`bit0`)). 
+
+- fieldNameA(`bit0`) means if bit0 of 'flags' field value equals to 1, the field will be parsed. 
+- fieldNameB(`!bit0`) means if bit0 of 'flags' field value equals to 0, the field will be parsed. 
+- fieldNameC(`bit1 & bit2`) means if bit1 and bit2 of 'flags' fields value both equals to 1, the fields will be parsed. 
+
+For example, a UUID 0x2a1c Characteristics's 'flags' is 2. We put it into 8 bit binary to observe, it bit0 is 0, bit1 is 1 and bit2 is 0. So the fields 'tempC',  'year', 'month', 'day', 'hours', 'minutes' and 'seconds' will be parsed.
 ```JavaScript
-{   //instance object of uuid 0x2a1c 
-    flags: 2,    //bit0 = 0, bit1 = 1, bit2 = 0
-    tempC: 21.5, 
-    year: 2015, 
-    month: 12, 
-    day: 25, 
-    hours: 21, 
-    minutes: 36, 
-    seconds: 12, 
+{   //instance object of UUID 0x2a1c 
+    flags: 2,       // bit0 = 0, bit1 = 1, bit2 = 0
+    tempC: 21.5,    // tempC(!bit0)
+    year: 2015,     // year(bit1)
+    month: 12,      // month(bit1)
+    day: 25,        // day(bit1)
+    hours: 21,      // hours(bit1)
+    minutes: 36,    // minutes(bit1) 
+    seconds: 12     // seconds(bit1) 
 }
 ```
 
 Format 'obj' meaning field may be repeated.
 ```JavaScript
-{   //Instance object of uuid 0x2a22
+{   //Instance object of UUID 0x2a22
     bootKeyboardInputReport: {
         value0: 1,
         value1: 2,
@@ -862,10 +901,6 @@ Reason Code of Link-termination
 |  59 | LSTO Violation |
 |  61 | MIC Failure |
 
-Further Work
---------
-1. Parse the attribte value according to its data type specified in SIG-defined GATT [Characteristic](https://developer.bluetooth.org/gatt/characteristics/Pages/CharacteristicsHome.aspx).
-
 Contributors
 --------
 
@@ -875,4 +910,24 @@ Contributors
 
 License
 --------
-MIT
+The MIT License (MIT)
+
+Copyright (c) 2015 Hedy Wang <hedywings@gmail.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
