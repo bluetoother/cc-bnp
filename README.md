@@ -46,7 +46,7 @@ TI's BLE Vendor-Specific HCI Commands are used to communicate with the CC254X BN
 Installation
 ------------
 Available via [npm](https://www.npmjs.com/package/ccbnp):
-> $ npm install ccbnp --save
+> $ npm install cc-bnp --save
 
 <br>
 Usage
@@ -230,6 +230,9 @@ When there is a *BLE indication* message coming from BNP, the **cc-bnp** fires a
         * `'linkParamUpdate'`   - TI Vendor-Specific Event **GAP\_LinkParamUpdate**
         * `'attNoti'`           - TI Vendor-Specific Event **ATT\_HandleValueNoti**
         * `'attInd'`            - TI Vendor-Specific Event **ATT\_HandleValueInd**
+        * `'authenComplete'`    - TI Vendor-Specific Event **GAP\_AuthenticationComplete**
+        * `'passkeyNeeded'`     - TI Vendor-Specific Event **GAP\_PasskeyNeeded**
+        * `'bondComplete'`      - TI Vendor-Specific Event **GAP\_BondComplete**
 
     - msg.data (*Object*)   
 

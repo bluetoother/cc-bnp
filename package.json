@@ -1,5 +1,5 @@
 {
-  "name": "ccbnp",
+  "name": "cc-bnp",
   "version": "0.0.8",
   "description": "The interface for communicating with TI CC254X BLE Network Processor over a serial port.",
   "main": "index.js",
@@ -27,7 +27,7 @@
     "url": "https://github.com/hedywings/ccBnp.git"
   },
   "keywords": [
-    "ble"
+    "ble", "cc254x"
   ],
   "author": "Hedy Wang <hedywings@gmail.com>",
   "contributors": [
