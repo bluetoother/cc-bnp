@@ -543,10 +543,11 @@ GATT & ATT Read/Write Cmd-API will parse the attribute value according to its da
 * 'Format types' determine how a single value contained in the Characteristic Value is formatted.
 
 **Note**: 
+
 1. Characteristic value of command `'ATT_ReadBlobReq'`, `'ATT_ReadBlobRsp'`, `'ATT_PrepareWriteReq'`, `'ATT_PrepareWriteRsp'`, `'GATT_ReadLongCharValue'`,  `'GATT_WriteLongCharValue'`, `'GATT_ReliableWrites'` not support to be parsed in cc-bnp.
 2. Characteristic value of UUID `'0x2a2a'`, `'0x2a55'`, `'0x2a5a'`, `'0x2a63'`, `'0x2a64'`, `'0x2a66'`, `'0x2a6b'`, `'0x2a9f'`, `'0x2aa4'`, `'0x2aa7'`, `'0x2aa9'`, `'0x2aaa'`, `'0x2aab'`, `'0x2aac'`, `'0x2abc'` not support to be parsed in cc-bnp.
 
-#### 1.Declarations
+#### 1. Declarations
 
 Declarations are defined GATT profile attribute types.
 
@@ -557,7 +558,7 @@ Declarations are defined GATT profile attribute types.
 | 0x2802 | serviceAttrHandle, endGroupHandle, uuid | uint16, uint16, uuid | 
 | 0x2803 | properties, handle, uuid | uint8, uint16, uuid | 
 
-#### 2.Descriptors
+#### 2. Descriptors
 
 Descriptors are defined attributes that describe a characteristic value.
 
@@ -589,7 +590,7 @@ For example, UUID 0x290a has three field names, analog, bitMask, and analogInter
 | 0x290c | flags, samplFunc, measurePeriod, updateInterval, application, measureUncertainty | uint16, uint8, uint24, uint24, uint8, uint8 | 
 | 0x290e | condition, none(`0`), timeInterval(`1,2`), count(`3`) | uint8, uint8, uint24, uint16 | 
 
-#### 3.Characteristics
+#### 3. Characteristics
 
 Characteristics are defined attribute types that contain a single logical value.
 
