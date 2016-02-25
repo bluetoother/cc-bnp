@@ -282,6 +282,35 @@ When there is a *BLE indication* message coming from BNP, the **cc-bnp** fires a
         value: <Buffer 08 00>
     }    
     ```
+
+    ```sh
+    When (msg.type === 'authenComplete'):
+    msg.data = {
+        connHandle: 0,
+        mitm: 1, //0 or 1 means true or false
+        bond: 1, //0 or 1 means true or false
+        ltk: <Buffer 23:84:1A:D8:95:C9:ED:6C:B6:4E:47:F4:44:F3:E4:73>,
+        div: 0x668b,
+        rand: <Buffer 6E 68 CE EE DC D6 E9 99>
+    }    
+    ```
+
+    ```sh
+    When (msg.type === 'passkeyNeeded'):
+    msg.data = {
+        devAddr: '0x78c5e570796e',
+        connHandle: 0,
+        uiInput: 1,
+        uiOutput: 0 
+    }    
+    ```
+
+    ```sh
+    When (msg.type === 'bondComplete'):
+    msg.data = {
+        connHandle: 0
+    }    
+    ```
     
 <br>
 <a name="vendorHci"></a>
