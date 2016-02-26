@@ -6,6 +6,7 @@ cc-bnp
 <br>
 Overview
 --------
+
 **cc-bnp** allows you to interact with TI's CC254X BLE network processor(BNP) on node.js via *TI BLE Vendor-Specific HCI Command APIs*. Each Command API function is in an asynchronous manner and supports both err-back callback style and promise-style.
 
 **cc-bnp** helps you to get rid of multiple *Vendor-Specific Events* handling of each command. **cc-bnp** gathers the multiple responses up, and finally passes the result to the Command API callback. With **cc-bnp**, it's easy and fun in designing BLE applications on node.js.
@@ -27,6 +28,7 @@ The basic APIs are about how to initialize the BNP with a given role and how to 
 * [.init(config, role, [callback])](#init)
 * [.close([callback])](#close)
 * [.regChar(regObj)](#regChar)
+* [.regTimeoutConfig(connHdl, timeoutConfig)](#regTimeoutCfg)
 * [.on('ready', callback)](#onReady)
 * [.on('ind', callback)](#onInd)
 
@@ -53,7 +55,7 @@ Usage
 --------
 To begin with **cc-bnp**, you must firstly set up the serial port and initialize the BNP with a given role. To do this, simply call the .init() method:
 ```javascript
-    var ccbnp = require('ccbnp');
+    var ccbnp = require('cc-bnp');
     var cfg = {
         path: '/dev/ttyUSB0'
     };

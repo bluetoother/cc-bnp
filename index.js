@@ -42,6 +42,7 @@ CcBnp.prototype.init = function (spConfig, role, callback) {
             delete msg.status;
             delete msg.dataPktLen;
             delete msg.numDataPkts;
+
             deferred.resolve(msg);
             self.emit('ready', msg);
         }, function(err) {
@@ -142,17 +143,26 @@ CcBnp.prototype.regChar = function (regObj) {
 };
 
 CcBnp.prototype.regUuidHdlTable = function (table) {
-    if (!_.isObject(table)) { return new Error('table must be an object'); }
+    if (!_.isObject(table)) { throw new Error('table must be an object'); }
 
     _.forEach(table, function (devTable, connHdl) {
-        if (!hci._uuidHdlTable[connHdl]) {
-            hci._uuidHdlTable[connHdl] = devTable;
+        if (!hci.uuidHdlTable[connHdl]) {
+            hci.uuidHdlTable[connHdl] = devTable;
         } else {
             _.forEach(devTable, function (uuid, hdl) {
-                hci._uuidHdlTable[connHdl][hdl] = uuid;
+                hci.uuidHdlTable[connHdl][hdl] = uuid;
             });
         }
     });
+};
+
+CcBnp.prototype.regTimeoutConfig = function (connHdl, timeoutConfig) {
+    if (!_.isNumber(connHdl)) { throw new Error('connHdl must be a number.'); }
+    if (!_.isPlainObject(timeoutConfig)) { throw new Error('timeoutConfig must be an object.'); }
+    if (!_.isNumber(timeoutConfig.level1)) { throw new Error('timeoutConfig.level1 must be a number.'); }
+    if (!_.isNumber(timeoutConfig.level2)) { throw new Error('timeoutConfig.level2 must be a number.'); }
+
+    hci.timeoutCfgTable[connHdl] = timeoutConfig;
 };
 
 /***************************************************/

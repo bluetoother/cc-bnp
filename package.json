@@ -1,6 +1,6 @@
 {
   "name": "cc-bnp",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "The interface for communicating with TI CC254X BLE Network Processor over a serial port.",
   "main": "index.js",
   "directories": {
@@ -24,7 +24,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/hedywings/ccBnp.git"
+    "url": "https://github.com/hedywings/cc-bnp.git"
   },
   "keywords": [
     "ble", "cc254x"
@@ -35,7 +35,7 @@
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/hedywings/ccBnp/issues"
+    "url": "https://github.com/hedywings/cc-bnp/issues"
   },
-  "homepage": "https://github.com/hedywings/ccBnp"
+  "homepage": "https://github.com/hedywings/cc-bnp"
 }

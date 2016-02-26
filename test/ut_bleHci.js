@@ -11,7 +11,7 @@ var bleHci = require('../lib/hci/bleHci'),
     hciCmdBuilder = require('../lib/hci/HciCmdBuilder');
     BHCI = require('../lib/defs/blehcidefs');
 
-var sp = new SerialPort("/dev/ttyACM0", {
+var sp = new SerialPort("/dev/ttyUSB0", {
     baudrate: 115200,
     rtscts: true,
     flowControl: true
@@ -116,11 +116,11 @@ describe('Testing Command Response From Local Controller And Remote Slave', func
     this.timeout(15000);
 
     /*---Hci---*/
-    it('Hci Level: DisconnectImmed', function () {
+    it('Hci Level: DisconnectImmed', function (done) {
         bleHci.execCmd('Gap', 'DeviceInit', {profileRole: 8, maxScanResponses: 5, irk: buffer16, csrk: buffer16, signCounter: 1}).then(function () {
-            return bleHci.execCmd('Gap', 'EstLinkReq', {highDutyCycle: 0, whiteList: 0, addrtypePeer: 0, peerAddr: '0x78c5e5707a06'});
+            return bleHci.execCmd('Gap', 'EstLinkReq', {highDutyCycle: 0, whiteList: 0, addrtypePeer: 0, peerAddr: '0x78c5e570796e'});
         }).then(function () {
-            return bleHci.execCmd('Hci', 'DisconnectImmed', argObj).should.be.fulfilled();
+            return bleHci.execCmd('Hci', 'DisconnectImmed', {connHandle: 0}).should.be.fulfilled();
         });
     });
 
@@ -132,7 +132,7 @@ describe('Testing Command Response From Local Controller And Remote Slave', func
         return bleHci.execCmd('Gap', 'DeviceDiscReq', {mode: 3, activeScan: 1, whiteList: 0}).should.be.fulfilled();
     });
     it('Gap Level: EstLinkReq', function () {
-        return bleHci.execCmd('Gap', 'EstLinkReq', {highDutyCycle: 0, whiteList: 0, addrtypePeer: 0, peerAddr: '0x78c5e5707a06'}).should.be.fulfilled();
+        return bleHci.execCmd('Gap', 'EstLinkReq', {highDutyCycle: 0, whiteList: 0, addrtypePeer: 0, peerAddr: '0x78c5e570796e'}).should.be.fulfilled();
     });
     
 
