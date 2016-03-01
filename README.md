@@ -5,8 +5,7 @@ cc-bnp
 
 <br />
 
-Table of Contents
---------
+## Table of Contents
 
 * [Overview](#Overiew)  
 * [BLE Network Processor](#BNP)
@@ -25,8 +24,7 @@ Table of Contents
 
 <br />
 <a name="Overiew"></a>
-Overview
---------
+## Overview
 
 **cc-bnp** allows you to interact with TI's CC254X BLE network processor(BNP) on node.js via *TI BLE Vendor-Specific HCI Command APIs*. Each Command API function is in an asynchronous manner and supports both err-back callback style and promise-style.
 
@@ -34,24 +32,25 @@ Overview
 
 <br />
 <a name="BNP"></a>
-BLE Network Processor (BNP)
---------
+## BLE Network Processor (BNP)
+
 The following diagram shows the scenario when CC254X operates as a BNP. In this case, the controller and host are implemented together on the CC2540/41, and the application can be externally developed on an application processor (e.g., another mcu or PC). The application and profiles can communicate with BNP via TI's vendor-specific HCI commands upon an UART interface.
 
 ![Network Processor Configuration](https://raw.githubusercontent.com/hedywings/cc-bnp/master/documents/bnp.png)
 
 <br />
 <a name="Installation"></a>
-Installation
-------------
+## Installation
+
 Available via [npm](https://www.npmjs.com/package/ccbnp):
 > $ npm install cc-bnp --save
 
 <br />
 <a name="Usage"></a>
-Usage
---------
-To begin with **cc-bnp**, you must firstly set up the serial port and initialize the BNP with a given role. To do this, simply call the .init() method:
+## Usage
+
+To begin with **cc-bnp**, you must firstly set up the serial port and initialize the BNP with a given role. To do this, simply call the [.init()](#init) method:
+
 ```javascript
     var ccbnp = require('cc-bnp');
     var cfg = {
@@ -69,12 +68,13 @@ Here are some [examples](https://github.com/hedywings/cc-bnp/blob/master/example
 
 <br />
 <a name="APIs"></a>
-Basic and Command APIs
---------
+## Basic and Command APIs
+
 **cc-bnp** provides two kinds of APIs, Each Command API in **cc-bnp** supports both the err-back callback style and promise-style.
 
 <a name="basicAPIs"></a>
 ### 1. Basic APIs and Events
+
 The basic APIs are about how to initialize the BNP with a given role and how to close the connection from the processor, also provides some registration function. After the BNP accomplishes the initializing procedure, a `'ready'` event will be fired by **cc-bnp** . When there comes a BLE indication message, **cc-bnp** will fire an `'ind'` event along with the message content.
 
 * [init()](#init)
@@ -410,9 +410,10 @@ When there is a *BLE indication* message coming from BNP, the **cc-bnp** fires a
     }    
     ```
 
-<br />  
+<br />
 <a name="vendorHci"></a>
 ### 2. TI's BLE Vendor-Specific HCI Command APIs
+
 TI's BLE Vendor-Specific HCI Commands are used to communicate with the CC254X BNP. These commands are organized in API subgroubps: hci, l2cap, att, gatt, gap, and util. The description of commands is documented in [TI\_BLE\_Vendor\_Specific\_HCI_Guide.pdf](https://github.com/hedywings/cc-bnp/blob/master/documents/TI_BLE_Vendor_Specific_HCI_Guide.pdf). 
 
 | Command SubGroup (CSG) |  Namespace  | Number of Commands |
@@ -480,8 +481,8 @@ The 'uuid' corresponding characteristic value can find in [GATT Specifications ]
 
 <br />
 <a name="cmdTables"></a>
-Vendor-Specific HCI Command Reference Tables
---------------------------
+## Vendor-Specific HCI Command Reference Tables
+
 These tables are the cross-references between the **Vendor-Specific HCI Command** and **cc-bnp** Command API names.
 
 * 'BLE Vendor-Cmd' is the the command name documented in [TI\_BLE\_Vendor\_Specific\_HCI_Guide.pdf](https://github.com/hedywings/cc-bnp/blob/master/documents/TI_BLE_Vendor_Specific_HCI_Guide.pdf).
@@ -638,8 +639,8 @@ These tables are the cross-references between the **Vendor-Specific HCI Command*
 
 <br />
 <a name="gattSpec"></a>
-G​ATT Specifications 
---------------------------
+## G​ATT Specifications 
+
 GATT & ATT Read/Write Cmd-API will parse the attribute value according to its data type specified in SIG-defined GATT [Characteristic](https://developer.bluetooth.org/gatt/characteristics/Pages/CharacteristicsHome.aspx).
 
 * 'UUID' is a 16-bit number defined by SIG which is used to represent a attribute.
@@ -651,7 +652,7 @@ GATT & ATT Read/Write Cmd-API will parse the attribute value according to its da
 1. Characteristic value of command `'ATT_ReadBlobReq'`, `'ATT_ReadBlobRsp'`, `'ATT_PrepareWriteReq'`, `'ATT_PrepareWriteRsp'`, `'GATT_ReadLongCharValue'`,  `'GATT_WriteLongCharValue'`, `'GATT_ReliableWrites'` not support to be built and parsed in cc-bnp.
 2. Characteristic value of UUID `'0x2a2a'`, `'0x2a55'`, `'0x2a5a'`, `'0x2a63'`, `'0x2a64'`, `'0x2a66'`, `'0x2a6b'`, `'0x2a9f'`, `'0x2aa4'`, `'0x2aa7'`, `'0x2aa9'`, `'0x2aaa'`, `'0x2aab'`, `'0x2aac'`, `'0x2abc'` not support to be built and parsed in cc-bnp.
 
-
+*************************************************
 #### 1. Declarations
 
 Declarations are defined GATT profile attribute types.
@@ -663,7 +664,7 @@ Declarations are defined GATT profile attribute types.
 | 0x2802 | serviceAttrHandle, endGroupHandle, uuid | uint16, uint16, uuid | 
 | 0x2803 | properties, handle, uuid | uint8, uint16, uuid | 
 
-
+*************************************************
 #### 2. Descriptors
 
 Descriptors are defined attributes that describe a characteristic value.
@@ -697,7 +698,7 @@ For example, UUID 0x290a has three field names, analog, bitMask, and analogInter
 | 0x290c | flags, samplFunc, measurePeriod, updateInterval, application, measureUncertainty | uint16, uint8, uint24, uint24, uint8, uint8 | 
 | 0x290e | condition, none(`0`), timeInterval(`1,2`), count(`3`) | uint8, uint8, uint24, uint16 | 
 
-
+*************************************************
 #### 3. Characteristics
 
 Characteristics are defined attribute types that contain a single logical value.
@@ -897,8 +898,8 @@ Format 'obj' meaning field may be repeated.
 
 <br />
 <a name="errCodes"></a>
-Error Message
---------------------------
+##Error Message
+
 The error returned from BNP will pass to the callback as an error object with a message formatted in
 
 ```sh
@@ -974,6 +975,7 @@ The error returned from BNP will pass to the callback as an error object with a 
 |  62 | Conn failed to establish |
 |  63 | Mac conn failed |
 
+*************************************************
 #### 2. AttError
 |Error code|Description|
 | ------------- | ------------- |
@@ -996,6 +998,7 @@ The error returned from BNP will pass to the callback as an error object with a 
 | 17 | Insufficient Resources to complete the request |
 |128 | The attribute value is invalid for the operation |
 
+*************************************************
 #### 3. GenericError
 |Error code|Description|
 | ------------- | ------------- |
@@ -1031,8 +1034,7 @@ The error returned from BNP will pass to the callback as an error object with a 
 | 67 | Ble Insufficient KeySize |
 
 <a name="reasonCodes"></a>
-Reason Code of Link-termination
---------------------------
+## Reason Code of Link-termination
 
 |Value|Description|
 | ------------- | ------------- |
@@ -1046,8 +1048,7 @@ Reason Code of Link-termination
 
 <br />
 <a name="Contributors"></a>
-Contributors
---------
+## Contributors
 
 * [Hedy Wang](https://www.npmjs.com/~hedywings)
 * [Peter Yi](https://www.npmjs.com/~petereb9)
@@ -1055,8 +1056,8 @@ Contributors
 
 <br />
 <a name="License"></a>
-License
---------
+## License
+
 The MIT License (MIT)
 
 Copyright (c) 2015 Hedy Wang <hedywings@gmail.com>
