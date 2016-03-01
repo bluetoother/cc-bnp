@@ -13,6 +13,8 @@ Table of Contents
 * [Installation](#Installation)
 * [Usage](#Usage)
 * [Basic and Command APIs](#APIs)
+    * [Basic APIs and Events](#basicAPIs)
+    * [TI's BLE Vendor-Specific HCI Command APIs](#vendorHci)
 * [Vendor-Specific HCI Command Reference Tables](#cmdTables)
 * [G​ATT Specifications](#gattSpec)
 * [Error Message](#errCodes)
@@ -71,8 +73,9 @@ Basic and Command APIs
 --------
 **cc-bnp** provides two kinds of APIs, Each Command API in **cc-bnp** supports both the err-back callback style and promise-style.
 
-#### 1. [Basic APIs and Events](#basicAPIs)
-The basic APIs are about how to initialize the BNP with a given role and how to close the connection from the processor. After the BNP accomplishes the initializing procedure, a `'ready'` event will be fired by **cc-bnp** . When there comes a BLE indication message, **cc-bnp** will fire an `'ind'` event along with the message content.
+<a name="basicAPIs"></a>
+### 1. Basic APIs and Events
+The basic APIs are about how to initialize the BNP with a given role and how to close the connection from the processor, also provides some registration function. After the BNP accomplishes the initializing procedure, a `'ready'` event will be fired by **cc-bnp** . When there comes a BLE indication message, **cc-bnp** will fire an `'ind'` event along with the message content.
 
 * [init()](#init)
 * [close()](#close)
@@ -407,7 +410,9 @@ When there is a *BLE indication* message coming from BNP, the **cc-bnp** fires a
     }    
     ```
 
-#### 2. [TI's BLE Vendor-Specific HCI Command APIs](#vendorHci)
+<br />  
+<a name="vendorHci"></a>
+### 2. TI's BLE Vendor-Specific HCI Command APIs
 TI's BLE Vendor-Specific HCI Commands are used to communicate with the CC254X BNP. These commands are organized in API subgroubps: hci, l2cap, att, gatt, gap, and util. The description of commands is documented in [TI\_BLE\_Vendor\_Specific\_HCI_Guide.pdf](https://github.com/hedywings/cc-bnp/blob/master/documents/TI_BLE_Vendor_Specific_HCI_Guide.pdf). 
 
 | Command SubGroup (CSG) |  Namespace  | Number of Commands |
@@ -643,8 +648,8 @@ GATT & ATT Read/Write Cmd-API will parse the attribute value according to its da
 
 **Note**: 
 
-1. Characteristic value of command `'ATT_ReadBlobReq'`, `'ATT_ReadBlobRsp'`, `'ATT_PrepareWriteReq'`, `'ATT_PrepareWriteRsp'`, `'GATT_ReadLongCharValue'`,  `'GATT_WriteLongCharValue'`, `'GATT_ReliableWrites'` not support to be parsed in cc-bnp.
-2. Characteristic value of UUID `'0x2a2a'`, `'0x2a55'`, `'0x2a5a'`, `'0x2a63'`, `'0x2a64'`, `'0x2a66'`, `'0x2a6b'`, `'0x2a9f'`, `'0x2aa4'`, `'0x2aa7'`, `'0x2aa9'`, `'0x2aaa'`, `'0x2aab'`, `'0x2aac'`, `'0x2abc'` not support to be parsed in cc-bnp.
+1. Characteristic value of command `'ATT_ReadBlobReq'`, `'ATT_ReadBlobRsp'`, `'ATT_PrepareWriteReq'`, `'ATT_PrepareWriteRsp'`, `'GATT_ReadLongCharValue'`,  `'GATT_WriteLongCharValue'`, `'GATT_ReliableWrites'` not support to be built and parsed in cc-bnp.
+2. Characteristic value of UUID `'0x2a2a'`, `'0x2a55'`, `'0x2a5a'`, `'0x2a63'`, `'0x2a64'`, `'0x2a66'`, `'0x2a6b'`, `'0x2a9f'`, `'0x2aa4'`, `'0x2aa7'`, `'0x2aa9'`, `'0x2aaa'`, `'0x2aab'`, `'0x2aac'`, `'0x2abc'` not support to be built and parsed in cc-bnp.
 
 
 #### 1. Declarations
@@ -667,7 +672,7 @@ If a descriptor contains 'condition' field, other fields of this descriptor will
 
 In the table below, `field condition values` inside the parentheses behind the field name (e.g., analogInterval(`5,6`)), `field condition values` representing the field, field will exist only if `field condition values` equals to the value of 'condition' field.
 
-For example, UUID 0x290a has three field names, analog, bitMask, and analogInterval. Since the value of 'condition' field is equal to `field condition values` of analogInterval field, therefore analogInterval field presence.
+For example, UUID 0x290a has three field names, analog, bitMask, and analogInterval. Since the value of 'condition' field is equal to `field condition values` of analogInterval field, therefore only analogInterval field presence.
 
 ```JavaScript
 {   //Instance object of UUID 0x290a
