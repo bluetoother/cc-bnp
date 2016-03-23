@@ -20,7 +20,7 @@ ccBnp.on('ready', function(result) {
                     if (err) {
                         console.log(err);
                     } else {
-                        ccBnp.gatt.writeCharValue(result[1].GapLinkEstablished.connHandle, 37, {flags: 2, tempC: 25.6, year: 2015, month: 12, day: 10, hours: 18, minutes: 37, seconds: 41}, '0x2a1c', function (err, result) {
+                        ccBnp.gatt.readCharValue(result[1].GapLinkEstablished.connHandle, 37, 10780, function (err, result) {
                             if (err) console.log(err);
                             else console.log(result[1]);
                         });

@@ -183,7 +183,7 @@ This method can overwrite UUID definition which is defined by [GATT Specificatio
 **Arguments**
 
 - regObj (*Object*): This object has three properties of `uuid`, `params` and `types`. 
-    - `uuid` (*String*) - The characteristic UUID needs to be registered. 
+    - `uuid` (*String of hex*) - The characteristic UUID needs to be registered (e.g., '0x2a00', '0x2a1c').
     - `params` (*Array*) - Field names of characteristic value corresponding to `uuid`.
     - `types` (*Array*) - `types` used to type each data in the `params` array.
 

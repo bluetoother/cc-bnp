@@ -83,7 +83,6 @@ CcBnp.prototype.gap = {};
 
 CcBnp.prototype.util = {};
 
-
 (function () {
     _.forEach(BHCI.SubGroupCmd, function (cmds, subGroup) {
         var bleSubGroup = subGroup.slice(0, 1).toLowerCase() + subGroup.slice(1);
@@ -114,6 +113,13 @@ CcBnp.prototype.util = {};
 
                         if(arg.length > hciCmdMeta[cmdName].params.length && _.indexOf(BHCI.cmdWithUuid, cmdName) > -1) {
                             uuid = arg.splice(arg.length - 1, 1)[0];
+
+                            if (_.isNumber(uuid)) {
+                                uuid = '0x' + uuid.toString(16);
+                            } else if (_.isString(uuid) && !_.startsWith(uuid, '0x')) {
+                                uuid = '0x' + uuid;
+                            }
+
                             data.uuid = uuid.toLowerCase();
                         }
                     }
@@ -132,8 +138,16 @@ CcBnp.prototype.util = {};
     });
 })();
 
+CcBnp.prototype.att.readMultiReq = readMulti;
+CcBnp.prototype.gatt.readMultiCharValues = readMulti;
+
 CcBnp.prototype.regChar = function (regObj) {
-    if (_.isNumber(regObj.uuid)) { regObj.uuid = '0x' + regObj.uuid.toString(16); }
+    if (_.isNumber(regObj.uuid)) { 
+        regObj.uuid = '0x' + regObj.uuid.toString(16); 
+    } else if (_.isString(regObj.uuid) && !_.startsWith(regObj.uuid, '0x')) {
+        regObj.uuid = '0x' + regObj.uuid;
+    }
+
     if (hciCharMeta[regObj.uuid]) { throw new Error('Characteristic uuid alreadt exist.'); }
 
     hciCharMeta[regObj.uuid] = {
@@ -150,7 +164,13 @@ CcBnp.prototype.regUuidHdlTable = function (table) {
             hci.uuidHdlTable[connHdl] = devTable;
         } else {
             _.forEach(devTable, function (uuid, hdl) {
-                hci.uuidHdlTable[connHdl][hdl] = uuid;
+                if (_.isNumber(uuid)) { 
+                    hci.uuidHdlTable[connHdl][hdl] = '0x' + uuid.toString(16); 
+                } else if (_.isString(uuid) && !_.startsWith(uuid, '0x')) {
+                    hci.uuidHdlTable[connHdl][hdl] = '0x' + uuid;
+                } else {
+                    hci.uuidHdlTable[connHdl][hdl] = uuid;
+                }
             });
         }
     });
@@ -164,7 +184,13 @@ CcBnp.prototype.regUuidHdlTable = function (connHdl, uuidHdlTable) {
         hci.uuidHdlTable[connHdl] = uuidHdlTable;
     } else {
         _.forEach(uuidHdlTable, function (uuid, hdl) {
-            hci.uuidHdlTable[connHdl][hdl] = uuid;
+            if (_.isNumber(uuid)) { 
+                hci.uuidHdlTable[connHdl][hdl] = '0x' + uuid.toString(16); 
+            } else if (_.isString(uuid) && !_.startsWith(uuid, '0x')) {
+                hci.uuidHdlTable[connHdl][hdl] = '0x' + uuid;
+            } else {
+                hci.uuidHdlTable[connHdl][hdl] = uuid;
+            }
         });
     }
 };
@@ -182,7 +208,7 @@ CcBnp.prototype.regTimeoutConfig = function (connHdl, timeoutConfig) {
 /*** Overwrite command                          ***/
 /***************************************************/
 function readMulti (connHandle, handles, uuids, callback) {
-    var self = this,
+    var self = this, 
         deferred = Q.defer(),
         charToResolve = [],
         uuidToResolve = [],
@@ -208,6 +234,12 @@ function readMulti (connHandle, handles, uuids, callback) {
 
                 return deferred.promise.nodeify(callback);
             }()));
+        } else {
+            if (_.isNumber(uuid['uuid' + i])) {
+                uuid['uuid' + i] = '0x' + uuid['uuid' + i].toString(16);
+            } else if (_.isString(uuid['uuid' + i]) && !_.startsWith(uuid['uuid' + i], '0x')) {
+                uuid['uuid' + i] = '0x' + uuid['uuid' + i];
+            }
         }
     }
 
@@ -284,9 +316,6 @@ function readMulti (connHandle, handles, uuids, callback) {
 
     return deferred.promise.nodeify(callback);
 }
-
-CcBnp.prototype.att.readMultiReq = readMulti;
-CcBnp.prototype.gatt.readMultiCharValues = readMulti;
 
 var ccBnp = new CcBnp();
 
