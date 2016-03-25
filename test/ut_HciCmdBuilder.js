@@ -3,7 +3,9 @@ var _ = require('lodash'),
 	should = require('should'),
 	Chance = require('chance'),
 	chance = new Chance(),
-    Q = require('q');
+    Q = require('q'),
+    DChunks = require('dissolve-chunks'),
+    ru = DChunks().Rule();
 
 var hciCmdConcentrater = require('../lib/hci/HciCmdBuilder');
 
@@ -83,7 +85,7 @@ describe('Constructor Testing', function () {
 
     //test normal format framer
     _.forEach(hciCmdConcentrater, function (val, key) {
-        var argObj = hciCmdConcentrater[key](),
+        var argObj = instWrapper(hciCmdConcentrater[key]()),
             cmdAttrs = argObj.getCmdAttrs(),
             params = cmdAttrs.params,
             types = cmdAttrs.types,
@@ -100,6 +102,8 @@ describe('Constructor Testing', function () {
                 it(argObj.constr_name + ' framer check', function () {
                     return argObj.parseCmdFrame(argObjBuf).then(function (result) {
                         delete argObj.constr_name;
+                        delete argObj.getHciCmdParser;
+                        delete argObj.parseCmdFrame;
                         return argObj.should.be.deepEqual(result);
                     });
                 });
@@ -110,8 +114,10 @@ describe('Constructor Testing', function () {
     //test specific format framer
     _.forEach(furtherProcessArr, function (val) {
         it(val + ' framer check', function () {
-            var argObj = furtherProcessObj[_.camelCase(val)];
+            var argObj = instWrapper(furtherProcessObj[_.camelCase(val)]);
             return compareArgObjAndParsedObj(argObj).then(function (result) {
+                delete argObj.getHciCmdParser;
+                delete argObj.parseCmdFrame;
                 return argObj.should.be.deepEqual(result);
             });
         });
@@ -170,6 +176,7 @@ function compareArgObjAndParsedObj (argObj, callback) {
 	var deferred = Q.defer(),
         buf = argObj.getHciCmdBuf(),
 		constrName;
+
 	argObj.parseCmdFrame(buf).then(function (parsedObj) {
     	constrName = argObj.constr_name;
     	delete argObj.constr_name;
@@ -178,3 +185,222 @@ function compareArgObjAndParsedObj (argObj, callback) {
     });
     return deferred.promise.nodeify(callback);
 }
+
+function instWrapper (argobj) {
+    argobj.getHciCmdParser = function (bufLen) {
+        var self = this,
+            cmdAttrs = this.getCmdAttrs(),
+            attrParams = cmdAttrs.params,
+            attrTypes = cmdAttrs.types,
+            attrLen = attrParams.length,
+            chunkRule = [],
+            bufferLen;
+
+        for (var i = 0; i < attrLen; i += 1) {
+            (function () {
+                if (_.startsWith(attrTypes[i], 'buffer')) {
+                    bufferLen = _.parseInt(attrTypes[i].slice(6));
+                    if(!bufferLen) {
+                        bufferLen = bufLen - cmdAttrs.preBufLen;
+                    }
+                    chunkRule.push(ru.buffer(attrParams[i], bufferLen));
+                } else if (attrTypes[i] === 'obj') {
+                    chunkRule.push(processAppendCmdAttrs(self, bufLen, attrParams[i]));
+                } else if (attrTypes[i] === 'passkey') {
+                    chunkRule.push(ru.string(attrParams[i], 6));
+                } else {
+                    chunkRule.push(ru[attrTypes[i]](attrParams[i]));
+                }   
+            }());
+        }
+        return DChunks().join(chunkRule).compile();
+    };
+
+    argobj.parseCmdFrame = function (buf, callback) {
+        var deferred = Q.defer(),
+            self = this,
+            cmdAttrs = this.getCmdAttrs(),
+            params = cmdAttrs.params,
+            types = cmdAttrs.types,
+            cmdParser;
+
+        cmdParser = this.getHciCmdParser(buf.length);
+        cmdParser.on('parsed', function (result) {
+            deferred.resolve(result);
+        });
+        cmdParser.write(buf);
+
+        return deferred.promise.nodeify(callback);
+    };
+
+    return argobj;
+}
+
+function processAppendCmdAttrs (argObj, bufLen, objName) {
+    var extChunkRule,
+        constrName = argObj.constr_name,
+        cmdAttrs = argObj.getCmdAttrs(),
+        objInfo = cmdAttrs.objInfo,
+        bufferLen;
+
+    if (_.startsWith(constrName, 'Att') || constrName === 'GattReadMultiCharValues' || constrName === 'GattReliableWrites') {
+        bufferLen = bufLen - objInfo.precedingLen;
+        if (bufferLen < objInfo.minLen) {
+            throw new Error('The length of the ' + objInfo.params[0] + ' field of ' + constrName + ' is incorrect.');
+        }
+    }
+
+    switch (constrName) {
+        case 'AttFindInfoRsp':
+            extChunkRule = ru.AttFindInfoRsp(objName, bufferLen);
+            break;
+
+        case 'AttFindByTypeValueRsp':
+        case 'AttReadMultiReq':
+        case 'GattReadMultiCharValues':
+            extChunkRule = ru.attObj(bufferLen, objName, objInfo);
+            break;
+
+        case 'AttReadByTypeRsp':
+        case 'AttReadByGrpTypeRsp':
+            extChunkRule = ru.attObjRead(bufferLen, objName, objInfo);
+            break;
+
+        case 'GattReliableWrites':
+            extChunkRule = ru.GattReliableWrites(bufferLen, objName, objInfo);
+            break;
+
+        default:
+            throw new Error(argObj.constr_name + 'event packet error!');
+    }
+    return extChunkRule;
+}
+
+function buf2Str(buf) {
+    var bufLen = buf.length,
+        val,
+        strChunk = '0x';
+
+    for (var i = 0; i < bufLen; i += 1) {
+        val = buf.readUInt8(bufLen-i-1);
+        if (val <= 15) {
+            strChunk += '0' + val.toString(16);
+        } else {
+            strChunk += val.toString(16);
+        }
+    }
+
+    return strChunk;
+}
+
+/*************************************************************************************************/
+/*** Specific Chunk Rules                                                                      ***/
+/*************************************************************************************************/
+ru.clause('addr', function (name) {
+    this.buffer(name, 6).tap(function () {
+        var addr,
+            origBuf = this.vars[name];
+
+        addr = buf2Str(origBuf);
+        this.vars[name] = addr;
+    });
+});
+
+ru.clause('uuid', function (name, bufLen) {
+    if (!bufLen) { bufLen = 2; }
+    this.buffer(name, bufLen).tap(function () {
+        var uuid,
+            origBuf = this.vars[name];
+        uuid = buf2Str(origBuf);
+        this.vars[name] = uuid;
+    });
+});
+
+ru.clause('AttFindInfoRsp', function (objName, bufLen) {
+    var loopTimes,
+        uuidType;
+  
+    this.tap(function () {
+        if (this.vars.format === 1) {
+            loopTimes = bufLen / 4;
+            uuidType = 2;
+        } else if (this.vars.format === 2) {
+            loopTimes = bufLen / 18;
+            uuidType = 16;
+        }
+    }).tap(objName, function () {
+        for (var i = 0; i < loopTimes; i += 1) {
+            this.uint16le('handle' + i);
+            ru['uuid'](('uuid' + i), uuidType)(this);
+        }
+    }).tap(function () {
+        for (var k in this.vars) {
+            delete this.vars[k].__proto__;
+        }
+    });
+});
+
+ru.clause('attObj', function (buflen, objName, objInfo) {
+    var loopTimes = Math.floor(buflen / objInfo.objLen);
+
+    this.tap(objName, function () {
+        var self = this;
+
+        for (var i = 0; i < loopTimes; i += 1) {
+            _.forEach(objInfo.params, function(param, idx) {
+                var type = objInfo.types[idx];
+                self[type](param + i);
+            });
+        }
+    }).tap(function () {
+        for (var k in this.vars) {
+            delete this.vars[k].__proto__;
+        }
+    });
+});
+
+ru.clause('attObjRead', function (buflen, objName, objInfo) {
+    var loopTimes, 
+        eachBufLen;
+
+    this.tap(function () {
+        loopTimes = buflen / this.vars.length;
+        eachBufLen = this.vars.length - objInfo.preBufLen;
+    }).tap(objName, function (end) {
+        var self = this;
+
+        for (var i = 0; i < loopTimes; i += 1) {
+            _.forEach(objInfo.params, function(param, idx) {
+                var type = objInfo.types[idx];
+                self[type](param + i, eachBufLen);
+            });
+        }
+    }).tap(function () {
+        for (var k in this.vars) {
+            delete this.vars[k].__proto__;
+        }
+    });
+});
+
+ru.clause('GattReliableWrites', function (buflen, objName, objInfo) {
+    var loopTimes, 
+        eachBufLen;
+
+    this.tap(function () {
+        loopTimes = this.vars.numberRequests;
+        eachBufLen = (buflen / this.vars.numberRequests) - objInfo.preBufLen;
+    }).tap(objName, function (end) {
+        var self = this;
+
+        for (var i = 0; i < loopTimes; i += 1) {
+            _.forEach(objInfo.params, function(param, idx) {
+                var type = objInfo.types[idx];
+                self[type](param + i, eachBufLen);
+            });
+        }
+    }).tap(function () {
+        for (var k in this.vars) {
+            delete this.vars[k].__proto__;
+        }
+    });
+});

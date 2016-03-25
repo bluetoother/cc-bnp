@@ -23,6 +23,7 @@ cc-bnp
 
 
 <br />
+
 <a name="Overiew"></a>
 ## Overview
 
@@ -31,6 +32,7 @@ cc-bnp
 **cc-bnp** helps you to get rid of multiple *Vendor-Specific Events* handling of each command. **cc-bnp** gathers the multiple responses up, and finally passes the result to the Command API callback. With **cc-bnp**, it's easy and fun in designing BLE applications on node.js.
 
 <br />
+
 <a name="BNP"></a>
 ## BLE Network Processor (BNP)
 
@@ -39,6 +41,7 @@ The following diagram shows the scenario when CC254X operates as a BNP. In this 
 ![Network Processor Configuration](https://raw.githubusercontent.com/hedywings/cc-bnp/master/documents/bnp.png)
 
 <br />
+
 <a name="Installation"></a>
 ## Installation
 
@@ -46,6 +49,7 @@ Available via [npm](https://www.npmjs.com/package/ccbnp):
 > $ npm install cc-bnp --save
 
 <br />
+
 <a name="Usage"></a>
 ## Usage
 
@@ -67,6 +71,7 @@ To begin with **cc-bnp**, you must firstly set up the serial port and initialize
 Here are some [examples](https://github.com/hedywings/cc-bnp/blob/master/examples/ble_connect.js).
 
 <br />
+
 <a name="APIs"></a>
 ## Basic and Command APIs
 
@@ -411,6 +416,7 @@ When there is a *BLE indication* message coming from BNP, the **cc-bnp** fires a
     ```
 
 <br />
+
 <a name="vendorHci"></a>
 ### 2. TI's BLE Vendor-Specific HCI Command APIs
 
@@ -480,6 +486,7 @@ Here is another example of calling **_writeCharValue()_** from the subgroup **_g
 The 'uuid' corresponding characteristic value can find in [GATT Specifications ](#gattSpec) or use API [.regChar()](#regChar) to register.
 
 <br />
+
 <a name="cmdTables"></a>
 ## Vendor-Specific HCI Command Reference Tables
 
@@ -638,6 +645,7 @@ These tables are the cross-references between the **Vendor-Specific HCI Command*
 |UTIL_ForceBoot|forceBoot|none|status|
 
 <br />
+
 <a name="gattSpec"></a>
 ## G​ATT Specifications 
 
@@ -897,6 +905,7 @@ Format 'obj' meaning field may be repeated.
 | 0x2abf | objectType | uuid | 
 
 <br />
+
 <a name="errCodes"></a>
 ##Error Message
 
@@ -1033,6 +1042,8 @@ The error returned from BNP will pass to the callback as an error object with a 
 | 66 | Ble Insufficient Encrypt |
 | 67 | Ble Insufficient KeySize |
 
+<br />
+
 <a name="reasonCodes"></a>
 ## Reason Code of Link-termination
 
@@ -1047,14 +1058,16 @@ The error returned from BNP will pass to the callback as an error object with a 
 |  61 | MIC Failure |
 
 <br />
+
 <a name="Contributors"></a>
 ## Contributors
 
-* [Hedy Wang](https://www.npmjs.com/~hedywings)
+* [Hedy Wang](https://www.npmjs.com/~hedywings)  
 * [Peter Yi](https://www.npmjs.com/~petereb9)
 * [Simen Li](https://www.npmjs.com/~simenkid)
 
 <br />
+
 <a name="License"></a>
 ## License
 
@@ -1067,7 +1080,7 @@ of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
 to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+furnished to do so, subject to the following conditions:  
 
 The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.

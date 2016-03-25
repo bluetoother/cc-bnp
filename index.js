@@ -156,26 +156,6 @@ CcBnp.prototype.regChar = function (regObj) {
     };
 };
 
-CcBnp.prototype.regUuidHdlTable = function (table) {
-    if (!_.isPlainObject(table)) { throw new Error('table must be an object'); }
-
-    _.forEach(table, function (devTable, connHdl) {
-        if (!hci.uuidHdlTable[connHdl]) {
-            hci.uuidHdlTable[connHdl] = devTable;
-        } else {
-            _.forEach(devTable, function (uuid, hdl) {
-                if (_.isNumber(uuid)) { 
-                    hci.uuidHdlTable[connHdl][hdl] = '0x' + uuid.toString(16); 
-                } else if (_.isString(uuid) && !_.startsWith(uuid, '0x')) {
-                    hci.uuidHdlTable[connHdl][hdl] = '0x' + uuid;
-                } else {
-                    hci.uuidHdlTable[connHdl][hdl] = uuid;
-                }
-            });
-        }
-    });
-};
-
 CcBnp.prototype.regUuidHdlTable = function (connHdl, uuidHdlTable) {
     if (!_.isNumber(connHdl)) { throw new Error('connHdl must be a number.'); }
     if (!_.isPlainObject(uuidHdlTable)) { throw new Error('table must be an object'); }

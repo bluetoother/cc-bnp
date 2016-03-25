@@ -11,7 +11,7 @@ var bleHci = require('../lib/hci/bleHci'),
     hciCmdBuilder = require('../lib/hci/HciCmdBuilder');
     BHCI = require('../lib/defs/blehcidefs');
 
-var sp = new SerialPort("/dev/ttyUSB0", {
+var sp = new SerialPort("/dev/ttyACM0", {
     baudrate: 115200,
     rtscts: true,
     flowControl: true
