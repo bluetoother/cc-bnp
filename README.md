@@ -438,11 +438,11 @@ To call the Command API:
 
     ccbnp[subGroup][cmdName](..., callback);  
 
+, where **cmdName** is the Command API function name which can be found from this [reference table](#cmdTables).  
+
 For example:
 
     ccbnp.gap.deviceDiscReq(..., function (err, result) { });  
-
-, where **cmdName** is the Command API function name which can be found from this [reference table](#cmdTables).  
 
 Here is an example of calling **_deviceDiscReq()_** in subgroup **_gap_**:
 
@@ -488,18 +488,28 @@ Here is another example of calling **_writeCharValue()_** in subgroup **_gatt_**
             console.log(result);
     });
 ```
-The 'uuid' corresponding characteristic value can find in [GATT Specifications ](#gattSpec) or use API [.regChar()](#regChar) to register.
+The 'uuid' of a public characteristic value can be found in [GATT Specifications ](#gattSpec). If you are using a private characteristic, please use [.regChar()](#regChar) to register your uuid first.  
+
+******************************************
+<TBD>
+******************************************
 
 <br />
 <a name="cmdTables"></a>
 ## Vendor-Specific HCI Command Reference Tables
 
-These tables are the cross-references between the **Vendor-Specific HCI Command** and **cc-bnp** Command API names.
+These tables are cross-references between the **Vendor-Specific HCI Command** and **cc-bnp** Command API names.  
 
-* 'BLE Vendor-Cmd' is the the command name documented in [TI\_BLE\_Vendor\_Specific\_HCI_Guide.pdf](https://github.com/hedywings/cc-bnp/blob/master/documents/TI_BLE_Vendor_Specific_HCI_Guide.pdf).
-* 'cc-bnp Cmd-API' is the API function name according to a vendor-specfic HCI command.
-* 'Arguments' is the required paramters to invoke the API.
-* 'Result' is the result passing to the callback.
+* 'BLE Vendor-Cmd' is the the command name documented in [TI\_BLE\_Vendor\_Specific\_HCI_Guide.pdf](https://github.com/hedywings/cc-bnp/blob/master/documents/TI_BLE_Vendor_Specific_HCI_Guide.pdf).  
+* 'cc-bnp Cmd-API' is the API name according to a vendor-specfic HCI command.  
+* 'Arguments' is the required paramters of the Cmd-API.  
+* 'Result' is the result passing to the callback.  
+
+Let's take  ccbnp.gap.deviceDiscReq() as an example again. You can find the cross-referenced information from [ccbnp.gap APIs table](#tblGap), but I only take out what we need for convenience. The table down here tells that this command is named as **GAP_DeviceDiscoveryRequest** in TI's HCI guide and is named as **deviceDiscReq** under the namespace **gap** in cc-bnp. The arguments are _mode_, _activeScan_, _whiteList_ listed in order, and the return 
+
+| BLE Vendor-Cmd             | cc-bnp Cmd-API |   Arguments                 |     Result                                         |
+| -------------------------- | -------------- | --------------------------- | -------------------------------------------------- |
+| GAP_DeviceDiscoveryRequest | deviceDiscReq  | mode, activeScan, whiteList | status, eventType, addrType, addr, rssi, dataField |
 
 <a name="tblHci"></a>
 #### 1. ccbnp.hci APIs
