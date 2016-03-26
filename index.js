@@ -184,6 +184,109 @@ CcBnp.prototype.regTimeoutConfig = function (connHdl, timeoutConfig) {
     hci.timeoutCfgTable[connHdl] = timeoutConfig;
 };
 
+var ccBnp = new CcBnp();
+
+/***************************************************/
+/*** Event transducer                            ***/
+/***************************************************/
+var attEvtArr = [
+    'AttExchangeMtuReq', 'AttFindInfoReq', 'AttFindByTypeValueReq', 'AttReadByTypeReq', 
+    'AttReadReq', 'AttReadBlobReq', 'AttReadMultiReq', 'AttReadByGrpTypeReq', 'AttWriteReq',
+    'AttPrepareWriteReq', 'AttExecuteWriteReq'
+];
+
+_.forEach(attEvtArr, function (evtName) {
+    hci.on(evtName, function (data) {
+        var msg = {
+            type: 'attReq',
+            data: data
+        };
+        ccBnp.emit('ind', msg);
+    });
+});
+
+hci.on('GapLinkEstablished', function (data) {
+    var msg = {
+        type: 'linkEstablished',
+        data: data.data
+    };
+    delete msg.data.status;
+    delete msg.data.addrType;
+    ccBnp.emit('ind', msg);
+});
+
+hci.on('GapLinkTerminated', function (data) {
+    var msg = {
+        type: 'linkTerminated',
+        data: data.data
+    };
+
+    delete msg.data.status;
+    ccBnp.emit('ind', msg);
+});
+
+hci.on('GapLinkParamUpdate', function (data) {
+    var msg = {
+        type: 'linkParamUpdate',
+        data: data.data
+    };
+    delete msg.data.status;
+    ccBnp.emit('ind', msg);
+});
+
+hci.on('AttHandleValueNoti', function (data) {
+    var msg = {
+        type: 'attNoti',
+        data: data.data
+    };
+    delete msg.data.status;
+    delete msg.data.pduLen;
+    ccBnp.emit('ind', msg);
+});
+
+hci.on('AttHandleValueInd', function (data) {
+    var msg = {
+        type: 'attInd',
+        data: data.data
+    };
+    delete msg.data.status;
+    delete msg.data.pduLen;
+    ccBnp.emit('ind', msg);
+});
+
+hci.on('GapAuthenticationComplete', function (data) {
+    var msg = {
+        type: 'authenComplete',
+        data: {
+            connHandle: data.data.connHandle,
+            mitm: (data.data.authState & 0x04) >> 2,
+            bond: (data.data.authState & 0x01),
+            ltk: data.data.dev_ltk,
+            div: data.data.dev_div,
+            rand: data.data.dev_rand
+        }
+    };
+    ccBnp.emit('ind', msg);
+});
+
+hci.on('GapPasskeyNeeded', function (data) {
+    var msg = {
+        type: 'passkeyNeeded',
+        data: data.data
+    };
+    delete msg.data.status;
+    ccBnp.emit('ind', msg);
+});
+
+hci.on('GapBondComplete', function (data) {
+    var msg = {
+        type: 'bondComplete',
+        data: data.data
+    };
+    delete msg.data.status;
+    ccBnp.emit('ind', msg);
+});
+
 /***************************************************/
 /*** Overwrite command                          ***/
 /***************************************************/
@@ -297,104 +400,67 @@ function readMulti (connHandle, handles, uuids, callback) {
     return deferred.promise.nodeify(callback);
 }
 
-var ccBnp = new CcBnp();
+function readMultiRsp(connHandle, value, uuids, callback) {
+    var deferred = Q.defer(),
+        handles = [],
+        charBuf,
+        sendBuf;
 
-var attEvtArr = [
-    'AttExchangeMtuReq', 'AttFindInfoReq', 'AttFindByTypeValueReq', 'AttReadByTypeReq', 
-    'AttReadReq', 'AttReadBlobReq', 'AttReadMultiReq', 'AttReadByGrpTypeReq', 'AttWriteReq',
-    'AttPrepareWriteReq', 'AttExecuteWriteReq'
-];
+    if (!uuids) {
+        uuids = [];
+    } else if (_.isFunction(uuids)) {
+        callback = uuids;
+        uuids = [];
+    }
 
-_.forEach(attEvtArr, function (evtName) {
-    hci.on(evtName, function (data) {
-        var msg = {
-            type: 'attReq',
-            data: data
-        };
-        ccBnp.emit('ind', msg);
-    });
-});
+    if (Buffer.isBuffer(value)) {
+        return hci.execCmd('Att', 'ReadMultiRsp', {connHandle: connHandle, value: value}, callback);
+    } else {
+        _.forEach(value, function (val, hdl) {
+            handles.push(hdl);
+        })
+        getUuids(connHandle, handles, uuids).then(function (uuidHdlTable) {
+            _.forEach(uuidHdlTable, function (uuid, hdl) {
+                charBuf = charBuild(uuid).transToValObj(value[hdl]).getHciCharBuf();
+                sendBuf = Buffer.concat([sendBuf, buffer2]);
+            });
+            return hci.execCmd('Att', 'ReadMultiRsp', {connHandle: connHandle, value: sendBuf}, callback);
+        });
+    }
+}
 
-hci.on('GapLinkEstablished', function (data) {
-    var msg = {
-        type: 'linkEstablished',
-        data: data.data
-    };
-    delete msg.data.status;
-    delete msg.data.addrType;
-    ccBnp.emit('ind', msg);
-});
+function getUuids(connHandle, handles, uuids) {
+    var deferred = Q.defer(),
+        dataObjs = [],
+        uuidHdlTable = {};
 
-hci.on('GapLinkTerminated', function (data) {
-    var msg = {
-        type: 'linkTerminated',
-        data: data.data
-    };
+    if (_.size(handles) !== _.size(uuids)) {
+        hci.execCmd('Gatt', 'DiscAllChars', {connHandle: connHandle, startHandle: 0, endHandle: 65535})
+        .then(function (result) {
+            _.forEach(result.collector.AttReadByTypeRsp, function (dataObj) {
+                _.forEach(dataObj, function (data, dataKey) {
+                    if (_.startsWith(dataKey, 'attrVal'))
+                        dataObjs.push(data);
+                });
+            });
+            _.forEach(dataObjs, function (data) {
+                _.forEach(handles, function(handle) {
+                    if (data.hdl === handle)
+                        uuidHdlTable[handle] = data.uuid;
+                });
+            });
+            deferred.reject(uuidHdlTable);
+        }).fail(function (err) {
+            deferred.reject(err);
+        }).done();
+    } else {
+        _.forEach(handles. function (handle, i) {
+            uuidHdlTable[handle] = uuids[i];
+        })
+        deferred.reject(uuidHdlTable);
+    }
 
-    delete msg.data.status;
-    ccBnp.emit('ind', msg);
-});
-
-hci.on('GapLinkParamUpdate', function (data) {
-    var msg = {
-        type: 'linkParamUpdate',
-        data: data.data
-    };
-    delete msg.data.status;
-    ccBnp.emit('ind', msg);
-});
-
-hci.on('AttHandleValueNoti', function (data) {
-    var msg = {
-        type: 'attNoti',
-        data: data.data
-    };
-    delete msg.data.status;
-    delete msg.data.pduLen;
-    ccBnp.emit('ind', msg);
-});
-
-hci.on('AttHandleValueInd', function (data) {
-    var msg = {
-        type: 'attInd',
-        data: data.data
-    };
-    delete msg.data.status;
-    delete msg.data.pduLen;
-    ccBnp.emit('ind', msg);
-});
-
-hci.on('GapAuthenticationComplete', function (data) {
-    var msg = {
-        type: 'authenComplete',
-        data: {
-            connHandle: data.data.connHandle,
-            mitm: (data.data.authState & 0x04) >> 2,
-            bond: (data.data.authState & 0x01),
-            ltk: data.data.dev_ltk,
-            div: data.data.dev_div,
-            rand: data.data.dev_rand
-        }
-    };
-    ccBnp.emit('ind', msg);
-});
-
-hci.on('GapPasskeyNeeded', function (data) {
-    var msg = {
-        type: 'passkeyNeeded',
-        data: data.data
-    };
-    delete msg.data.status;
-    ccBnp.emit('ind', msg);
-});
-
-hci.on('GapBondComplete', function (data) {
-    var msg = {
-        type: 'bondComplete',
-        data: data.data
-    };
-    delete msg.data.status;
-    ccBnp.emit('ind', msg);
-});
+    return deferred.promise;
+}
 
 module.exports = ccBnp;

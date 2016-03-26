@@ -1,6 +1,6 @@
 var _ = require('lodash'),
     Q = require('q'),
-    should = require('should-promised'),
+    should = require('should'),
     Chance = require('chance'),
     chance = new Chance(),
     util = require('util'),
@@ -118,7 +118,7 @@ describe('Testing Command Response From Local Controller And Remote Slave', func
     /*---Hci---*/
     it('Hci Level: DisconnectImmed', function (done) {
         bleHci.execCmd('Gap', 'DeviceInit', {profileRole: 8, maxScanResponses: 5, irk: buffer16, csrk: buffer16, signCounter: 1}).then(function () {
-            return bleHci.execCmd('Gap', 'EstLinkReq', {highDutyCycle: 0, whiteList: 0, addrtypePeer: 0, peerAddr: '0x78c5e570796e'});
+            return bleHci.execCmd('Gap', 'EstLinkReq', {highDutyCycle: 0, whiteList: 0, addrtypePeer: 0, peerAddr: '0x9059af0b8159'});
         }).then(function () {
             return bleHci.execCmd('Hci', 'DisconnectImmed', {connHandle: 0}).should.be.fulfilled();
         });
@@ -132,7 +132,7 @@ describe('Testing Command Response From Local Controller And Remote Slave', func
         return bleHci.execCmd('Gap', 'DeviceDiscReq', {mode: 3, activeScan: 1, whiteList: 0}).should.be.fulfilled();
     });
     it('Gap Level: EstLinkReq', function () {
-        return bleHci.execCmd('Gap', 'EstLinkReq', {highDutyCycle: 0, whiteList: 0, addrtypePeer: 0, peerAddr: '0x78c5e570796e'}).should.be.fulfilled();
+        return bleHci.execCmd('Gap', 'EstLinkReq', {highDutyCycle: 0, whiteList: 0, addrtypePeer: 0, peerAddr: '0x9059af0b8159'}).should.be.fulfilled();
     });
     
 
