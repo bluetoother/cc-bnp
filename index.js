@@ -138,8 +138,8 @@ CcBnp.prototype.util = {};
     });
 })();
 
-CcBnp.prototype.att.readMultiReq = readMulti;
-CcBnp.prototype.gatt.readMultiCharValues = readMulti;
+CcBnp.prototype.att.readMultiReq = readMultiReq;
+CcBnp.prototype.gatt.readMultiCharValues = readMultiReq;
 
 CcBnp.prototype.regChar = function (regObj) {
     if (_.isNumber(regObj.uuid)) { 
@@ -288,89 +288,75 @@ hci.on('GapBondComplete', function (data) {
 });
 
 /***************************************************/
-/*** Overwrite command                          ***/
+/*** Overwrite command                           ***/
 /***************************************************/
-function readMulti (connHandle, handles, uuids, callback) {
+function readMultiReq (connHandle, handles, uuids, callback) {
     var self = this, 
         deferred = Q.defer(),
+        uuidHandleTable;
         charToResolve = [],
-        uuidToResolve = [],
         value = {},
-        uuid = ( uuids || {} ),
         pduLen = 0,
         evtObj,
         opCode,
-        uuidFlag = 0;
+        readMulti = false;
 
-    for (var i = 0; i < (_.size(handles)); i += 1) {
-        if(!uuid['uuid' + i]) {
-            uuidToResolve.push((function () {
-                var deferred = Q.defer(),
-                    count = i;
-
-                hci.execCmd('Gatt', 'DiscAllChars', {connHandle: connHandle, startHandle: handles['handle' + i] - 1, endHandle: handles['handle' + i]}).then(function (result) {
-                    uuid['uuid' + count] = result[1].AttReadByTypeRsp0.data.attrVal0.uuid;
-                    deferred.resolve();
-                }).fail(function (err) {
-                    deferred.reject(err);
-                }).done();
-
-                return deferred.promise.nodeify(callback);
-            }()));
-        } else {
-            if (_.isNumber(uuid['uuid' + i])) {
-                uuid['uuid' + i] = '0x' + uuid['uuid' + i].toString(16);
-            } else if (_.isString(uuid['uuid' + i]) && !_.startsWith(uuid['uuid' + i], '0x')) {
-                uuid['uuid' + i] = '0x' + uuid['uuid' + i];
-            }
-        }
+    if (!uuids) {
+        uuids = [];
+    } else if (_.isFunction(uuids)) {
+        callback = uuids;
+        uuids = [];
     }
 
-    Q.all(uuidToResolve).then(function () {
-        _.forEach(uuid, function (val, key) {
-            if (hciCharMeta[val]) {
-                _.forEach(hciCharMeta[val].types, function (type) {
-                    if (type === 'string' || type === 'uuid') { uuidFlag = 1; }
-                });
-            } else {
-                uuidFlag = 1;
+    getUuids(connHandle, handles, uuids).then(function (uuidHdlTable) {
+        uuidHandleTable = uuidHdlTable;
+        _.forEach(uuidHdlTable, function (uuid) {
+            var charTypes = hciCharMeta[uuid].types;
+
+            if (hciCharMeta[uuid]) {
+                if (!_.includes(charTypes, 'string') && !_.includes(charTypes, 'uuid')) readMulti = true;
             }
         });
 
-        if (uuidFlag === 1) {
-            for (var i = 0; i < (_.size(handles)); i += 1) {
-                charToResolve.push((function () {
-                    return hci.execCmd('Att', 'ReadReq', {connHandle: connHandle, handle: handles['handle' + i], uuid: uuid['uuid' + i]});
-                }()));
-            }
-        } else {
+        if (readMulti) {
             charToResolve.push((function () {
                 return hci.execCmd('Att', 'ReadMultiReq', {connHandle: connHandle, handles: handles});
             }()));
+        } else {
+            _.forEach(uuidHdlTable, function (uuid, hdl) {
+                charToResolve.push((function () {
+                    return hci.execCmd('Att', 'ReadReq', {connHandle: connHandle, handle: hdl, uuid: uuid});
+                }()));
+            });
         }
+
         return Q.all(charToResolve);
     }).then(function (result) {
-        if (uuidFlag === 1) {
+        if (readMulti) {
+            charDiscrim(uuidHandleTable).getCharValPacket(result.collector.AttReadMultiRsp[0].value).then(function (parsedData) {
+                result.collector.AttReadMultiRsp[0].value = parsedData;
+                deferred.resolve(result);
+            }).fail(function (err) {
+                deferred.reject(err);
+            }).done();
+        } else {
             if ( self.readMultiReq ) {
                 opCode = 64782;
             } else {
                 opCode = 64910;
             }
 
-            for (var i = 0; i < result.length; i += 1) {
-                pduLen += result[i][1].AttReadRsp.pduLen;
-                value[handles['handle' + i]] = result[i][1].AttReadRsp.value;
-            }
-            evtObj = [
-                { 
-                    GapCmdStatus: {
-                        status: 0,
-                        opCode: opCode,
-                        dataLen: 0,
-                        payload: new Buffer(0)
-                    }
-                },
-                {
+            _.forEach(result, function (readRsp, i) {
+                pduLen += readRsp.collector.AttReadRsp[0].pduLen;
+                value[handles[i]] = readRsp.collector.AttReadRsp[0].value;
+            });
+
+            evtObj = {
+                status: 0,
+                opCode: opCode,
+                dataLen: 0,
+                payload: new Buffer(0),
+                collector: {
                     AttReadMultiRsp: {
                         status: 0,
                         connHandle: connHandle,
@@ -378,20 +364,7 @@ function readMulti (connHandle, handles, uuids, callback) {
                         value: value
                     }
                 }
-            ];
-            deferred.resolve(evtObj);
-        } else {
-            evtObj = result[0];
-            charDiscrim(uuid).getCharValPacket(evtObj[1].AttReadMultiRsp.value).then(function (result) {
-                evtObj[1].AttReadMultiRsp.value = {};
-                for (var i = 0; i < (_.size(result)); i += 1) {
-                    evtObj[1].AttReadMultiRsp.value[handles['handle' + i]] = result['uuid' + i];
-                }
-                deferred.resolve(evtObj);
-            }).fail(function (err) {
-                deferred.reject(err);
-            }).done();
-           
+            }
         }
     }).fail(function (err) {
         deferred.reject(err);
@@ -454,7 +427,7 @@ function getUuids(connHandle, handles, uuids) {
             deferred.reject(err);
         }).done();
     } else {
-        _.forEach(handles. function (handle, i) {
+        _.forEach(handles, function (handle, i) {
             uuidHdlTable[handle] = uuids[i];
         })
         deferred.reject(uuidHdlTable);
