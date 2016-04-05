@@ -37,13 +37,14 @@ CcBnp.prototype.init = function (spConfig, role, callback) {
     hci.registerSp(sp);
     hci.openSp().then(function(result) {
         self.gap.deviceInit(roles.get(role).value, 5, new Buffer(16).fill(0), new Buffer(16).fill(0), 1).then(function (result) {
-            var msg = result[1].GapDeviceInitDone;
+            var msg = result.collector.GapDeviceInitDone;
 
             delete msg.status;
             delete msg.dataPktLen;
             delete msg.numDataPkts;
 
             deferred.resolve(msg);
+            console.log('emit!!!');
             self.emit('ready', msg);
         }, function(err) {
             deferred.reject(err);
@@ -293,7 +294,7 @@ hci.on('GapBondComplete', function (data) {
 function readMultiReq (connHandle, handles, uuids, callback) {
     var self = this, 
         deferred = Q.defer(),
-        uuidHandleTable;
+        uuidHandleTable,
         charToResolve = [],
         value = {},
         pduLen = 0,
@@ -311,9 +312,10 @@ function readMultiReq (connHandle, handles, uuids, callback) {
     getUuids(connHandle, handles, uuids).then(function (uuidHdlTable) {
         uuidHandleTable = uuidHdlTable;
         _.forEach(uuidHdlTable, function (uuid) {
-            var charTypes = hciCharMeta[uuid].types;
+            var charTypes;
 
             if (hciCharMeta[uuid]) {
+                charTypes = hciCharMeta[uuid].types;
                 if (!_.includes(charTypes, 'string') && !_.includes(charTypes, 'uuid')) readMulti = true;
             }
         });
@@ -325,7 +327,7 @@ function readMultiReq (connHandle, handles, uuids, callback) {
         } else {
             _.forEach(uuidHdlTable, function (uuid, hdl) {
                 charToResolve.push((function () {
-                    return hci.execCmd('Att', 'ReadReq', {connHandle: connHandle, handle: hdl, uuid: uuid});
+                    return hci.execCmd('Att', 'ReadReq', {connHandle: connHandle, handle: _.parseInt(hdl), uuid: uuid});
                 }()));
             });
         }
@@ -365,6 +367,7 @@ function readMultiReq (connHandle, handles, uuids, callback) {
                     }
                 }
             }
+            deferred.resolve(evtObj);
         }
     }).fail(function (err) {
         deferred.reject(err);
@@ -408,21 +411,23 @@ function getUuids(connHandle, handles, uuids) {
         uuidHdlTable = {};
 
     if (_.size(handles) !== _.size(uuids)) {
-        hci.execCmd('Gatt', 'DiscAllChars', {connHandle: connHandle, startHandle: 0, endHandle: 65535})
+        hci.execCmd('Gatt', 'DiscAllChars', {connHandle: connHandle, startHandle: 1, endHandle: 65535})
         .then(function (result) {
             _.forEach(result.collector.AttReadByTypeRsp, function (dataObj) {
-                _.forEach(dataObj, function (data, dataKey) {
-                    if (_.startsWith(dataKey, 'attrVal'))
-                        dataObjs.push(data);
-                });
+                for (var key in dataObj.data) {
+                    if (_.startsWith(key, 'attrVal'))
+                        dataObjs.push(dataObj.data[key]);
+                }
             });
+
             _.forEach(dataObjs, function (data) {
                 _.forEach(handles, function(handle) {
                     if (data.hdl === handle)
                         uuidHdlTable[handle] = data.uuid;
                 });
             });
-            deferred.reject(uuidHdlTable);
+
+            deferred.resolve(uuidHdlTable);
         }).fail(function (err) {
             deferred.reject(err);
         }).done();
@@ -430,7 +435,7 @@ function getUuids(connHandle, handles, uuids) {
         _.forEach(handles, function (handle, i) {
             uuidHdlTable[handle] = uuids[i];
         })
-        deferred.reject(uuidHdlTable);
+        deferred.resolve(uuidHdlTable);
     }
 
     return deferred.promise;
