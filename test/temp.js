@@ -8,7 +8,7 @@ var _ = require('lodash'),
     SerialPort = require('serialport').SerialPort;
 
 var bleHci = require('../lib/hci/bleHci'),
-    hciCmdBuilder = require('../lib/hci/HciCmdBuilder');
+    hciCmdBuilder = require('../lib/hci/hciCmdBuilder');
     BHCI = require('../lib/defs/blehcidefs');
 
 var sp = new SerialPort("/dev/ttyUSB0", {

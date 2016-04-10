@@ -1,5 +1,5 @@
-var charDiscrim = require('../lib/hci/HciCharDiscriminator'),
-	charBuilder = require('../lib/hci/HciCharBuilder');
+var charDiscrim = require('../lib/hci/hciCharDiscriminator'),
+	charBuilder = require('../lib/hci/hciCharBuilder');
 
 var charObj = {ManufacturerIdentifier: '0x0405060708' ,OrganizationallyUniqueIdentifier: '0x010203'};
 

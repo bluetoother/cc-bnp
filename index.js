@@ -7,10 +7,10 @@ var util = require('util'),
     Enum = require('enum'),
     Q = require('q');
 
-var hciCmdMeta = require('./lib/hci/HciCmdMeta'),
-    hciCharMeta = require('./lib/hci/HciCharMeta'),
-    charDiscrim = require('./lib/hci/HciCharDiscriminator'),
-    charBuild = require('./lib/hci/HciCharBuilder'),
+var hciCmdMeta = require('./lib/hci/hciCmdMeta'),
+    hciCharMeta = require('./lib/hci/hciCharMeta'),
+    charDiscrim = require('./lib/hci/hciCharDiscriminator'),
+    charBuild = require('./lib/hci/hciCharBuilder'),
     BHCI = require('./lib/defs/blehcidefs'),
     hci = require('./lib/hci/bleHci');
 
@@ -141,6 +141,7 @@ CcBnp.prototype.util = {};
 
 CcBnp.prototype.att.readMultiReq = readMultiReq;
 CcBnp.prototype.gatt.readMultiCharValues = readMultiReq;
+CcBnp.prototype.att.readMultiRsp = readMultiRsp;
 
 CcBnp.prototype.regChar = function (regObj) {
     if (_.isNumber(regObj.uuid)) { 
@@ -380,7 +381,7 @@ function readMultiRsp(connHandle, value, uuids, callback) {
     var deferred = Q.defer(),
         handles = [],
         charBuf,
-        sendBuf;
+        sendBuf = new Buffer([]);
 
     if (!uuids) {
         uuids = [];
@@ -395,14 +396,21 @@ function readMultiRsp(connHandle, value, uuids, callback) {
         _.forEach(value, function (val, hdl) {
             handles.push(hdl);
         })
-        getUuids(connHandle, handles, uuids).then(function (uuidHdlTable) {
+
+        getUuids(65534, handles, uuids).then(function (uuidHdlTable) {
             _.forEach(uuidHdlTable, function (uuid, hdl) {
                 charBuf = charBuild(uuid).transToValObj(value[hdl]).getHciCharBuf();
-                sendBuf = Buffer.concat([sendBuf, buffer2]);
+                sendBuf = Buffer.concat([sendBuf, charBuf]);
             });
-            return hci.execCmd('Att', 'ReadMultiRsp', {connHandle: connHandle, value: sendBuf}, callback);
-        });
+            return hci.execCmd('Att', 'ReadMultiRsp', {connHandle: connHandle, value: sendBuf});
+        }).then(function () {
+            deferred.resolve();
+        }).fail(function (err) {
+            deferred.reject(err);
+        }).done();
     }
+
+    return deferred.promise.nodeify(callback);
 }
 
 function getUuids(connHandle, handles, uuids) {

@@ -8,7 +8,7 @@ var _ = require('lodash'),
     SerialPort = require('serialport').SerialPort;
 
 var bleHci = require('../lib/hci/bleHci'),
-    hciCmdBuilder = require('../lib/hci/HciCmdBuilder');
+    hciCmdBuilder = require('../lib/hci/hciCmdBuilder');
     BHCI = require('../lib/defs/blehcidefs');
 
 var sp = new SerialPort("/dev/ttyACM0", {
@@ -143,13 +143,13 @@ describe('Testing Command Response From Local Controller And Remote Slave', func
     it('Att Level: ReadByTypeReq', function () {
         return bleHci.execCmd('Att', 'ReadByTypeReq', {connHandle: 0, startHandle: 1, endHandle: 65535, type: '0xfff1'}).should.be.fulfilled();
     });
-    it('Att Level: ReadReq', function (done) {
+    it('Att Level: ReadReq', function () {
         return bleHci.execCmd('Att', 'ReadReq', {connHandle: 0, handle: 3}).should.be.fulfilled();
     });
     it('Att Level: ReadBlobReq', function () {
         return bleHci.execCmd('Att', 'ReadBlobReq', {connHandle: 0, handle: 37, offset: 0}).should.be.fulfilled();
     });
-    it('Att Level: ReadMultiReq', function (done) {
+    it('Att Level: ReadMultiReq', function () {
         return bleHci.execCmd('Att', 'ReadMultiReq', {connHandle: 0, handles: {handle0: 0x0025, handle1: 0x0026}}).should.be.fulfilled();
     });
 

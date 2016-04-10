@@ -7,7 +7,7 @@ var _ = require('lodash'),
     DChunks = require('dissolve-chunks'),
     ru = DChunks().Rule();
 
-var hciCmdConcentrater = require('../lib/hci/HciCmdBuilder');
+var hciCmdConcentrater = require('../lib/hci/hciCmdBuilder');
 
 
 

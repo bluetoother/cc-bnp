@@ -5,9 +5,9 @@ var _ = require('lodash'),
 	chance = new Chance(),
     Q = require('q');
 
-var hciCharBuilder = require('../lib/hci/HciCharBuilder'),
-    hciCharMeta = require('../lib/hci/HciCharMeta'),
-    hciCharDiscrim = require('../lib/hci/HciCharDiscriminator');
+var hciCharBuilder = require('../lib/hci/hciCharBuilder'),
+    hciCharMeta = require('../lib/hci/hciCharMeta'),
+    hciCharDiscrim = require('../lib/hci/hciCharDiscriminator');
 
 var furtherProcessArr = [
     '0x2905', '0x290a', '0x290e', '0x2a18', '0x2a1c', '0x2a1e', '0x2a22', '0x2a32', '0x2a33', 
