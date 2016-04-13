@@ -66,6 +66,7 @@ describe('Testing Command Response From Local Controller', function () {
     this.timeout(10000);
 
     _.forEach(BHCI.SubGroupCmd.Hci._enumMap, function (val, key) {
+
         it('Hci Level: ' + key, function () {
             var argObj = genCmdArgObj('Hci', key);
             if (key === 'DisconnectImmed' || key === 'ResetSystem') { return; }
@@ -133,6 +134,14 @@ describe('Testing Command Response From Local Controller And Remote Slave', func
     });
     it('Gap Level: EstLinkReq', function () {
         return bleHci.execCmd('Gap', 'EstLinkReq', {highDutyCycle: 0, whiteList: 0, addrtypePeer: 0, peerAddr: '0x9059af0b8159'}).should.be.fulfilled();
+    });
+
+    it('test per', function () {
+        return bleHci.execCmd('Att', 'ErrorRsp', {connHandle: 0, reqOpcode: 0, handle: 1, errCode: 0x0A}).then(function (result) {
+            console.log(result);
+        }).fail(function (err) {
+            console.log(err);
+        });
     });
     
 
