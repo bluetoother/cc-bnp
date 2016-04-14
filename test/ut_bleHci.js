@@ -129,21 +129,12 @@ describe('Testing Command Response From Local Controller And Remote Slave', func
     it('Gap Level: DeviceInit', function () {
         return bleHci.execCmd('Gap', 'DeviceInit', {profileRole: 8, maxScanResponses: 5, irk: buffer16, csrk: buffer16, signCounter: 1}).should.be.fulfilled();
     });
-    it('Gap Level: DeviceDiscReq1', function () {
+    it('Gap Level: DeviceDiscReq1', function (done) {
         return bleHci.execCmd('Gap', 'DeviceDiscReq', {mode: 3, activeScan: 1, whiteList: 0}).should.be.fulfilled();
     });
     it('Gap Level: EstLinkReq', function () {
         return bleHci.execCmd('Gap', 'EstLinkReq', {highDutyCycle: 0, whiteList: 0, addrtypePeer: 0, peerAddr: '0x9059af0b8159'}).should.be.fulfilled();
-    });
-
-    it('test per', function () {
-        return bleHci.execCmd('Att', 'ErrorRsp', {connHandle: 0, reqOpcode: 0, handle: 1, errCode: 0x0A}).then(function (result) {
-            console.log(result);
-        }).fail(function (err) {
-            console.log(err);
-        });
-    });
-    
+    });    
 
     /*---ATT---*/
     it('Att Level: FindInfoReq', function () {

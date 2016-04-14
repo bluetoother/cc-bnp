@@ -37,14 +37,13 @@ CcBnp.prototype.init = function (spConfig, role, callback) {
     hci.registerSp(sp);
     hci.openSp().then(function(result) {
         self.gap.deviceInit(roles.get(role).value, 5, new Buffer(16).fill(0), new Buffer(16).fill(0), 1).then(function (result) {
-            var msg = result.collector.GapDeviceInitDone;
+            var msg = result.collector.GapDeviceInitDone[0];
 
             delete msg.status;
             delete msg.dataPktLen;
             delete msg.numDataPkts;
 
             deferred.resolve(msg);
-            console.log('emit!!!');
             self.emit('ready', msg);
         }, function(err) {
             deferred.reject(err);
