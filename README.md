@@ -7,25 +7,33 @@ cc-bnp
 
 ## Table of Contents  
 
-* [Overview](#Overiew)  
-* [BLE Network Processor](#BNP)
-* [Installation](#Installation)
-* [Usage](#Usage)
-* [Basic and Command APIs](#APIs)
-    * [Basic APIs and Events](#basicAPIs)
-    * [TI's BLE Vendor-Specific HCI Command APIs](#vendorHci)
-* [Vendor-Specific HCI Command Reference Tables](#cmdTables)
-* [G​ATT Specifications](#gattSpec)
-* [Error Message](#errCodes)
-* [Reason Code of Link-termination](#reasonCodes)
-* [Contributors](#Contributors)
-* [License](#License)
-
+1. [Overview](#Overiew)  
+    1.1 [BLE Network Processor](#BNP)
+    1.2 [Installation](#Installation)
+    1.3.= [Usage](#Usage)
+2. [Basic and Command APIs](#APIs)
+    2.1 [Basic APIs and Events](#basicAPIs)
+    2.2 [Events](#Events)
+    2.3 [TI's BLE Vendor-Specific HCI Command APIs](#vendorHci)
+3. [Appendix](#Appendix)
+    3.1 [Vendor-Specific HCI Command Reference Tables](#cmdTables)
+        3.1.1 [ccbnp.hci](#ccbnpHci)
+        3.1.2 [ccbnp.l2cap](#ccbnpL2cap)
+        3.1.3 [ccbnp.att](#ccbnpAtt)
+        3.1.4 [ccbnp.gatt](#ccbnpGatt)
+        3.1.5 [ccbnp.gap](#ccbnpGap)
+        3.1.6 [ccbnp.util](#ccbnpUtil)
+        3.1.7 [Vendor-specific HCI events](#tblEvt)
+    3.2 [G​ATT Specifications](#gattSpec)
+    3.3 [Error Message](#errCodes)
+    3.4 [Reason Code of Link-termination](#reasonCodes)
+    3.5 [Contributors](#Contributors)
+    3.6 [License](#License)
 
 <br />
 
 <a name="Overiew"></a>
-## Overview  
+## 1. Overview  
 
 **cc-bnp** allows you to interact with TI's CC254X BLE network processor(BNP) on node.js via *TI BLE Vendor-Specific HCI Command APIs*. Each Command API is in an asynchronous manner and supports both err-back callback style and promise-style.  
 
@@ -34,7 +42,7 @@ cc-bnp
 <br />
 
 <a name="BNP"></a>
-## BLE Network Processor (BNP)  
+### 1.1 BLE Network Processor (BNP)  
 
 The following diagram shows the scenario when CC254X operates as a BNP. In this case, the controller and host are implemented together on CC2540/41, and the application can be externally developed on an application processor (e.g., another mcu or PC). The application and profiles can communicate with BNP through TI's vendor-specific HCI commands upon an UART interface.  
 
@@ -43,14 +51,14 @@ The following diagram shows the scenario when CC254X operates as a BNP. In this 
 <br />
 
 <a name="Installation"></a>
-## Installation
+### 1.2 Installation
 
 > $ npm install cc-bnp --save
 
 <br />
 
 <a name="Usage"></a>
-## Usage
+### 1.3 Usage
 
 To begin with **cc-bnp**, you must firstly set up the serial port and initialize the BNP with a given role. To do this, simply call the [.init()](#init) method:
 
@@ -72,12 +80,12 @@ Here are some [examples](https://github.com/hedywings/cc-bnp/blob/master/example
 <br />
 
 <a name="APIs"></a>
-## Basic and Command APIs
+## 2. Basic and Command APIs
 
 Each Command API in **cc-bnp** supports both err-back callback style and promise-style.
 
 <a name="basicAPIs"></a>
-### 1. Basic APIs and Events
+### 2.1 Basic APIs
 
 The basic APIs are about how to initialize the BNP with a given role and how to close the connection from the processor. **cc-bnp** also allows you to define your own characteristics with registration methods. After the BNP accomplishes its initializing procedure, a `'ready'` event will be fired by **cc-bnp**. When there comes a BLE indication message, **cc-bnp** will fire an `'ind'` event along with the message content.  
 
@@ -86,7 +94,6 @@ The basic APIs are about how to initialize the BNP with a given role and how to 
 * [regChar()](#regChar)
 * [regUuidHdlTable()](#regUuidHdlTable)
 * [regTimeoutConfig()](#regTimeoutCfg)
-* Events: [ready](#onReady), [ind](#onInd)
 
 *************************************************
 <a name="init"></a>
@@ -95,8 +102,8 @@ Connect to CC254X SoC upon a serial port as well as initialize the BNP with a gi
 
 **Arguments**
 
-- config (*Object*): This value-object has two properties `path` and `options` for configuring the serial port. 
-    - `path` - A string that refers to the system path of serial-port, e.g., `'/dev/ttyUSB0'`.  
+- config (*Object*): This value-object has two properties `path` and `options` to configure the serial port. 
+    - `path` - A string that refers to the serial-port system path, e.g., `'/dev/ttyUSB0'`.  
     - `options` - A value-object to set up the [seiralport](https://www.npmjs.com/package/serialport#to-use) instance. Its default value is shown in the following example.  
 
 - role (*String*): Device role. **cc-bnp** supports four types of single role and two types of multi-roles:
@@ -111,12 +118,12 @@ Connect to CC254X SoC upon a serial port as well as initialize the BNP with a gi
     - `'err'` (*Error*) - [Error Message](#errCodes)  
     - `'result'` (*Object*) - Device information. It has the following properties:
 
-```javascript
-    {
-        devAddr: '0x78c5e59b5ef8',  // Device public address
-        irk: <Buffer 72 74 73 20 3d 20 44 75 70 6c 65 78 3b 0a 0a 2f>, // 16 bytes Identity Resolving Key
-        csrk: <Buffer 2a 3c 72 65 70 6c 61 63 65 6d 65 6e 74 3e 2a 2f> // 16 bytes Connection Signature Resolving Key
-    }
+```sh
+{
+    devAddr: '0x78c5e59b5ef8',  // Device public address
+    irk: <Buffer 72 74 73 20 3d 20 44 75 70 6c 65 78 3b 0a 0a 2f>, // 16 bytes IRK (Identity Resolving Key)  
+    csrk: <Buffer 2a 3c 72 65 70 6c 61 63 65 6d 65 6e 74 3e 2a 2f> // 16 bytes CSRK (Connection Signature Resolving Key)
+}
 ```
 
 **Returns**  
@@ -126,33 +133,33 @@ Connect to CC254X SoC upon a serial port as well as initialize the BNP with a gi
 **Example**
 
 ```javascript
-    var ccbnp = require('ccbnp'),
-        role = 'broadcaster',
-        cfg = {
-            path: '/dev/ttyUSB0',
-            options: {
-                baudrate: 115200,   // default
-                dataBits: 8,        // default
-                stopBits: 1,        // default
-                parity: 'none',     // default
-                bufferSize: 255     // default
-            }
-        };
+var ccbnp = require('ccbnp'),
+    role = 'broadcaster',
+    cfg = {
+        path: '/dev/ttyUSB0',
+        options: {
+            baudrate: 115200,   // default value
+            dataBits: 8,        // default value
+            stopBits: 1,        // default value
+            parity: 'none',     // default value
+            bufferSize: 255     // default value
+        }
+    };
 
-    // In callback-style
-    ccbnp.init(cfg, role, function (err, result) {
-        if (err)
-            console.log(err);
-        else
-            console.log(result);
-    });
-
-    // In promise-style
-    ccbnp.init(cfg, role).then(function (result) {
-        console.log(result);
-    }).fail(function (err) {
+// init() example: callback-style
+ccbnp.init(cfg, role, function (err, result) {
+    if (err)
         console.log(err);
-    }).done();
+    else
+        console.log(result);
+});
+
+// init() example: promise-style
+ccbnp.init(cfg, role).then(function (result) {
+    console.log(result);
+}).fail(function (err) {
+    console.log(err);
+}).done();
 ```
 
 *************************************************
@@ -173,10 +180,10 @@ Close the opened serial port.
 **Example**
 
 ```javascript
-    ccbnp.close(function (err) {
-        if (err)
+ccbnp.close(function (err) {
+    if (err)
         console.log(err);
-    });
+});
 ```
 
 *************************************************
@@ -186,14 +193,15 @@ Register a characteristic UUID and its value format.
 
 If a characteristic UUID is defined by [GATT Specifications](#gattSpec), **cc-bnp** will automatically parse it. If you have a private characteristic (defined by yourself, not by [SIG](https://developer.bluetooth.org/gatt/characteristics/Pages/CharacteristicsHome.aspx)), please use this method to register your characteristic to **cc-bnp**. This will tell **cc-bnp** how to parse private characteristics from the received messages.  
 
-**[WARNING]**: This method can overwrite a public UUID definition ([GATT Specifications](#gattSpec)). It is better to choose a private UUID different from the public-defined ones.  
+**[WARNING]**:  
+This method can overwrite a public UUID definition ([GATT Specifications](#gattSpec)). It is better to choose a private UUID different from public-defined ones.  
 
 **Arguments**
 
-- regObj (*Object*):  
-    - `uuid` (*String of hex*) - Characteristic UUID to register (e.g., '0x2a00', '0x2a1c').  
-    - `params` (*Array*) - Field names of this characteristic value.  
-    - `types` (*Array*) - Tell the data type of each parameter in `params` array.  
+- regObj (*Object*):  The object should be given with the following properties  
+    - `uuid` (*Hex string*) - Characteristic UUID to register (e.g., '0x2a00', '0x2a1c').  
+    - `params` (*Array*) - Field names in the characteristic value.  
+    - `types` (*Array*) - Data type of each parameter in `params` array.  
 
     Note: The order of entries in `types` and `params` array should be exactly matched.  
 
@@ -204,21 +212,21 @@ If a characteristic UUID is defined by [GATT Specifications](#gattSpec), **cc-bn
 **Example**
 
 ```javascript
-    var regObj = {
-        uuid: '0xfff1',
-        params: [ 'fieldName0', 'fieldName1', 'fieldName2' ],
-        types: [ 'uint8', 'uint16', 'float' ]
-    };
-    ccbnp.regChar(regObj);
+var regObj = {
+    uuid: '0xfff1',
+    params: [ 'foo', 'bar', 'certainName' ],
+    types: [ 'uint8', 'uint16', 'float' ]
+};
+ccbnp.regChar(regObj);
 ```
 
 *************************************************
 <a name="regUuidHdlTable"></a>
 ### .regUuidHdlTable(connHdl, uuidHdlTable)
-Register a table that relates each characteristic handle to its characteristic UUID under a connection. **cc-bnp** will use this table to find out the characteristic UUID when you use the characteristic handle to operate upon a characteristic.  
+Register a table that maps each characteristic handle to its characteristic UUID _under a connection_. **cc-bnp** will use this table to find out the characteristic UUID when you use the characteristic handle to operate upon a characteristic.  
 
 **Arguments**
-- connHdl (*Number*): Connection handle to identify a connection.  
+- connHdl (*Number*): Connection handle that identifies a connection.  
 - uuidHdlTable (*Object*): Characteristic handle-to-UUID mapping table (key-value pairs). Key is characteristic handle and value is characteristic UUID.  
 
 **Returns**  
@@ -228,25 +236,26 @@ Register a table that relates each characteristic handle to its characteristic U
 **Example**
 
 ```javascript
-    var uuidHdlTable1 = {
-            3: '0x2a00'
-            5: '0x2a01'
-            7: '0x2a02'
-            9: '0x2a03'
-            11: '0x2a04'
-            14: '0x2a05'
-        },
-        uuidHdlTable2 = {
-            4: '0x2a00'
-            6: '0x2a01'
-            8: '0x2a02'
-            10: '0x2a03'
-            12: '0x2a04'
-            16: '0x2a05'
-        };
+var myCharUuidHdlTable1 = {
+    // handle: uuid
+        3: '0x2a00'
+        5: '0x2a01'
+        7: '0x2a02'
+        9: '0x2a03'
+        11: '0x2a04'
+        14: '0x2a05'
+    },
+    myCharUuidHdlTable2 = {
+        4: '0x2a00'
+        6: '0x2a01'
+        8: '0x2a02'
+        10: '0x2a03'
+        12: '0x2a04'
+        16: '0x2a05'
+    };
 
-    ccbnp.regUuidHdlTable(0, uuidHdlTable1);    // under connection handle 0
-    ccbnp.regUuidHdlTable(1, uuidHdlTable2);    // under connection handle 1
+ccbnp.regUuidHdlTable(0, myCharUuidHdlTable1);    // under connection handle 0
+ccbnp.regUuidHdlTable(1, myCharUuidHdlTable2);    // under connection handle 1
 ```
 
 *************************************************
@@ -272,18 +281,23 @@ Register the timeout configuration of commands. This will tell **cc-bnp** of how
 **Example**
 
 ```javascript
-    var timeoutConfig1 = {
-            level1: 2000,
-            level2: 5000,
-            scan: 3000
-        },
-        timeoutConfig2 = {
-            scan: 5000
-        };
+var timeoutConfig1 = {
+        level1: 2000,
+        level2: 5000,
+        scan: 3000
+    },
+    timeoutConfig2 = {
+        scan: 5000
+    };
 
-    ccbnp.regTimeoutCfg(0, timeoutConfig1);
-    ccbnp.regTimeoutCfg(1, timeoutConfig2);
+ccbnp.regTimeoutCfg(0, timeoutConfig1);     // for connection handle 0
+ccbnp.regTimeoutCfg(1, timeoutConfig2);     // for connection handle 1
 ```
+
+*************************************************
+### 2.2 Events
+
+* Events: [ready](#onReady), [ind](#onInd)
 
 *************************************************
 <a name="onReady"></a>
@@ -295,20 +309,20 @@ The `'ready'` event is fired when the initializing procedure completes.
 - callback(result)
     - `'result'` (*Object*) - Device information with the following properties:
 ```javascript
-    {
-        devAddr: '0x78c5e59b5ef8',  // Device public address
-        irk: <Buffer 72 74 73 20 3d 20 44 75 70 6c 65 78 3b 0a 0a 2f>,  // 16 bytes IRK
-        csrk: <Buffer 2a 3c 72 65 70 6c 61 63 65 6d 65 6e 74 3e 2a 2f>  // 16 bytes CSRK
-    }
+{
+    devAddr: '0x78c5e59b5ef8',  // Device public address
+    irk: <Buffer 72 74 73 20 3d 20 44 75 70 6c 65 78 3b 0a 0a 2f>,  // 16 bytes IRK
+    csrk: <Buffer 2a 3c 72 65 70 6c 61 63 65 6d 65 6e 74 3e 2a 2f>  // 16 bytes CSRK
+}
 ```
 
 **Example**
 
 ```javascript
-    ccbnp.on('ready', function (result) {
-        console.log(result);
-        // do your work here
-    });
+ccbnp.on('ready', function (result) {
+    console.log(result);
+    // do your work here
+});
 ```
 
 *************************************************
@@ -320,36 +334,36 @@ When there is a incoming *BLE indication* message, **cc-bnp** fires an `'ind'` e
 **Arguments**
 
 - callback(msg)
-    - msg (*Object*): It two properties of `type` and `data`, where `type` denotes the *indication type* and `data` is the message content. The reason of link termination along with a `'linkTerminated'` indication can be found from the [reason codes table](#reasonCodes).  
+    - msg (*Object*): It has two properties `type` and `data`, where `type` denotes the *indication type* and `data` is the message content. The reason of link termination along with a `'linkTerminated'` indication can be found from the [reason codes table](#reasonCodes).  
 
-    ```javascript
-    ccbnp.on('ind', function (msg) {
-        console.log(msg.type);
-        console.log(msg.data);
-    });
-    ```
+        ```javascript
+        ccbnp.on('ind', function (msg) {
+            console.log(msg.type);
+            console.log(msg.data);
+        });
+        ```
 
-    - msg.type (*String*)
+    - msg.type (*String*) includes
         * `'linkEstablished'`   - TI Vendor-Specific Event **GAP\_LinkEstablished**
-        * `'linkTerminated'`    - TI Vendor-Specific Event **GAP\_LinkTerminated**
-        * `'linkParamUpdate'`   - TI Vendor-Specific Event **GAP\_LinkParamUpdate**
-        * `'attNoti'`           - TI Vendor-Specific Event **ATT\_HandleValueNoti**
-        * `'attInd'`            - TI Vendor-Specific Event **ATT\_HandleValueInd**
-        * `'authenComplete'`    - TI Vendor-Specific Event **GAP\_AuthenticationComplete**
-        * `'passkeyNeeded'`     - TI Vendor-Specific Event **GAP\_PasskeyNeeded**
-        * `'bondComplete'`      - TI Vendor-Specific Event **GAP\_BondComplete**
+        * `'linkTerminated'`    - **GAP\_LinkTerminated**
+        * `'linkParamUpdate'`   - **GAP\_LinkParamUpdate**
+        * `'attNoti'`           - **ATT\_HandleValueNoti**
+        * `'attInd'`            - **ATT\_HandleValueInd**
+        * `'authenComplete'`    - **GAP\_AuthenticationComplete**
+        * `'passkeyNeeded'`     - **GAP\_PasskeyNeeded**
+        * `'bondComplete'`      - **GAP\_BondComplete**
 
-    - msg.data (*Object*)   
+    - msg.data (*Object*) corresponding to each indication type  
 
         ```javascript
         // When (msg.type === 'linkEstablished'):
         msg.data = {
             addr: '0x9059af0b8159',   // Address of the connected device
-            connHandle: 0,      // Handle of the connection
-            connInterval: 80,   // Connection interval used on this connection, time = 80 * 1.25 msec
-            connLatency: 0,     // Connection latency used on this connection
-            connTimeout: 2000,  // Connection supervision timeout, time = 2000 * 10 msec
-            clockAccuracy: 0,   // The accuracy of clock 
+            connHandle: 0,            // Handle of the connection
+            connInterval: 80,         // Connection interval used on this connection, time = 80 * 1.25 msec
+            connLatency: 0,           // Connection latency used on this connection
+            connTimeout: 2000,        // Connection supervision timeout, time = 2000 * 10 msec
+            clockAccuracy: 0,         // The accuracy of clock 
         }
         ```
 
@@ -423,7 +437,7 @@ When there is a incoming *BLE indication* message, **cc-bnp** fires an `'ind'` e
 <br />
 
 <a name="vendorHci"></a>
-### 2. TI's BLE Vendor-Specific HCI Command APIs
+### 2.3 TI's BLE Vendor-Specific HCI Command APIs
 
 TI's BLE Vendor-Specific HCI Commands are organized in subgroubps: **hci**, **l2cap**, **att**, **gatt**, **gap**, and **util**. The description of each command is documented in [TI\_BLE\_Vendor\_Specific\_HCI_Guide.pdf](https://github.com/hedywings/cc-bnp/blob/master/documents/TI_BLE_Vendor_Specific_HCI_Guide.pdf).  
 
@@ -494,28 +508,40 @@ The 'uuid' of a public characteristic value can be found in [GATT Specifications
 
 <br />
 
+<a name="Appendix"></a>
+## 3. Appendix  
+
 <a name="cmdTables"></a>
-## Vendor-Specific HCI Command Reference Tables
+### 3.1 Vendor-Specific HCI Command Reference Tables
 
-These tables are cross-references between the **Vendor-Specific HCI Command** and **cc-bnp** Command API names.  
+These tables are cross-references between the **Vendor-Specific HCI Command** and **cc-bnp** Command API names. Here is the description of each table column  
 
-* 'BLE Vendor-Cmd' is the the command name documented in [TI\_BLE\_Vendor\_Specific\_HCI_Guide.pdf](https://github.com/hedywings/cc-bnp/blob/master/documents/TI_BLE_Vendor_Specific_HCI_Guide.pdf).  
-* 'cc-bnp Cmd-API' is the API name according to a vendor-specfic HCI command.  
-* 'Arguments' is the required paramters of the Cmd-API.  
-* 'Result' is the result passing to the callback. 
-* 'Event(s) Generate' is events generated by the remote device.  
+* **BLE Vendor-Cmd** is the the command name documented in [TI\_BLE\_Vendor\_Specific\_HCI_Guide.pdf](https://github.com/hedywings/cc-bnp/blob/master/documents/TI_BLE_Vendor_Specific_HCI_Guide.pdf).  
+* **cc-bnp Cmd-API** is the API name according to a vendor-specfic HCI command.  
+* **Arguments** is the required paramters of the Cmd-API.  
+* **Result** is the resulted data object passing to the callback. 
+* **Event(s) Generated** is events generated by the remote device.  
 
-All 'Result' format are `{status, opCode, dataLen, payload, collector}`, in addition **hci** subsystem. _status_, _opCode_, _dataLen_, _payload_ fields is response from local host, _collector_ field is an object which gather all events generate from remote device. Each _collector_ object key is an event type defined in 'Event(s) Generate', and since the same type of event may be generated many times, so _collector_ object value is an arry to store event datas. Each romote event data is defined in [Vendor-Specific HCI Events](#tblEvt).
+[TBD]
+The **Result** is a data boject with keys `{ status, opCode, dataLen, payload, collector }`, in addition **hci** subsystem. _status_, _opCode_, _dataLen_, _payload_ fields is response from local host, _collector_ field is an object which gather all events generate from remote device. Each _collector_ object key is an event type defined in 'Event(s) Generate', and since the same type of event may be generated many times, so _collector_ object value is an arry to store event datas. Each romote event data is defined in [Vendor-Specific HCI Events](#tblEvt).
+  
 
-Let's take ccbnp.gap.deviceDiscReq() as an example again. You can find the cross-referenced information from [ccbnp.gap APIs table](#tblGap), but I only take out what we need for convenience. The table down here tells that this command is named as **GAP_DeviceDiscoveryRequest** in TI's HCI guide and is named as **deviceDiscReq** under the namespace **gap** in cc-bnp. The arguments are _mode_, _activeScan_, _whiteList_ listed in order, and return _status_, _opCode_, _dataLen_, _payload_, _collector_ as a result, _collector_ will include `GapDeviceInfo` and `GapDeviceDiscovery` events. `GapDeviceInfo` event with square brackets in 'Event(s) Generate' field means it is not necessarily generate.
+**Example**
 
-| BLE Vendor-Cmd             | cc-bnp Cmd-API | Arguments                   | Event(s) Generate                   |
+Let's take `ccbnp.gap.deviceDiscReq()` as an example again. You can find the cross-referenced information from [ccbnp.gap APIs table](#tblGap), but I only take out what we need for convenience.  
+[TBD]
+The table down here tells that 
+* This command is named as **GAP_DeviceDiscoveryRequest** in TI's HCI guide and is named as **deviceDiscReq** under the namespace **gap** in cc-bnp.  
+* The required arguments to this API are `mode`, `activeScan`, and `whiteList` listed in order.
+* The returned result is an object with keys `{ status, opCode, dataLen, payload, collector }`
+* Property `collector` is an object  include `GapDeviceInfo` and `GapDeviceDiscovery` events. `GapDeviceInfo` event with square brackets in 'Event(s) Generated' field means it is not necessarily generate.
+
+| BLE Vendor-Cmd             | cc-bnp Cmd-API | Arguments                   | Event(s) Generated                  |
 | -------------------------- | -------------- | --------------------------- | ----------------------------------- |
 | GAP_DeviceDiscoveryRequest | deviceDiscReq  | mode, activeScan, whiteList | [GapDeviceInfo], GapDeviceDiscovery |
 
-Here is an example of gap.deviceDiscReq command result:  
 ```Javascript
-// 
+// Here is an example of result object to gap.deviceDiscReq API callback:  
 {
     status: 0,  
     opCode: 65028,  
@@ -556,58 +582,62 @@ Here is an example of gap.deviceDiscReq command result:
 ```
 
 <a name="tblHci"></a>
-#### 1. ccbnp.hci APIs
+#### 3.1.1 ccbnp.hci APIs
 
-Command of **hci** subsystem are all operating local host, so there is no event from remote device, therefore 'Event(s) Generate' will not be listed in the following table.
+* Result object: `{ status, cmdOpcode, ... }`
+* **hci** commands mainly interact with the local network processor. There is no event from remote devices and hence there will be no `collector` property in the result object.  
 
-| BLE Vendor-Cmd | cc-bnp Cmd-API | Arguments | Result |
+
+| BLE Vendor-Cmd | cc-bnp Cmd-API | Arguments | Result Object |
 | ------------- | ------------- | ------------- | ------------- |
-|HCI_EXT_SetRxGainCmd|setRxGain|rxGain|status, cmdOpcode|
-|HCI_EXT_SetTxPowerCmd|setTxPower|txPower|status, cmdOpcode|
-|HCI_EXT_OnePacketPerEventCmd|onePktPerEvt|control|status, cmdOpcode|
-|HCI_EXT_ClkDivOnHaltCmd|clkDivideOnHalt|control|status, cmdOpcode|
-|HCI_EXT_DeclareNvUsageCmd|declareNvUsage|mode|status, cmdOpcode|
-|HCI_EXT_DecryptCmd|decrypt|key, encText|status, cmdOpcode, plainTextData|
-|HCI_EXT_SetLocalSupportedFeaturesCmd|setLocalSupportedFeatures|localFeatures|status, cmdOpcode|
-|HCI_EXT_SetFastTxResponseTimeCmd|setFastTxRespTime|control|status, cmdOpcode|
-|HCI_EXT_ModemTestTxCmd|modemTestTx|cwMode, txFreq|status, cmdOpcode|
-|HCI_EXT_ModemHopTestTxCmd|modemHopTestTx|none|status, cmdOpcode|
-|HCI_EXT_ModemTestRxCmd|modemTestRx|rxFreq|status, cmdOpcode|
-|HCI_EXT_EndModemTestCmd|endModemTest|none|status, cmdOpcode|
-|HCI_EXT_SetBDADDRCmd|setBdaddr|bdAddr|status, cmdOpcode|
-|HCI_EXT_SetSCACmd|setSca|scalnPPM|status, cmdOpcode|
-|HCI_EXT_EnablePTMCmd|enablePtm|none|status, cmdOpcode|
-|HCI_EXT_SetFreqTuneCmd|setFreqTune|step|status, cmdOpcode|
-|HCI_EXT_SaveFreqTuneCmd|saveFreqTune|none|status, cmdOpcode|
-|HCI_EXT_SetMaxDtmTxPowerCmd|setMaxDtmTxPower|txPower|status, cmdOpcode|
-|HCI_EXT_MapPmInOutPortCmd|mapPmIoPort|ioPort, ioPin|status, cmdOpcode|
-|HCI_EXT_DisconnectImmedCmd|disconnectImmed|connHandle|status, cmdOpcode|
-|HCI_EXT_PacketErrorRateCmd|per|connHandle, cmd|status, cmdOpcode, cmdVal, numPkts, numCrcErr, numEvents, numMissedEvents|
-|HCI_EXT_PERbyChanCmd|perByChan|connHandle, perByChan|status, cmdOpcode|
-|HCI_EXT_ExtendRfRangeCmd|extendRfRange|none|status, cmdOpcode|
-|HCI_EXT_AdvEventNoticeCmd|advEventNotice|taskId, cmd|status, cmdOpcode|
-|HCI_EXT_ConnEventNoticeCmd|connEventNotice|taskId, taskEvt|status, cmdOpcode|
-|HCI_EXT_HaltDuringRfCmd|haltDuringRf|mode|status, cmdOpcode|
-|HCI_EXT_SetSlaveLatencyOverrideCmd|overrideSl|taskId|status, cmdOpcode|
-|HCI_EXT_BuildRevisionCmd|buildRevision|mode, userRevNum|status, cmdOpcode, userRevNum, buildRevNum|
-|HCI_EXT_DelaySleepCmd|delaySleep|delay|status, cmdOpcode|
-|HCI_EXT_ResetSystemCmd|resetSystem|mode|status, cmdOpcode|
-|HCI_EXT_OverlappedProcessingCmd|overlappedProcessing|mode|status, cmdOpcode|
-|HCI_EXT_NumComplPktsLimitCmd|numCompletedPktsLimit|limit, flushOnEvt|status, cmdOpcode|
+|HCI_EXT_SetRxGainCmd|setRxGain|rxGain|`{ status, cmdOpcode}`|
+|HCI_EXT_SetTxPowerCmd|setTxPower|txPower|`{ status, cmdOpcode }`|
+|HCI_EXT_OnePacketPerEventCmd|onePktPerEvt|control|`{status, cmdOpcode }`|
+|HCI_EXT_ClkDivOnHaltCmd|clkDivideOnHalt|control|`{ status, cmdOpcode }`|
+|HCI_EXT_DeclareNvUsageCmd|declareNvUsage|mode|`{ status, cmdOpcode }`|
+|HCI_EXT_DecryptCmd|decrypt|key, encText|`{ status, cmdOpcode, plainTextData }`|
+|HCI_EXT_SetLocalSupportedFeaturesCmd|setLocalSupportedFeatures|localFeatures|`{ status, cmdOpcode }`|
+|HCI_EXT_SetFastTxResponseTimeCmd|setFastTxRespTime|control|`{ status, cmdOpcode }`|
+|HCI_EXT_ModemTestTxCmd|modemTestTx|cwMode, txFreq|`{ status, cmdOpcode }`|
+|HCI_EXT_ModemHopTestTxCmd|modemHopTestTx|none|`{ status, cmdOpcode }`|
+|HCI_EXT_ModemTestRxCmd|modemTestRx|rxFreq|`{ status, cmdOpcode }`|
+|HCI_EXT_EndModemTestCmd|endModemTest|none|`{ status, cmdOpcode }`|
+|HCI_EXT_SetBDADDRCmd|setBdaddr|bdAddr|`{ status, cmdOpcode }`|
+|HCI_EXT_SetSCACmd|setSca|scalnPPM|`{ status, cmdOpcode }`|
+|HCI_EXT_EnablePTMCmd|enablePtm|none|`{ status, cmdOpcode }`|
+|HCI_EXT_SetFreqTuneCmd|setFreqTune|step|`{ status, cmdOpcode }`|
+|HCI_EXT_SaveFreqTuneCmd|saveFreqTune|none|`{ status, cmdOpcode }`|
+|HCI_EXT_SetMaxDtmTxPowerCmd|setMaxDtmTxPower|txPower|`{ status, cmdOpcode }`|
+|HCI_EXT_MapPmInOutPortCmd|mapPmIoPort|ioPort, ioPin|`{ status, cmdOpcode }`|
+|HCI_EXT_DisconnectImmedCmd|disconnectImmed|connHandle|`{ status, cmdOpcode }`|
+|HCI_EXT_PacketErrorRateCmd|per|connHandle, cmd|`{ status, cmdOpcode, cmdVal, numPkts, numCrcErr, numEvents, numMissedEvents }`|
+|HCI_EXT_PERbyChanCmd|perByChan|connHandle, perByChan|`{ status, cmdOpcode }`|
+|HCI_EXT_ExtendRfRangeCmd|extendRfRange|none|`{ status, cmdOpcode }`|
+|HCI_EXT_AdvEventNoticeCmd|advEventNotice|taskId, cmd|`{ status, cmdOpcode }`|
+|HCI_EXT_ConnEventNoticeCmd|connEventNotice|taskId, taskEvt|`{ status, cmdOpcode }`|
+|HCI_EXT_HaltDuringRfCmd|haltDuringRf|mode|`{ status, cmdOpcode }`|
+|HCI_EXT_SetSlaveLatencyOverrideCmd|overrideSl|taskId|`{ status, cmdOpcode }`|
+|HCI_EXT_BuildRevisionCmd|buildRevision|mode, userRevNum|`{ status, cmdOpcode, userRevNum, buildRevNum }`|
+|HCI_EXT_DelaySleepCmd|delaySleep|delay|`{ status, cmdOpcode }`|
+|HCI_EXT_ResetSystemCmd|resetSystem|mode|`{ status, cmdOpcode }`|
+|HCI_EXT_OverlappedProcessingCmd|overlappedProcessing|mode|`{ status, cmdOpcode }`|
+|HCI_EXT_NumComplPktsLimitCmd|numCompletedPktsLimit|limit, flushOnEvt|`{ status, cmdOpcode }`|
 
 <a name="tblL2cap"></a>
-#### 2. ccbnp.l2cap APIs
+#### 3.1.2 ccbnp.l2cap APIs
 
-All result format of **l2cap** subsystem is {status, opCode, dataLen, payload, collector}, therefore 'Result' will not be listed in the following table.
+* Result object: `{ status, opCode, dataLen, payload, collector }`
+* **Event(s) Generated** will be collected as key-value pairs with the `collector` property.  
 
-| BLE Vendor-Cmd | cc-bnp Cmd-API | Arguments | Event(s) Generate |
+| BLE Vendor-Cmd | cc-bnp Cmd-API | Arguments | Event(s) Generated |
 | ------------- | ------------- | ------------- | ------------- |
 |L2CAP_ConnParamUpdateReq|paramUpdateReq|L2capParamUpdateRsp|
 
 <a name="tblAtt"></a>
-#### 3. ccbnp.att APIs
+#### 3.1.3 ccbnp.att APIs
 
-All result format of **att** subsystem is {status, opCode, dataLen, payload, collector}, therefore 'Result' will not be listed in the following table.
+* Result object: `{ status, opCode, dataLen, payload, collector }`
+* **Event(s) Generated** will be collected as key-value pairs with the `collector` property.  
 
 | BLE Vendor-Cmd | cc-bnp Cmd-API | Arguments | Event(s) Generate |
 | ------------- | ------------- | ------------- | ------------- |
@@ -639,9 +669,10 @@ All result format of **att** subsystem is {status, opCode, dataLen, payload, col
 |ATT_HandleValueCfm|handleValueCfm|connHandle|none|
 
 <a name="tblGatt"></a>
-#### 4. ccbnp.gatt APIs
+#### 3.1.4 ccbnp.gatt APIs
 
-All result format of **gatt** subsystem is {status, opCode, dataLen, payload, collector}, therefore 'Result' will not be listed in the following table.
+* Result object: `{ status, opCode, dataLen, payload, collector }`
+* **Event(s) Generated** will be collected as key-value pairs with the `collector` property.  
 
 | BLE Vendor-Cmd | cc-bnp Cmd-API | Arguments | Event(s) Generate |
 | ------------- | ------------- | ------------- | ------------- |
@@ -672,11 +703,12 @@ All result format of **gatt** subsystem is {status, opCode, dataLen, payload, co
 |GATT_AddAttribute|addAttribute|uuid, permissions|none|
 
 <a name="tblGap"></a>
-#### 5. ccbnp.gap APIs
+#### 3.1.5 ccbnp.gap APIs
 
-All result format of **gap** subsystem is {status, opCode, dataLen, payload, collector}, therefore 'Result' will not be listed in the following table.
+* Result object: `{ status, opCode, dataLen, payload, collector }`
+* **Event(s) Generated** will be collected as key-value pairs with the `collector` property.  
 
-| BLE Vendor-Cmd | cc-bnp Cmd-API | Arguments | Event(s) Generate |
+| BLE Vendor-Cmd | cc-bnp Cmd-API | Arguments | Event(s) Generated |
 | ------------- | ------------- | ------------- | ------------- |
 |GAP_DeviceInit|deviceInit|profileRole, maxScanResponses, irk, csrk, signCounter|GapDeviceInitDone|
 |GAP_ConfigDeviceAddr|configDeviceAddr|bitMask, addr|GapRandomAddrChanged|
@@ -704,9 +736,10 @@ All result format of **gap** subsystem is {status, opCode, dataLen, payload, col
 |GAP_BondGetParam|bondGetParam|paramID|none|
 
 <a name="tblUtil"></a>
-#### 6. ccbnp.util APIs
+#### 3.1.6 ccbnp.util APIs
 
-All result format of **util** subsystem is {status, opCode, dataLen, payload, collector}, therefore 'Result' will not be listed in the following table.
+* Result object: `{ status, opCode, dataLen, payload, collector }`
+* **Event(s) Generated** will be collected as key-value pairs with the `collector` property.  
 
 | BLE Vendor-Cmd | cc-bnp Cmd-API | Arguments | Event(s) Generate |
 | ------------- | ------------- | ------------- | ------------- |
@@ -715,46 +748,47 @@ All result format of **util** subsystem is {status, opCode, dataLen, payload, co
 |UTIL_ForceBoot|forceBoot|none|none|
 
 <a name="tblEvt"></a>
-#### Vendor-Specific HCI Events
+#### 3.1.7 Vendor-Specific HCI Events
 
-| Subsystem |       BLE Vendor-Evt       |         cc-bnp Evt        |                                                                                                             Arguments                                                                                                             |
+| Subsystem |       BLE Vendor-Evt       |         cc-bnp Evt        |                                                                                                             Data Object                                                                                                       |
 |-----------|:--------------------------:|:-------------------------:|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-| l2cap     | L2CAP_ConnParamUpdateRsp   | L2capParamUpdateRsp       | status, connHandle, reason                                                                                                                                                                                                        |
-| att       | ATT_ExchangeMtuRsp         | AttExchangeMtuRsp         | status, connHandle, pduLen, serverRxMTU                                                                                                                                                                                           |
-|           | ATT_FindInfoRsp            | AttFindInfoRsp            | status, connHandle, pduLen, format, info                                                                                                                                                                                          |
-|           | ATT_FindByTypeValueRsp     | AttFindByTypeValueRsp     | status, connHandle, pduLen, handlesInfo                                                                                                                                                                                           |
-|           | ATT_ReadByTypeRsp          | AttReadByTypeRsp          | status, connHandle, pduLen, length, data                                                                                                                                                                                          |
-|           | ATT_ReadRsp                | AttReadRsp                | status, connHandle, pduLen, value                                                                                                                                                                                                 |
-|           | ATT_ReadBlobRsp            | AttReadBlobRsp            | status, connHandle, pduLen, value                                                                                                                                                                                                 |
-|           | ATT_ReadMultiRsp           | AttReadMultiRsp           | status, connHandle, pduLen, value                                                                                                                                                                                                 |
-|           | ATT_ReadByGrpTypeRsp       | AttReadByGrpTypeRsp       | status, connHandle, pduLen, length, data                                                                                                                                                                                          |
-|           | ATT_WriteRsp               | AttWriteRsp               | status, connHandle, pduLen                                                                                                                                                                                                        |
-|           | ATT_PrepareWriteRsp        | AttPrepareWriteRsp        | status, connHandle, pduLen, handle, offset, value                                                                                                                                                                                 |
-|           | ATT_ExecuteWriteRsp        | AttExecuteWriteRsp        | status, connHandle, pduLen                                                                                                                                                                                                        |
-|           | ATT_HandleValueCfm         | AttHandleValueCfm         | status, connHandle, pduLen                                                                                                                                                                                                        |
-| gap       | GAP_DeviceInitDone         | GapDeviceInitDone         | status, devAddr, dataPktLen, numDataPkts, IRK, CSRK                                                                                                                                                                               |
-|           | GAP_DeviceDiscovery        | GapDeviceDiscovery        | status, numDevs, devs                                                                                                                                                                                                                                  |
-|           | GAP_AdvertDataUpdateDone   | GapAdvDataUpdateDone      | status, adType                                                                                                                                                                                                                    |
-|           | GAP_MakeDiscoverableDone   | GapMakeDiscoverableDone   | status, interval                                                                                                                                                                                                                  |
-|           | GAP_EndDiscoverableDone    | GapEndDiscoverableDone    | status                                                                                                                                                                                                                            |
-|           | GAP_LinkEstablished        | GapLinkEstablished        | status, addrType, addr, connHandle, connInterval, connLatency, connTimeout, clockAccuracy                                                                                                                                         |
-|           | GAP_LinkTerminated         | GapLinkTerminated         | status, connHandle, reason                                                                                                                                                                                                        |
-|           | GAP_LinkParamUpdate        | GapLinkParamUpdate        | status, connHandle, connInterval, connLatency, connTimeout                                                                                                                                                                        |
-|           | GAP_RandomAddrChanged      | GapRandomAddrChanged      | status, addrType, newRandomAddr                                                                                                                                                                                                   |
-|           | GAP_AuthenticationComplete | GapAuthenticationComplete | status, connHandle, authState, secInfo, sec_ltkSize, sec_ltk, sec_div, sec_rand, devSecInfo, dev_ltkSize, dev_ltk, dev_div, dev_rand, identityInfo, identity_irk, identity_bd_addr, signingInfo, signing_irk, signing_signCounter |
-|           | GAP_DeviceInformation      | GapDeviceInfo             | status, eventType, addrType, addr, rssi, dataLen, dataField                                                                                                                                                                       |
-|           | GAP_BondComplete           | GapBondComplete           | status, connHandle                                                                                                                                                                                                                |
+| l2cap     | L2CAP_ConnParamUpdateRsp   | L2capParamUpdateRsp       | `{ status, connHandle, reason }`                                                                                                                                                                                                        |
+| att       | ATT_ExchangeMtuRsp         | AttExchangeMtuRsp         | `{ status, connHandle, pduLen, serverRxMTU }`                                                                                                                                                                                           |
+|           | ATT_FindInfoRsp            | AttFindInfoRsp            | `{ status, connHandle, pduLen, format, info }`                                                                                                                                                                                         |
+|           | ATT_FindByTypeValueRsp     | AttFindByTypeValueRsp     | `{ status, connHandle, pduLen, handlesInfo }`                                                                                                                                                                                           |
+|           | ATT_ReadByTypeRsp          | AttReadByTypeRsp          | `{ status, connHandle, pduLen, length, data }`                                                                                                                                                                                          |
+|           | ATT_ReadRsp                | AttReadRsp                | `{ status, connHandle, pduLen, value }`                                                                                                                                                                                                 |
+|           | ATT_ReadBlobRsp            | AttReadBlobRsp            | `{ status, connHandle, pduLen, value }`                                                                                                                                                                                                 |
+|           | ATT_ReadMultiRsp           | AttReadMultiRsp           | `{ status, connHandle, pduLen, value }`                                                                                                                                                                                                 |
+|           | ATT_ReadByGrpTypeRsp       | AttReadByGrpTypeRsp       | `{ status, connHandle, pduLen, length, data }`                                                                                                                                                                                          |
+|           | ATT_WriteRsp               | AttWriteRsp               | `{ status, connHandle, pduLen }`                                                                                                                                                                                                        |
+|           | ATT_PrepareWriteRsp        | AttPrepareWriteRsp        | `{ status, connHandle, pduLen, handle, offset, value }`                                                                                                                                                                                 |
+|           | ATT_ExecuteWriteRsp        | AttExecuteWriteRsp        | `{ status, connHandle, pduLen }`                                                                                                                                                                                                        |
+|           | ATT_HandleValueCfm         | AttHandleValueCfm         | `{ status, connHandle, pduLen }`                                                                                                                                                                                                        |
+| gap       | GAP_DeviceInitDone         | GapDeviceInitDone         | `{ status, devAddr, dataPktLen, numDataPkts, IRK, CSRK }`                                                                                                                                                                               |
+|           | GAP_DeviceDiscovery        | GapDeviceDiscovery        | `{ status, numDevs, devs }`                                                                                                                                                                                                                                  |
+|           | GAP_AdvertDataUpdateDone   | GapAdvDataUpdateDone      | `{ status, adType }`                                                                                                                                                                                                                    |
+|           | GAP_MakeDiscoverableDone   | GapMakeDiscoverableDone   | `{ status, interval }`                                                                                                                                                                                                                  |
+|           | GAP_EndDiscoverableDone    | GapEndDiscoverableDone    | `{ status }`                                                                                                                                                                                                                            |
+|           | GAP_LinkEstablished        | GapLinkEstablished        | `{ status, addrType, addr, connHandle, connInterval, connLatency, connTimeout, clockAccuracy }`                                                                                                                                         |
+|           | GAP_LinkTerminated         | GapLinkTerminated         | `{ status, connHandle, reason }`                                                                                                                                                                                                        |
+|           | GAP_LinkParamUpdate        | GapLinkParamUpdate        | `{ status, connHandle, connInterval, connLatency, connTimeout }`                                                                                                                                                                        |
+|           | GAP_RandomAddrChanged      | GapRandomAddrChanged      | `{ status, addrType, newRandomAddr }`                                                                                                                                                                                                   |
+|           | GAP_AuthenticationComplete | GapAuthenticationComplete | `{ status, connHandle, authState, secInfo, sec_ltkSize, sec_ltk, sec_div, sec_rand, devSecInfo, dev_ltkSize, dev_ltk, dev_div, dev_rand, identityInfo, identity_irk, identity_bd_addr, signingInfo, signing_irk, signing_signCounter }` |
+|           | GAP_DeviceInformation      | GapDeviceInfo             | `{ status, eventType, addrType, addr, rssi, dataLen, dataField }`                                                                                                                                                                       |
+|           | GAP_BondComplete           | GapBondComplete           | `{ status, connHandle }`                                                                                                                                                                                                                |
 
 <br />
 
 <a name="gattSpec"></a>
-## G​ATT Specifications 
+### 3.2 G​ATT Specifications 
 
-GATT & ATT Read/Write Cmd-API will parse the attribute value according to its data type specified in SIG-defined GATT [Characteristic](https://developer.bluetooth.org/gatt/characteristics/Pages/CharacteristicsHome.aspx).
+**cc-bnp** will automatically parse the attributes within a [SIG-defined GATT Characteristic](https://developer.bluetooth.org/gatt/characteristics/Pages/CharacteristicsHome.aspx).  
 
-* 'UUID' is a 16-bit number defined by SIG which is used to represent a attribute.
-* 'Field Name' is the field name of attribute value.
-* 'Format types' determine how a single value contained in the Characteristic Value is formatted.
+A Characteristic is defined by
+* 'UUID':  a 16-bit number defined by SIG to represent a attribute.
+* 'Field Name':  attribute name.
+* 'Format types':  determine how a single value contained in the Characteristic Value is formatted.
 
 **Note**: 
 
@@ -762,11 +796,13 @@ GATT & ATT Read/Write Cmd-API will parse the attribute value according to its da
 2. Characteristic value of UUID `'0x2a2a'`, `'0x2a55'`, `'0x2a5a'`, `'0x2a63'`, `'0x2a64'`, `'0x2a66'`, `'0x2a6b'`, `'0x2a9f'`, `'0x2aa4'`, `'0x2aa7'`, `'0x2aa9'`, `'0x2aaa'`, `'0x2aab'`, `'0x2aac'`, `'0x2abc'` not support to be built and parsed in cc-bnp.
 
 *************************************************
-#### 1. Declarations
+#### 3.2.1 Declarations
 
-Declarations are defined GATT profile attribute types.
+* A [**Declaration**](https://developer.bluetooth.org/gatt/declarations/Pages/DeclarationsHome.aspx) is an attribute to indicate the type of a GATT profile attribute. There are four types of GATT profile attribute, they are **Primary Service**(0x2800), **Secondary Service**(0x2801), **Include**(0x2802), and **Characteristic**(0x2803).  
 
-| UUID | Field Name | Format types | 
+* In **cc-bnp**, a **Declaration** attribute will be parsed into an object with **Field Names**(keys) listed in the following table.  
+
+| UUID | Field Names | Format types | 
 |  -------------  |  -------------  |  -------------  | 
 | 0x2800 | uuid | uuid | 
 | 0x2801 | uuid | uuid | 
@@ -774,24 +810,24 @@ Declarations are defined GATT profile attribute types.
 | 0x2803 | properties, handle, uuid | uint8, uint16, uuid | 
 
 *************************************************
-#### 2. Descriptors
+#### 3.2.2 Descriptors
 
-Descriptors are defined attributes that describe a characteristic value.
+* A **Descriptor** is an attribute that describes a Characteristic Value.  
 
-If a descriptor contains 'condition' field, other fields of this descriptor will exist depends on the value of 'condition' field. 
+* In **cc-bnp**, a **Descriptor** attribute will be parsed into an object with **Field Names**(keys) listed in the following table.  
+    - [TBD]
+    - If a Descriptor contains `'condition'` field, it will  the existence of other fields depends on the value of 'condition' field.  
+    - For example, analogInterval(`5,6`) indicates that this field `analogInterval` will exist only if `condition` equals to the value of 'condition' field.  
+    - For example, UUID 0x290a has three field names, analog, bitMask, and analogInterval. Since the value of 'condition' field is equal to `field condition values` of analogInterval field, therefore only analogInterval field presence.
 
-In the table below, `field condition values` inside the parentheses behind the field name (e.g., analogInterval(`5,6`)), `field condition values` representing the field, field will exist only if `field condition values` equals to the value of 'condition' field.
+    ```JavaScript
+    {   //Instance object of UUID 0x290a
+        condition: 5,
+        analogInterval: 3000    // analogInterval(5,6)
+    }
+    ```
 
-For example, UUID 0x290a has three field names, analog, bitMask, and analogInterval. Since the value of 'condition' field is equal to `field condition values` of analogInterval field, therefore only analogInterval field presence.
-
-```JavaScript
-{   //Instance object of UUID 0x290a
-    condition: 5,
-    analogInterval: 3000    // analogInterval(5,6)
-}
-```
-
-| UUID | Field Name | Format types | 
+| UUID | Field Names | Format types | 
 | ------------- | ------------- | ------------- | 
 | 0x2900 | properties | uint16 | 
 | 0x2901 | userDescription | string | 
@@ -808,9 +844,9 @@ For example, UUID 0x290a has three field names, analog, bitMask, and analogInter
 | 0x290e | condition, none(`0`), timeInterval(`1,2`), count(`3`) | uint8, uint8, uint24, uint16 | 
 
 *************************************************
-#### 3. Characteristics
+#### 3.2.3 Characteristics
 
-Characteristics are defined attribute types that contain a single logical value.
+A [Characteristic](https://developer.bluetooth.org/gatt/characteristics/Pages/CharacteristicsHome.aspx) are defined attribute types that contain a single logical value.  
 
 If a characteristic contains the 'flags' field, a corresponding field name will be determined by the `field condition bits`.
 
@@ -1008,17 +1044,18 @@ Format 'obj' meaning field may be repeated.
 <br />
 
 <a name="errCodes"></a>
-##Error Message
+### 3.3 Error Message
 
-The error returned from BNP will pass to the callback as an error object with a message formatted in
+The error returned from BNP will pass to the callback as an error object. The error message is a string formatted as  
 
 ```sh
     HciError(10): Synch conn limit exceeded
 ```
 
-, where 'HciError' denotes the type of error and the number 10 within the parentheses is the corresponding error code.
+, where 'HciError' denotes the type of error and number 10 is the corresponding error code.  
 
-#### 1. HciError
+#### 3.3.1 HciError
+  
 |Error code|Description|
 | ------------- | ------------- |
 |   1 | Unknown hci cmd |
@@ -1086,7 +1123,8 @@ The error returned from BNP will pass to the callback as an error object with a 
 |  63 | Mac conn failed |
 
 *************************************************
-#### 2. AttError
+#### 3.3.2 AttError
+  
 |Error code|Description|
 | ------------- | ------------- |
 |  1 | The attribute handle given was not valid on this server |
@@ -1109,7 +1147,8 @@ The error returned from BNP will pass to the callback as an error object with a 
 |128 | The attribute value is invalid for the operation |
 
 *************************************************
-#### 3. GenericError
+#### 3.3.3 GenericError
+  
 |Error code|Description|
 | ------------- | ------------- |
 |  1 | Failure |
@@ -1143,11 +1182,13 @@ The error returned from BNP will pass to the callback as an error object with a 
 | 66 | Ble Insufficient Encrypt |
 | 67 | Ble Insufficient KeySize |
 
+*************************************************
+
 <br />
 
 <a name="reasonCodes"></a>
-## Reason Code of Link-termination
-
+### 3.4 Reason Code of Link-termination
+  
 |Value|Description|
 | ------------- | ------------- |
 |   8 | Supervisor Timeout |
@@ -1161,8 +1202,8 @@ The error returned from BNP will pass to the callback as an error object with a 
 <br />
 
 <a name="Contributors"></a>
-## Contributors
-
+### 3.5 Contributors
+  
 * [Hedy Wang](https://www.npmjs.com/~hedywings)  
 * [Peter Yi](https://www.npmjs.com/~petereb9)
 * [Simen Li](https://www.npmjs.com/~simenkid)
@@ -1170,8 +1211,8 @@ The error returned from BNP will pass to the callback as an error object with a 
 <br />
 
 <a name="License"></a>
-## License
-
+### 3.6 License
+  
 The MIT License (MIT)
 
 Copyright (c) 2015 
