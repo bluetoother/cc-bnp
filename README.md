@@ -19,14 +19,6 @@ cc-bnp
 
 3. [Appendix](#Appendix)  
     3.1 [Vendor-Specific HCI Command Reference Tables](#cmdTables)  
-        3.1.1 [ccbnp.hci](#ccbnpHci)  
-        3.1.2 [ccbnp.l2cap](#ccbnpL2cap)  
-        3.1.3 [ccbnp.att](#ccbnpAtt)  
-        3.1.4 [ccbnp.gatt](#ccbnpGatt)  
-        3.1.5 [ccbnp.gap](#ccbnpGap)  
-        3.1.6 [ccbnp.util](#ccbnpUtil)  
-        3.1.7 [Vendor-specific HCI events](#tblEvt)  
-
     3.2 [G​ATT Specifications](#gattSpec)  
     3.3 [Error Message](#errCodes)  
     3.4 [Reason Code of Link-termination](#reasonCodes)  
