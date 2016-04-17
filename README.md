@@ -73,6 +73,8 @@ To begin with **cc-bnp**, you must firstly set up the serial port and initialize
 
 Here are some [examples](https://github.com/hedywings/cc-bnp/blob/master/examples/ble_connect.js).
 
+*************************************************
+
 <br />
 
 <a name="APIs"></a>
@@ -80,6 +82,7 @@ Here are some [examples](https://github.com/hedywings/cc-bnp/blob/master/example
 
 Each Command API in **cc-bnp** supports both err-back callback style and promise-style.
 
+*************************************************
 <a name="basicAPIs"></a>
 ### 2.1 Basic APIs
 
@@ -159,7 +162,6 @@ ccbnp.init(cfg, role).then(function (result) {
 ```
 
 *************************************************
-
 <a name="close"></a>
 ### .close([callback])
 Close the opened serial port.  
@@ -189,8 +191,7 @@ Register a characteristic UUID and its value format.
 
 If a characteristic UUID is defined by [GATT Specifications](#gattSpec), **cc-bnp** will automatically parse it. If you have a private characteristic (defined by yourself, not by [SIG](https://developer.bluetooth.org/gatt/characteristics/Pages/CharacteristicsHome.aspx)), please use this method to register your characteristic to **cc-bnp**. This will tell **cc-bnp** how to parse private characteristics from the received messages.  
 
-**[WARNING]**:  
-This method can overwrite a public UUID definition ([GATT Specifications](#gattSpec)). It is better to choose a private UUID different from public-defined ones.  
+**[WARNING]**: This method can overwrite a public UUID definition ([GATT Specifications](#gattSpec)). It is better to choose a private UUID different from public-defined ones.  
 
 **Arguments**
 
@@ -430,6 +431,8 @@ When there is a incoming *BLE indication* message, **cc-bnp** fires an `'ind'` e
         }    
         ```
 
+*************************************************
+
 <br />
 
 <a name="vendorHci"></a>
@@ -459,48 +462,50 @@ For example:
 Here is an example of calling **_deviceDiscReq()_** in subgroup **_gap_**:
 
 ```javascript
-    // Please see Section 12.3 in TI BLE Vendor Specific HCI Reference Guide for API details.
-    // arguments: (mode, activeScan, whiteList, callback)
+// Please see Section 12.3 in TI BLE Vendor Specific HCI Reference Guide for API details.
+// arguments: (mode, activeScan, whiteList, callback)
 
-    ccbnp.gap.deviceDiscReq(3, 1, 0, function (err, result) {
-        if (err)
-            console.log(err);
-        else
-            console.log(result);
-    };
+ccbnp.gap.deviceDiscReq(3, 1, 0, function (err, result) {
+    if (err)
+        console.log(err);
+    else
+        console.log(result);
+};
 ```
 
 Here is another example of calling **_writeCharValue()_** in subgroup **_gatt_**:
 
 ```javascript
-    // Please see Section 18.14 in TI BLE Vendor Specific HCI Reference Guide for API details.
-    // arguments: (connHandle, handle, value, [uuid], callback)
+// Please see Section 18.14 in TI BLE Vendor Specific HCI Reference Guide for API details.
+// arguments: (connHandle, handle, value, [uuid], callback)
 
-    var valObj = {   // value object for this command
-        flags: 15,   // bit0 = 1, bit1 = 1, bit2 = 1, bit3 = 1
-        sequenceNum: 1, 
-        year: 2015, 
-        month: 12, 
-        day: 22, 
-        hours: 18, 
-        minutes: 37, 
-        seconds: 41,
-        timeOffset: 0,
-        glucoseMol: 0.0068,
-        type: 1,
-        sampleLocation: 1, 
-        sensorStatus: 0
-    };
+var valObj = {   // value object for this command
+    flags: 15,   // bit0 = 1, bit1 = 1, bit2 = 1, bit3 = 1
+    sequenceNum: 1, 
+    year: 2015, 
+    month: 12, 
+    day: 22, 
+    hours: 18, 
+    minutes: 37, 
+    seconds: 41,
+    timeOffset: 0,
+    glucoseMol: 0.0068,
+    type: 1,
+    sampleLocation: 1, 
+    sensorStatus: 0
+};
 
-    // If _uuid_ is not given, ccbnp will send the request to 'uuid' automatically.  TBD
-    ccbnp.gatt.writeCharValue(0, 37, valObj, '0x2a18', function (err, result) {
-        if (err)
-            console.log(err);
-        else
-            console.log(result);
-    });
+// If _uuid_ is not given, ccbnp will send the request to 'uuid' automatically.  [TBD, cannot understand]
+ccbnp.gatt.writeCharValue(0, 37, valObj, '0x2a18', function (err, result) {
+    if (err)
+        console.log(err);
+    else
+        console.log(result);
+});
 ```
 The 'uuid' of a public characteristic value can be found in [GATT Specifications ](#gattSpec). If you are using a private characteristic, please use [.regChar()](#regChar) to register your uuid first.  
+
+*************************************************
 
 <br />
 
@@ -582,6 +587,7 @@ Let's take `ccbnp.gap.deviceDiscReq()` as an example. Here, I only take out some
     }
     ```
 
+*************************************************
 <a name="tblHci"></a>
 #### 3.1.1 ccbnp.hci APIs
 
@@ -624,6 +630,7 @@ Let's take `ccbnp.gap.deviceDiscReq()` as an example. Here, I only take out some
 |HCI_EXT_OverlappedProcessingCmd|overlappedProcessing|mode|`{ status, cmdOpcode }`|
 |HCI_EXT_NumComplPktsLimitCmd|numCompletedPktsLimit|limit, flushOnEvt|`{ status, cmdOpcode }`|
 
+*************************************************
 <a name="tblL2cap"></a>
 #### 3.1.2 ccbnp.l2cap APIs
 
@@ -632,8 +639,9 @@ Let's take `ccbnp.gap.deviceDiscReq()` as an example. Here, I only take out some
 
 | BLE Vendor-Cmd | Cmd-API | Arguments | Generated Event(s) |
 | ------------- | ------------- | ------------- | ------------- |
-|L2CAP_ConnParamUpdateReq|paramUpdateReq| `{ L2capParamUpdateRsp }`|
+|L2CAP_ConnParamUpdateReq|paramUpdateReq| - [TBD, no arg?] |`{ L2capParamUpdateRsp }`|
 
+*************************************************
 <a name="tblAtt"></a>
 #### 3.1.3 ccbnp.att APIs
 
@@ -669,6 +677,7 @@ Let's take `ccbnp.gap.deviceDiscReq()` as an example. Here, I only take out some
 |ATT_HandleValueInd|handleValueInd|connHandle, authenticated, handle, value, [uuid]|`{ AttHandleValueCfm }`|
 |ATT_HandleValueCfm|handleValueCfm|connHandle|none|
 
+*************************************************
 <a name="tblGatt"></a>
 #### 3.1.4 ccbnp.gatt APIs
 
@@ -703,6 +712,7 @@ Let's take `ccbnp.gap.deviceDiscReq()` as an example. Here, I only take out some
 |GATT_DelService|delService|handle|none|
 |GATT_AddAttribute|addAttribute|uuid, permissions|none|
 
+*************************************************
 <a name="tblGap"></a>
 #### 3.1.5 ccbnp.gap APIs
 
@@ -736,6 +746,7 @@ Let's take `ccbnp.gap.deviceDiscReq()` as an example. Here, I only take out some
 |GAP_BondSetParam|bondSetParam|paramID, paramDataLan, paramData|none|
 |GAP_BondGetParam|bondGetParam|paramID|none|
 
+*************************************************
 <a name="tblUtil"></a>
 #### 3.1.6 ccbnp.util APIs
 
@@ -748,6 +759,7 @@ Let's take `ccbnp.gap.deviceDiscReq()` as an example. Here, I only take out some
 |UTIL_NVWrite|nvWrite|nvID, nvDataLen, nvData|none|
 |UTIL_ForceBoot|forceBoot|none|none|
 
+*************************************************
 <a name="tblEvt"></a>
 #### 3.1.7 Vendor-Specific HCI Events (Generated Event Types)
 
@@ -779,31 +791,23 @@ Let's take `ccbnp.gap.deviceDiscReq()` as an example. Here, I only take out some
 |           | GAP_DeviceInformation      | GapDeviceInfo             | `{ status, eventType, addrType, addr, rssi, dataLen, dataField }`                                                                                                                                                                       |
 |           | GAP_BondComplete           | GapBondComplete           | `{ status, connHandle }`                                                                                                                                                                                                                |
 
+*************************************************
 <br />
 
 <a name="gattSpec"></a>
 ### 3.2 G​ATT Specifications 
 
-**cc-bnp** will automatically parse the attributes within a [SIG-defined GATT Characteristic](https://developer.bluetooth.org/gatt/characteristics/Pages/CharacteristicsHome.aspx).  
+In BLE, an attributes is the smallest data entity defined by GATT. Attributes are used to describe the hierarchical data organization, such as **Service** and **Characteristic**, and pieces of the user data. A Service conceptually groups all the related Characteristics togather, and each **Characteristic** always contain at least two attibutes: _Characteristic Declaration_ and _Characteristic Value_.  
 
-A Characteristic is defined by
-* 'UUID':  a 16-bit number defined by SIG to represent a attribute.
-* 'Field Name':  attribute name.
-* 'Format types':  determine how a single value contained in the Characteristic Value is formatted.
-
-**Note**: 
-
-1. Characteristic value of command `'ATT_ReadBlobReq'`, `'ATT_ReadBlobRsp'`, `'ATT_PrepareWriteReq'`, `'ATT_PrepareWriteRsp'`, `'GATT_ReadLongCharValue'`,  `'GATT_WriteLongCharValue'`, `'GATT_ReliableWrites'` not support to be built and parsed in cc-bnp.
-2. Characteristic value of UUID `'0x2a2a'`, `'0x2a55'`, `'0x2a5a'`, `'0x2a63'`, `'0x2a64'`, `'0x2a66'`, `'0x2a6b'`, `'0x2a9f'`, `'0x2aa4'`, `'0x2aa7'`, `'0x2aa9'`, `'0x2aaa'`, `'0x2aab'`, `'0x2aac'`, `'0x2abc'` not support to be built and parsed in cc-bnp.
+**cc-bnp** will automatically parse the attributes if they are publicly SIG-defined ones.  
 
 *************************************************
 #### 3.2.1 Declarations
 
-* A [**Declaration**](https://developer.bluetooth.org/gatt/declarations/Pages/DeclarationsHome.aspx) is an attribute to indicate the type of a GATT profile attribute. There are four types of GATT profile attribute, they are **Primary Service**(0x2800), **Secondary Service**(0x2801), **Include**(0x2802), and **Characteristic**(0x2803).  
+* A [**Declaration**](https://developer.bluetooth.org/gatt/declarations/Pages/DeclarationsHome.aspx) is an attribute to indicate the type of a GATT profile attribute. There are four types of GATT profile attribute defined by SIG, they are **Primary Service**(0x2800), **Secondary Service**(0x2801), **Include**(0x2802), and **Characteristic**(0x2803).  
+* In **cc-bnp**, a **Declaration** attribute will be parsed into an object with **Field Names**(keys) listed in the following table and **Field types** tells each data type of the corresponding filed.  
 
-* In **cc-bnp**, a **Declaration** attribute will be parsed into an object with **Field Names**(keys) listed in the following table.  
-
-| UUID | Field Names | Format types | 
+| UUID | Field Names | Field types | 
 |  -------------  |  -------------  |  -------------  | 
 | 0x2800 | uuid | uuid | 
 | 0x2801 | uuid | uuid | 
@@ -814,21 +818,9 @@ A Characteristic is defined by
 #### 3.2.2 Descriptors
 
 * A **Descriptor** is an attribute that describes a Characteristic Value.  
+* In **cc-bnp**, a **Descriptor** will be parsed into an object with **Field Names**(keys) listed in the following table.  
 
-* In **cc-bnp**, a **Descriptor** attribute will be parsed into an object with **Field Names**(keys) listed in the following table.  
-    - [TBD]
-    - If a Descriptor contains `'condition'` field, it will  the existence of other fields depends on the value of 'condition' field.  
-    - For example, analogInterval(`5,6`) indicates that this field `analogInterval` will exist only if `condition` equals to the value of 'condition' field.  
-    - For example, UUID 0x290a has three field names, analog, bitMask, and analogInterval. Since the value of 'condition' field is equal to `field condition values` of analogInterval field, therefore only analogInterval field presence.
-
-    ```JavaScript
-    {   //Instance object of UUID 0x290a
-        condition: 5,
-        analogInterval: 3000    // analogInterval(5,6)
-    }
-    ```
-
-| UUID | Field Names | Format types | 
+| UUID | Field Names | Field types | 
 | ------------- | ------------- | ------------- | 
 | 0x2900 | properties | uint16 | 
 | 0x2901 | userDescription | string | 
@@ -839,43 +831,56 @@ A Characteristic is defined by
 | 0x2907 | extReportRef | uuid | 
 | 0x2908 | reportID, reportType | uint8, uint8 | 
 | 0x2909 | noOfDigitals | uint8 | 
-| 0x290a | condition, analog(`1,2,3`), bitMask(`4`), analogInterval(`5,6`) | uint8, uint16, uint8, uint32 | 
+| 0x290a | **condition**, analog(`1,2,3`), bitMask(`4`), analogInterval(`5,6`) | uint8, uint16, uint8, uint32 | 
 | 0x290b | triggerLogic | uint8 | 
 | 0x290c | flags, samplFunc, measurePeriod, updateInterval, application, measureUncertainty | uint16, uint8, uint24, uint24, uint8, uint8 | 
-| 0x290e | condition, none(`0`), timeInterval(`1,2`), count(`3`) | uint8, uint8, uint24, uint16 | 
+| 0x290e | **condition**, none(`0`), timeInterval(`1,2`), count(`3`) | uint8, uint8, uint24, uint16 | 
+
+* Note about the **'condition'** field
+    - The `'condition'` field is used to pick what fields to be parsed into the result object.  
+    - For example, analogInterval(`5,6`) indicates that the result object will have `analogInterval` field if `condition` equals to 5 or 6.  
+    - Here is an example of the result object. (The Descriptor with UUID 0x290a **may** have fields: `analog`, `bitMask`, and `analogInterval`, and which one will be picked depends on the value of `condition`)  
+
+    ```JavaScript
+    {   // Result object of Descriptor with UUID 0x290a
+        condition: 5,
+        analogInterval: 3000    // analogInterval(5,6)
+    }
+    ```
 
 *************************************************
-#### 3.2.3 Characteristics
+#### 3.2.3 Characteristics [TBD]
 
-A [Characteristic](https://developer.bluetooth.org/gatt/characteristics/Pages/CharacteristicsHome.aspx) are defined attribute types that contain a single logical value.  
+* A [Characteristic](https://developer.bluetooth.org/gatt/characteristics/Pages/CharacteristicsHome.aspx) is container of the user data. It is defined by
+    * **UUID**: a 16-bit number defined by SIG to represent a attribute
+    * **Value**: actual value of the user data which is a piece of bytes
 
-If a characteristic contains the 'flags' field, a corresponding field name will be determined by the `field condition bits`.
+* **Value** is a logical value and cc-bnp will further parse it into an object according to particular rules. The following table gives the fields and their data types of a parsed object.  
+* The 'flags' field tells how to parse the **Value**, and the rule is given with something like tempF(`bit0`) and tempC(`!bit0`).  
+    - tempF(`bit0`) means that if bit0 of 'flags' is 1, the field `tempF` will be picked and parsed.  
+    - tempC(`!bit0`) means that if bit0 of 'flags' is 0, the field `tempC` will be picked and parsed.  
+    - medicationL(`bit4 & bit5`) means that if bit4 and bit4 of 'flags' are both 1, the field `medicationL` will be picked and parsed.  
+    - Here is an example of the parsed result object of a Characteristic with UUID 0x2a1c
 
-In the table below, there are `field condition bits` inside the parentheses behind the field name (e.g., tempC(`!bit0`); tempF(`bit0`)). 
-
-- fieldNameA(`bit0`) means if bit0 of 'flags' field value equals to 1, the field will be parsed. 
-- fieldNameB(`!bit0`) means if bit0 of 'flags' field value equals to 0, the field will be parsed. 
-- fieldNameC(`bit1 & bit2`) means if bit1 and bit2 of 'flags' fields value both equals to 1, the fields will be parsed. 
-
-For example, a UUID 0x2a1c Characteristics's 'flags' is 2. We put it into 8 bit binary to observe, it bit0 is 0, bit1 is 1 and bit2 is 0. So the fields 'tempC',  'year', 'month', 'day', 'hours', 'minutes' and 'seconds' will be parsed.
-
-```JavaScript
-{   //instance object of UUID 0x2a1c 
-    flags: 2,       // bit0 = 0, bit1 = 1, bit2 = 0
-    tempC: 21.5,    // tempC(!bit0)
-    year: 2015,     // year(bit1)
-    month: 12,      // month(bit1)
-    day: 25,        // day(bit1)
-    hours: 21,      // hours(bit1)
-    minutes: 36,    // minutes(bit1) 
-    seconds: 12     // seconds(bit1) 
-}
+        ```JavaScript
+        {   // Result object of UUID 0x2a1c 
+            flags: 2,       // bit0 = 0, bit1 = 1, bit2 = 0
+            tempC: 21.5,    // tempC(!bit0)
+            year: 2015,     // year(bit1)
+            month: 12,      // month(bit1)
+            day: 25,        // day(bit1)
+            hours: 21,      // hours(bit1)
+            minutes: 36,    // minutes(bit1) 
+            seconds: 12     // seconds(bit1) 
+        }
 ```
 
-Format 'obj' meaning field may be repeated.
+**Note**: 
+
+* [TBD, why named 'obj', its weird] Format 'obj' meaning field may be repeated.  
 
 ```JavaScript
-{   //Instance object of UUID 0x2a22
+{   // Result object of UUID 0x2a22
     bootKeyboardInputReport: {
         value0: 1,
         value1: 2,
@@ -884,7 +889,10 @@ Format 'obj' meaning field may be repeated.
 }
 ```
 
-| UUID | Field Name | Format types |
+* Characteristic Value of commands, `'ATT_ReadBlobReq'`, `'ATT_ReadBlobRsp'`, `'ATT_PrepareWriteReq'`, `'ATT_PrepareWriteRsp'`, `'GATT_ReadLongCharValue'`,  `'GATT_WriteLongCharValue'`, and `'GATT_ReliableWrites'`, will not be parsed in cc-bnp. [TBD, why? give me a reason]  
+* Characteristic Value of UUIDs, `'0x2a2a'`, `'0x2a55'`, `'0x2a5a'`, `'0x2a63'`, `'0x2a64'`, `'0x2a66'`, `'0x2a6b'`, `'0x2a9f'`, `'0x2aa4'`, `'0x2aa7'`, `'0x2aa9'`, `'0x2aaa'`, `'0x2aab'`, `'0x2aac'`, `'0x2abc'`, will not be parsed in cc-bnp. [TBD, why? give me a reason]  
+
+| UUID | Field Names | Filed types |
 |  -------------  |  -------------  |  -------------  | 
 | 0x2a00 | name | string | 
 | 0x2a01 | category | uint16 | 
