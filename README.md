@@ -849,7 +849,7 @@ In BLE, an attributes is the smallest data entity defined by GATT. Attributes ar
     ```
 
 *************************************************
-#### 3.2.3 Characteristics [TBD]
+#### 3.2.3 Characteristics  
 
 * A [Characteristic](https://developer.bluetooth.org/gatt/characteristics/Pages/CharacteristicsHome.aspx) is container of the user data. It is defined by
     * **UUID**: a 16-bit number defined by SIG to represent a attribute
@@ -873,9 +873,11 @@ In BLE, an attributes is the smallest data entity defined by GATT. Attributes ar
             minutes: 36,    // minutes(bit1) 
             seconds: 12     // seconds(bit1) 
         }
-```
+        ```
 
-**Note**: 
+<br />
+
+**Note**:  
 
 * [TBD, why named 'obj', its weird] Format 'obj' meaning field may be repeated.  
 
