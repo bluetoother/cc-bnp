@@ -82,7 +82,8 @@ Here are some [examples](https://github.com/hedywings/cc-bnp/blob/master/example
 
 Each Command API in **cc-bnp** supports both err-back callback style and promise-style.
 
-*************************************************
+<br />
+
 <a name="basicAPIs"></a>
 ### 2.1 Basic APIs
 
@@ -305,7 +306,7 @@ The `'ready'` event is fired when the initializing procedure completes.
 
 - callback(result)
     - `'result'` (*Object*) - Device information with the following properties:
-```javascript
+```sh
 {
     devAddr: '0x78c5e59b5ef8',  // Device public address
     irk: <Buffer 72 74 73 20 3d 20 44 75 70 6c 65 78 3b 0a 0a 2f>,  // 16 bytes IRK
@@ -408,7 +409,7 @@ When there is a incoming *BLE indication* message, **cc-bnp** fires an `'ind'` e
             connHandle: 0,
             mitm: 1,    // 0 or 1 means true or false
             bond: 1,    // 0 or 1 means true or false
-            ltk: <Buffer 23:84:1A:D8:95:C9:ED:6C:B6:4E:47:F4:44:F3:E4:73>,
+            ltk: <Buffer 23 84 1A D8 95 C9 ED 6C B6 4E 47 F4 44 F3 E4 73>,
             div: 0x668b,
             rand: <Buffer 6E 68 CE EE DC D6 E9 99>
         }    
@@ -495,7 +496,7 @@ var valObj = {   // value object for this command
     sensorStatus: 0
 };
 
-// If _uuid_ is not given, ccbnp will send the request to 'uuid' automatically.  [TBD, cannot understand]
+// If _uuid_ is not given, ccnp will automatically send request to ask the uuid corresponds to the characteristic handle.  
 ccbnp.gatt.writeCharValue(0, 37, valObj, '0x2a18', function (err, result) {
     if (err)
         console.log(err);
@@ -639,7 +640,7 @@ Let's take `ccbnp.gap.deviceDiscReq()` as an example. Here, I only take out some
 
 | BLE Vendor-Cmd | Cmd-API | Arguments | Generated Event(s) |
 | ------------- | ------------- | ------------- | ------------- |
-|L2CAP_ConnParamUpdateReq|paramUpdateReq| - [TBD, no arg?] |`{ L2capParamUpdateRsp }`|
+|L2CAP_ConnParamUpdateReq|paramUpdateReq|connHandle, intervalMin, intervalMax, slaveLatency, timeoutMultiplier|`{ L2capParamUpdateRsp }`|
 
 *************************************************
 <a name="tblAtt"></a>
@@ -827,7 +828,7 @@ In BLE, an attributes is the smallest data entity defined by GATT. Attributes ar
 | 0x2902 | properties | uint16 | 
 | 0x2903 | properties | uint16 | 
 | 0x2904 | format, exponent, unit, namespace, description | uint8, int8, uint16, uint8, uint16 | 
-| 0x2905 | listOfHandles | uint16 | 
+| 0x2905 | listOfHandles | list(uint16) | 
 | 0x2907 | extReportRef | uuid | 
 | 0x2908 | reportID, reportType | uint8, uint8 | 
 | 0x2909 | noOfDigitals | uint8 | 
@@ -879,20 +880,16 @@ In BLE, an attributes is the smallest data entity defined by GATT. Attributes ar
 
 **Note**:  
 
-* [TBD, why named 'obj', its weird] Format 'obj' meaning field may be repeated.  
+* Format 'list' meaning field value may be repeated.  
 
 ```JavaScript
 {   // Result object of UUID 0x2a22
-    bootKeyboardInputReport: {
-        value0: 1,
-        value1: 2,
-        value2: 3
-    }
+    bootKeyboardInputReport: [1, 2, 3]
 }
 ```
 
-* Characteristic Value of commands, `'ATT_ReadBlobReq'`, `'ATT_ReadBlobRsp'`, `'ATT_PrepareWriteReq'`, `'ATT_PrepareWriteRsp'`, `'GATT_ReadLongCharValue'`,  `'GATT_WriteLongCharValue'`, and `'GATT_ReliableWrites'`, will not be parsed in cc-bnp. [TBD, why? give me a reason]  
-* Characteristic Value of UUIDs, `'0x2a2a'`, `'0x2a55'`, `'0x2a5a'`, `'0x2a63'`, `'0x2a64'`, `'0x2a66'`, `'0x2a6b'`, `'0x2a9f'`, `'0x2aa4'`, `'0x2aa7'`, `'0x2aa9'`, `'0x2aaa'`, `'0x2aab'`, `'0x2aac'`, `'0x2abc'`, will not be parsed in cc-bnp. [TBD, why? give me a reason]  
+* Characteristic Value of commands, `'ATT_ReadBlobRsp'`, `'ATT_PrepareWriteReq'`, `'ATT_PrepareWriteRsp'`,  `'GATT_WriteLongCharValue'`, and `'GATT_ReliableWrites'`, will not be built and parsed in cc-bnp, since the value of those command may be part of the attribute value, instead of the full.  
+* Characteristic Value of UUIDs, `'0x2a2a'`, `'0x2a55'`, `'0x2a5a'`, `'0x2a63'`, `'0x2a64'`, `'0x2a66'`, `'0x2a6b'`, `'0x2aa4'`, `'0x2aa7'`, `'0x2aa9'`, `'0x2aaa'`, `'0x2aab'`, `'0x2aac'` will not be built and parsed in cc-bnp, since some fields of those characteristic value is variable, optional or unknown and therefore can not be processed automatically.
 
 | UUID | Field Names | Filed types |
 |  -------------  |  -------------  |  -------------  | 
@@ -923,7 +920,7 @@ In BLE, an attributes is the smallest data entity defined by GATT. Attributes ar
 | 0x2a1d | tempTextDesc | uint8 | 
 | 0x2a1e | flags, tempC(`!bit0`), tempF(`bit0`), year(`bit1`), month(`bit1`), day(`bit1`), hours(`bit1`), minutes(`bit1`), seconds(`bit1`), tempType(`bit2`) | uint8, float, float, uint16, uint8, uint8, uint8, uint8, uint8, uint8 | 
 | 0x2a21 | measureInterval | uint16 | 
-| 0x2a22 | bootKeyboardInput | obj | 
+| 0x2a22 | bootKeyboardInput | list(uint8) | 
 | 0x2a23 | manufacturerID, organizationallyUID | addr5, addr3 | 
 | 0x2a24 | modelNum | string | 
 | 0x2a25 | serialNum | string | 
@@ -934,8 +931,8 @@ In BLE, an attributes is the smallest data entity defined by GATT. Attributes ar
 | 0x2a2b | year, month, day, hours, minutes, seconds, dayOfWeek, fractions256, adjustReason | uint16, uint8, uint8, uint8, uint8, uint8, uint8, uint8, uint8 | 
 | 0x2a2c | magneticDeclination | uint16 | 
 | 0x2a31 | scanRefresh | uint8 | 
-| 0x2a32 | bootKeyboardOutput | obj | 
-| 0x2a33 | bootMouseInput | obj | 
+| 0x2a32 | bootKeyboardOutput | list(uint8) | 
+| 0x2a33 | bootMouseInput | list(uint8) | 
 | 0x2a34 | flags, sequenceNum, extendedFlags(`bit7`), carbohydrateID(`bit0`), carbohydrate(`bit0`), meal(`bit1`), tester(`bit1`), health(`bit2`), exerciseDuration(`bit3`), exerciseIntensity(`bit3`), medicationID(`bit4`), medicationKg(`bit4 & !bit5`), medicationL(`bit4 & bit5`), hbA1c(`bit6`) | uint8, uint16, uint8, uint8, sfloat, uint8, nibble, nibble, uint16, uint8, uint8, sfloat, sfloat, sfloat | 
 | 0x2a35 | flags, systolicMmHg(`!bit0`), diastolicMmHg(`!bit0`), arterialPresMmHg(`!bit0`), systolicKpa(`bit0`), diastolicKpa(`bit0`), arterialPresKpa(`bit0`), year(`bit1`), month(`bit1`), day(`bit1`), hours(`bit1`), minutes(`bit1`), seconds(`bit1`), pulseRate(`bit2`), userID(`bit3`), status(`bit4`) | uint8, sfloat, sfloat, sfloat, sfloat, sfloat, sfloat, uint16, uint8, uint8, uint8, uint8, uint8, sfloat, uint8, uint16 | 
 | 0x2a36 | flags, systolicMmHg(`!bit0`), diastolicMmHg(`!bit0`), arterialPresMmHg(`!bit0`), systolicKpa(`bit0`), diastolicKpa(`bit0`), arterialPresKpa(`bit0`), year(`bit1`), month(`bit1`), day(`bit1`), hours(`bit1`), minutes(`bit1`), seconds(`bit1`), pulseRate(`bit2`), userID(`bit3`), status(`bit4`) | uint8, sfloat, sfloat, sfloat, sfloat, sfloat, sfloat, uint16, uint8, uint8, uint8, uint8, uint8, sfloat, uint8, uint16 | 
@@ -954,9 +951,9 @@ In BLE, an attributes is the smallest data entity defined by GATT. Attributes ar
 | 0x2a48 | categoryIDBitMask0, categoryIDBitMask1 | uint8, uint8 | 
 | 0x2a49 | feature | uint16 | 
 | 0x2a4a | bcdHID, bCountryCode, flags | uint16, uint8, uint8 | 
-| 0x2a4b | reportMap | obj | 
+| 0x2a4b | reportMap | list(uint8) | 
 | 0x2a4c | hidCtrl | uint8 | 
-| 0x2a4d | report | obj | 
+| 0x2a4d | report | list(uint8) | 
 | 0x2a4e | protocolMode | uint8 | 
 | 0x2a4f | leScanInterval, leScanWindow | uint16, uint16 | 
 | 0x2a50 | vendorIDSource, vendorID, productID, productVersion | uint8, uint16, uint16, uint16 | 
@@ -1026,6 +1023,7 @@ In BLE, an attributes is the smallest data entity defined by GATT. Attributes ar
 | 0x2a9c | flags, bodyFatPercent, year(`bit1`), month(`bit1`), day(`bit1`), hours(`bit1`), minutes(`bit1`), seconds(`bit1`), userID(`bit2`), basalMetabolism(`bit3`), musclePercent(`bit4`), muscleMassKg(`!bit0 & bit5`), muscleMassPounds(`bit0 & bit5`), fatFreeMassKg(`!bit0 & bit6`), fatFreeMassPounds(`bit0 & bit6`), softLeanMassKg(`!bit0 & bit7`), softLeanMassPounds(`bit0 & bit7`), bodyWaterMassKg(`!bit0 & bit8`), bodyWaterMassPounds(`bit0 & bit8`), impedance(`bit9`), weightKg(`!bit0 & bit10`), weightPounds(`bit0 & bit10`), heightMeters(`!bit0 & bit11`), heightInches(`bit0 & bit11`) | uint16, uint16, uint16, uint8, uint8, uint8, uint8, uint8, uint8, uint16, uint16, uint16, uint16, uint16, uint16, uint16, uint16, uint16, uint16, uint16, uint16, uint16, uint16, uint16 | 
 | 0x2a9d | flags, weightSI(`!bit0`), weightImperial(`bit0`), year(`bit1`), month(`bit1`), day(`bit1`), hours(`bit1`), minutes(`bit1`), seconds(`bit1`), userID(`bit2`), bmi(`bit3`), heightSI(`!bit0 & bit3`), heightImperial(`bit0 & bit3`) | uint8, uint16, uint16, uint16, uint8, uint8, uint8, uint8, uint8, uint8, uint16, uint16, uint16 | 
 | 0x2a9e | feature | uint32 | 
+| 0x2a9f | opCode, parameter | uint8, buffer |
 | 0x2aa0 | xAxis, yAxis | int16, int16 | 
 | 0x2aa1 | xAxis, yAxis, zAxis | int16, int16, int16 | 
 | 0x2aa2 | language | string | 
@@ -1048,6 +1046,7 @@ In BLE, an attributes is the smallest data entity defined by GATT. Attributes ar
 | 0x2ab9 | httpEntityBody | string | 
 | 0x2aba | opCode | uint8 | 
 | 0x2abb | httpsSecurity | boolean | 
+| 0x2abc | opCode, organizationID, parameter | uint8, uint8, buffer |
 | 0x2abd | oacpFeatures, olcpFeatures | uint32, uint32 | 
 | 0x2abe | objectName | string | 
 | 0x2abf | objectType | uuid | 

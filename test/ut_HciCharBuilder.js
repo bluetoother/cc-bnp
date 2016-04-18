@@ -15,11 +15,7 @@ var furtherProcessArr = [
 
 var uuidObj = {
         '0x2905': {
-            listOfHandles: {
-                handle0: 3,
-                handle1: 4,
-                handle2: 5
-            }
+            listOfHandles: [3, 4, 5]
         },
         '0x290a': {
             condition: 1,
@@ -67,25 +63,13 @@ var uuidObj = {
             tempType: 1
         },
         '0x2a22': {
-            bootKeyboardInput: {
-                value0: 3,
-                value1: 4,
-                value2: 5
-            }
+            bootKeyboardInput: [3, 4, 5]
         },
         '0x2a32': {
-            bootKeyboardOutput: {
-                value0: 3,
-                value1: 4,
-                value2: 5
-            }
+            bootKeyboardOutput: [3, 4, 5]
         },
         '0x2a33': {
-            bootMouseInput: {
-                value0: 3,
-                value1: 4,
-                value2: 5
-            }
+            bootMouseInput: [3, 4, 5]
         },
         '0x2a34': {
             flags: 255,
@@ -139,18 +123,10 @@ var uuidObj = {
             rrInterval: 68
         },
         '0x2a4b': {
-            reportMap: {
-                value0: 3,
-                value1: 4,
-                value2: 5
-            }
+            reportMap: [3, 4, 5]
         },
         '0x2a4d': {
-            report: {
-                value0: 3,
-                value1: 4,
-                value2: 5
-            }
+            report: [3, 4, 5]
         },
         '0x2a53': {
             flags: 3,
@@ -341,6 +317,8 @@ function randomArg(type) {
             return chance.floating();
         case 'string':
             return chance.string();
+        case 'variable':
+            return new Buffer([1, 2, 3, 4, 5]);
         default:
             break;
     }
