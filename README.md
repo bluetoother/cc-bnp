@@ -138,11 +138,9 @@ var ccbnp = require('ccbnp'),
     cfg = {
         path: '/dev/ttyUSB0',
         options: {
-            baudrate: 115200,   // default value
-            dataBits: 8,        // default value
-            stopBits: 1,        // default value
-            parity: 'none',     // default value
-            bufferSize: 255     // default value
+            baudRate: 115200,   // default value
+            rtscts: true,       // default value
+            flowControl: true   // default value
         }
     };
 
