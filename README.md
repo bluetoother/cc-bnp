@@ -263,7 +263,7 @@ Register the timeout configuration of commands. This will tell **cc-bnp** of how
 
 **Arguments**
 
-- connHdl (*Number*): Connection handle to identify a connection.  
+- connHdl (*Number*): Connection handle that identifies a connection  
 - timeoutConfig (*Object*): Timeout configuration. The following table shows the details of each property 
 
     | Property | Type | Mandatory | Description | Default Value |
@@ -409,9 +409,9 @@ When there is a incoming *BLE indication* message, **cc-bnp** fires an `'ind'` e
             connHandle: 0,
             mitm: 1,    // 0 or 1 means true or false
             bond: 1,    // 0 or 1 means true or false
-            ltk: <Buffer 23 84 1A D8 95 C9 ED 6C B6 4E 47 F4 44 F3 E4 73>,
-            div: 0x668b,
-            rand: <Buffer 6E 68 CE EE DC D6 E9 99>
+            ltk: <Buffer 23 84 1A D8 95 C9 ED 6C B6 4E 47 F4 44 F3 E4 73>,  // 16 bytes LTK
+            div: 0x668b, 							                        // The DIV used with this LTK.
+            rand: <Buffer 6E 68 CE EE DC D6 E9 99>							// 8 bytes random number generated for this LTK.
         }    
         ```
 
@@ -420,8 +420,8 @@ When there is a incoming *BLE indication* message, **cc-bnp** fires an `'ind'` e
         msg.data = {
             devAddr: '0x78c5e570796e',
             connHandle: 0,
-            uiInput: 1,
-            uiOutput: 0 
+            uiInput: 1,	  // Whether to ask user to input a passcode, 0 or 1 means no or yes
+            uiOutput: 0   // Whether to display a passcode, 0 or 1 means no or yes
         }    
         ```
 
@@ -496,7 +496,7 @@ var valObj = {   // value object for this command
     sensorStatus: 0
 };
 
-// If _uuid_ is not given, ccnp will automatically send request to ask the uuid corresponds to the characteristic handle.  
+// If _uuid_ is not given, ccbnp will automatically initiate a request to ask characteristic uuid to build value packet.
 ccbnp.gatt.writeCharValue(0, 37, valObj, '0x2a18', function (err, result) {
     if (err)
         console.log(err);
@@ -798,7 +798,7 @@ Let's take `ccbnp.gap.deviceDiscReq()` as an example. Here, I only take out some
 <a name="gattSpec"></a>
 ### 3.2 G​ATT Specifications 
 
-In BLE, an attributes is the smallest data entity defined by GATT. Attributes are used to describe the hierarchical data organization, such as **Service** and **Characteristic**, and pieces of the user data. A Service conceptually groups all the related Characteristics togather, and each **Characteristic** always contain at least two attibutes: _Characteristic Declaration_ and _Characteristic Value_.  
+In BLE, an attributes is the smallest data entity defined by GATT. Attributes are used to describe the hierarchical data organization, such as **Service** and **Characteristic**, and pieces of the user data. A Service conceptually groups all the related Characteristics together, and each **Characteristic** always contain at least two attibutes: _Characteristic Declaration_ and _Characteristic Value_.  
 
 **cc-bnp** will automatically parse the attributes if they are publicly SIG-defined ones.  
 
@@ -880,10 +880,10 @@ In BLE, an attributes is the smallest data entity defined by GATT. Attributes ar
 
 **Note**:  
 
-* Format 'list' meaning field value may be repeated.  
+* Filed type 'list' means field value may be repeated, value type in brackets indicates field value type.
 
 ```JavaScript
-{   // Result object of UUID 0x2a22
+{   // Result object of UUID 0x2a22, Field type: list(uint8)
     bootKeyboardInputReport: [1, 2, 3]
 }
 ```
