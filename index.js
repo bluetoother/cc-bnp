@@ -299,7 +299,7 @@ function readMultiReq (connHandle, handles, uuids, callback) {
         value = {},
         pduLen = 0,
         evtObj,
-        opCode,
+        opcode,
         readMulti = false;
 
     if (!uuids) {
@@ -343,9 +343,9 @@ function readMultiReq (connHandle, handles, uuids, callback) {
             }).done();
         } else {
             if ( self.readMultiReq ) {
-                opCode = 64782;
+                opcode = 64782;
             } else {
-                opCode = 64910;
+                opcode = 64910;
             }
 
             _.forEach(result, function (readRsp, i) {
@@ -355,7 +355,7 @@ function readMultiReq (connHandle, handles, uuids, callback) {
 
             evtObj = {
                 status: 0,
-                opCode: opCode,
+                opcode: opcode,
                 dataLen: 0,
                 payload: new Buffer(0),
                 collector: {
