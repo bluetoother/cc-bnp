@@ -129,7 +129,7 @@ describe('Testing Command Response From Local Controller And Remote Slave', func
     it('Gap Level: DeviceInit', function () {
         return bleHci.execCmd('Gap', 'DeviceInit', {profileRole: 8, maxScanResponses: 5, irk: buffer16, csrk: buffer16, signCounter: 1}).should.be.fulfilled();
     });
-    it('Gap Level: DeviceDiscReq1', function (done) {
+    it('Gap Level: DeviceDiscReq1', function () {
         return bleHci.execCmd('Gap', 'DeviceDiscReq', {mode: 3, activeScan: 1, whiteList: 0}).should.be.fulfilled();
     });
     it('Gap Level: EstLinkReq', function () {
