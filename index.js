@@ -33,6 +33,13 @@ CcBnp.prototype.init = function (spConfig, role, callback) {
         path = spConfig.path, 
         config = spConfig.options;
 
+    if (!config) 
+        config = {
+            baudRate: 115200,
+            rtscts: true,
+            flowControl: true
+        };
+
     sp = new SerialPort(path, config, false);
     hci.registerSp(sp);
     hci.openSp().then(function(result) {
