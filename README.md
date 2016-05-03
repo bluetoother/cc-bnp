@@ -13,7 +13,7 @@ cc-bnp
     1.3 [Usage](#Usage)  
 
 2. [Basic and Command APIs](#APIs)  
-    2.1 [Basic APIs and Events](#basicAPIs)  
+    2.1 [Basic APIs](#basicAPIs)  
     2.2 [Events](#Events)  
     2.3 [TI's BLE Vendor-Specific HCI Command APIs (Generated Event Types)](#vendorHci)  
 
@@ -297,7 +297,8 @@ ccbnp.regTimeoutCfg(1, timeoutConfig2);     // for connection handle 1
 <a name="Events"></a>
 ### 2.2 Events
 
-* Events: [ready](#onReady), [ind](#onInd)
+* [ready](#onReady)
+* [ind](#onInd)
 
 *************************************************
 <a name="onReady"></a>
