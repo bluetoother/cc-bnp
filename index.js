@@ -373,7 +373,7 @@ function readMultiReq (connHandle, handles, uuids, callback) {
                         value: value
                     }
                 }
-            }
+            };
             deferred.resolve(evtObj);
         }
     }).fail(function (err) {
@@ -401,7 +401,7 @@ function readMultiRsp(connHandle, value, uuids, callback) {
     } else {
         _.forEach(value, function (val, hdl) {
             handles.push(hdl);
-        })
+        });
 
         getUuids(65534, handles, uuids).then(function (uuidHdlTable) {
             _.forEach(uuidHdlTable, function (uuid, hdl) {
@@ -448,7 +448,7 @@ function getUuids(connHandle, handles, uuids) {
     } else {
         _.forEach(handles, function (handle, i) {
             uuidHdlTable[handle] = uuids[i];
-        })
+        });
         deferred.resolve(uuidHdlTable);
     }
 

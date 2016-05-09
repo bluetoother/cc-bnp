@@ -1,6 +1,5 @@
 var DChunks = require('dissolve-chunks'),
     ru = DChunks().Rule(),
-    _ = require('lodash'),
 	evtBpi = require('../lib/hci/hciEvtDiscriminator');
 
 /*************************************************************************************************/
