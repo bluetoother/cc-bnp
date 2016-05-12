@@ -156,7 +156,7 @@ CcBnp.prototype.regChar = function (regObj) {
         regObj.uuid = '0x' + regObj.uuid;
     }
 
-    if (hciCharMeta[regObj.uuid]) { throw new Error('Characteristic uuid alreadt exist.'); }
+    if (hciCharMeta[regObj.uuid]) { throw new Error('Characteristic uuid already exist.'); }
 
     hciCharMeta[regObj.uuid] = {
         params: regObj.params,
