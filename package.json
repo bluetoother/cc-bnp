@@ -7,13 +7,14 @@
     "example": "examples"
   },
   "dependencies": {
+    "ble-char-packet": "0.0.2",
     "concentrate": "^0.2.3",
     "dissolve": "^0.3.3",
-    "enum": "^2.2.0",
-    "serialport": "^2.0.2",
     "dissolve-chunks": "^1.0.0",
+    "enum": "^2.2.0",
+    "lodash": "^3.10.1",
     "q": "^1.4.1",
-    "lodash": "^3.10.1"
+    "serialport": "^2.0.2"
   },
   "devDependencies": {
     "should-promised": "^0.3.1",
@@ -27,7 +28,8 @@
     "url": "https://github.com/hedywings/cc-bnp.git"
   },
   "keywords": [
-    "ble", "cc254x"
+    "ble",
+    "cc254x"
   ],
   "author": "Hedy Wang <hedywings@gmail.com>",
   "contributors": [

@@ -5,12 +5,10 @@ var util = require('util'),
     SerialPort = require('serialport').SerialPort,
     _ = require('lodash'),
     Enum = require('enum'),
-    Q = require('q');
+    Q = require('q'),
+    blePacket = require('ble-char-packet');
 
 var hciCmdMeta = require('./lib/hci/hciCmdMeta'),
-    hciCharMeta = require('./lib/hci/hciCharMeta'),
-    charDiscrim = require('./lib/hci/hciCharDiscriminator'),
-    charBuild = require('./lib/hci/hciCharBuilder'),
     BHCI = require('./lib/defs/blehcidefs'),
     hci = require('./lib/hci/bleHci');
 
@@ -155,13 +153,8 @@ CcBnp.prototype.regChar = function (regObj) {
     } else if (_.isString(regObj.uuid) && !_.startsWith(regObj.uuid, '0x')) {
         regObj.uuid = '0x' + regObj.uuid;
     }
-
-    if (hciCharMeta[regObj.uuid]) { throw new Error('Characteristic uuid already exist.'); }
-
-    hciCharMeta[regObj.uuid] = {
-        params: regObj.params,
-        types: regObj.types
-    };
+    
+    blePacket.addMeta(regObj.uuid, { params: regObj.params, types: regObj.types });
 };
 
 CcBnp.prototype.regUuidHdlTable = function (connHdl, uuidHdlTable) {
@@ -321,8 +314,8 @@ function readMultiReq (connHandle, handles, uuids, callback) {
         _.forEach(uuidHdlTable, function (uuid) {
             var charTypes;
 
-            if (hciCharMeta[uuid]) {
-                charTypes = hciCharMeta[uuid].types;
+            if (blePacket.getMeta(uuid)) {
+                charTypes = blePacket.getMeta(uuid).types;
                 if (!_.includes(charTypes, 'string') && !_.includes(charTypes, 'uuid')) readMulti = true;
             }
         });
@@ -342,12 +335,14 @@ function readMultiReq (connHandle, handles, uuids, callback) {
         return Q.all(charToResolve);
     }).then(function (result) {
         if (readMulti) {
-            charDiscrim(uuidHandleTable).getCharValPacket(result.collector.AttReadMultiRsp[0].value).then(function (parsedData) {
-                result.collector.AttReadMultiRsp[0].value = parsedData;
-                deferred.resolve(result);
-            }).fail(function (err) {
-                deferred.reject(err);
-            }).done();
+            blePacket.parse(uuidHandleTable, result.collector.AttReadMultiRsp[0].value, function (err, parsedData) {
+                if (err) 
+                    deferred.reject(err);
+                else {
+                    result.collector.AttReadMultiRsp[0].value = parsedData;
+                    deferred.resolve(result);
+                }
+            });
         } else {
             if ( self.readMultiReq ) {
                 opcode = 64782;
@@ -405,7 +400,7 @@ function readMultiRsp(connHandle, value, uuids, callback) {
 
         getUuids(65534, handles, uuids).then(function (uuidHdlTable) {
             _.forEach(uuidHdlTable, function (uuid, hdl) {
-                charBuf = charBuild(uuid).transToValObj(value[hdl]).getHciCharBuf();
+                charBuf = blePacket.frame(uuid, value[hdl]);
                 sendBuf = Buffer.concat([sendBuf, charBuf]);
             });
             return hci.execCmd('Att', 'ReadMultiRsp', {connHandle: connHandle, value: sendBuf});
