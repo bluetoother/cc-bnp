@@ -42,7 +42,7 @@ cc-bnp
 
 The following diagram shows the scenario when CC254X operates as a BNP. In this case, the controller and host are implemented together on CC2540/41, and the application can be externally developed on an application processor (e.g., another mcu or PC). The application and profiles can communicate with BNP through TI's vendor-specific HCI commands upon an UART interface.  
 
-![Network Processor Configuration](https://raw.githubusercontent.com/hedywings/cc-bnp/master/documents/bnp.png)
+![Network Processor Configuration](https://github.com/bluetoother/documents/blob/master/cc-bnp/bnp.png)
 
 <br />
 
@@ -442,7 +442,7 @@ When there is an incoming *BLE indication* message, **cc-bnp** fires an `'ind'` 
 <a name="vendorHci"></a>
 ### 2.3 TI's BLE Vendor-Specific HCI Command APIs
 
-TI's BLE Vendor-Specific HCI Commands are organized in subgroups: **hci**, **l2cap**, **att**, **gatt**, **gap**, and **util**. The description of each command is documented in [TI\_BLE\_Vendor\_Specific\_HCI_Guide.pdf](https://github.com/hedywings/cc-bnp/blob/master/documents/TI_BLE_Vendor_Specific_HCI_Guide.pdf).  
+TI's BLE Vendor-Specific HCI Commands are organized in subgroups: **hci**, **l2cap**, **att**, **gatt**, **gap**, and **util**. The description of each command is documented in [TI\_BLE\_Vendor\_Specific\_HCI_Guide.pdf](https://github.com/bluetoother/documents/blob/master/cc-bnp/TI_BLE_Vendor_Specific_HCI_Guide.pdf).  
 
 | Command SubGroup (CSG) |  Namespace  | Number of Commands |
 |:----------------------:|:-----------:|:------------------:|
@@ -522,7 +522,7 @@ The 'uuid' of a public characteristic value can be found in [GATT Specifications
 These tables are cross-references between the **Vendor-Specific HCI Command** and **cc-bnp Command APIs**. Here is the description of each column in the table:  
 
 * BLE Vendor-Cmd  
-    - The command name documented in [TI\_BLE\_Vendor\_Specific\_HCI_Guide.pdf](https://github.com/hedywings/cc-bnp/blob/master/documents/TI_BLE_Vendor_Specific_HCI_Guide.pdf)  
+    - The command name documented in [TI\_BLE\_Vendor\_Specific\_HCI_Guide.pdf](https://github.com/bluetoother/documents/blob/master/cc-bnp/TI_BLE_Vendor_Specific_HCI_Guide.pdf)  
 * Cmd-API  
     - The API name, in cc-bnp, according to a vendor-specific HCI command  
 * Arguments  
