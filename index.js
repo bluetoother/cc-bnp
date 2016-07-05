@@ -17,6 +17,15 @@ function CcBnp() {}
 util.inherits(CcBnp, EventEmitter);
 
 CcBnp.prototype.init = function (spConfig, role, callback) {
+    if (!_.isPlainObject(spConfig))
+        throw new TypeError('spConfig should be an object');
+
+    if (!_.isString(spConfig.path))
+        throw new TypeError('spConfig.path should be a string');
+
+    if (!_.isUndefined(spConfig.options) && !_.isPlainObject(spConfig.options))
+        throw new TypeError('spConfig.options should be a string');
+
     var self = this,
         deferred = Q.defer(),
         roles = new Enum({
@@ -29,17 +38,16 @@ CcBnp.prototype.init = function (spConfig, role, callback) {
         }),
         sp, 
         path = spConfig.path, 
-        config = spConfig.options;
-
-    if (!config) 
+        options = spConfig.options || {},
         config = {
-            baudRate: 115200,
-            rtscts: true,
-            flowControl: true
+            baudRate: options.baudRate || 115200,
+            rtscts: options.rtscts ||true,
+            flowControl: options.flowControl ||true
         };
 
     sp = new SerialPort(path, config, false);
     hci.registerSp(sp);
+
     hci.openSp().then(function(result) {
         self.gap.deviceInit(roles.get(role).value, 5, new Buffer(16).fill(0), new Buffer(16).fill(0), 1).then(function (result) {
             var msg = result.collector.GapDeviceInitDone[0];
@@ -148,6 +156,12 @@ CcBnp.prototype.gatt.readMultiCharValues = readMultiReq;
 CcBnp.prototype.att.readMultiRsp = readMultiRsp;
 
 CcBnp.prototype.regChar = function (regObj) {
+    if (!_.isPlainObject(regObj))
+        throw new TypeError('regObj should be an object');
+
+    if ((!isRealNumber(regObj.uuid) && !_.isString(regObj.uuid)))
+        throw new TypeError('regObj.uuid should be a string or a number');
+
     if (_.isNumber(regObj.uuid)) { 
         regObj.uuid = '0x' + regObj.uuid.toString(16); 
     } else if (_.isString(regObj.uuid) && !_.startsWith(regObj.uuid, '0x')) {
@@ -158,8 +172,11 @@ CcBnp.prototype.regChar = function (regObj) {
 };
 
 CcBnp.prototype.regUuidHdlTable = function (connHdl, uuidHdlTable) {
-    if (!_.isNumber(connHdl)) { throw new Error('connHdl must be a number.'); }
-    if (!_.isPlainObject(uuidHdlTable)) { throw new Error('table must be an object'); }
+    if (!isRealNumber(connHdl)) 
+        throw new TypeError('connHdl must be a number.');
+
+    if (!_.isPlainObject(uuidHdlTable)) 
+        throw new TypeError('table must be an object');
 
     if (!hci.uuidHdlTable[connHdl]) {
         hci.uuidHdlTable[connHdl] = uuidHdlTable;
@@ -177,10 +194,21 @@ CcBnp.prototype.regUuidHdlTable = function (connHdl, uuidHdlTable) {
 };
 
 CcBnp.prototype.regTimeoutConfig = function (connHdl, timeoutConfig) {
-    if (!_.isNumber(connHdl)) { throw new Error('connHdl must be a number.'); }
-    if (!_.isPlainObject(timeoutConfig)) { throw new Error('timeoutConfig must be an object.'); }
-    if (!_.isNumber(timeoutConfig.level1)) { throw new Error('timeoutConfig.level1 must be a number.'); }
-    if (!_.isNumber(timeoutConfig.level2)) { throw new Error('timeoutConfig.level2 must be a number.'); }
+    if (!isRealNumber(connHdl)) 
+        throw new TypeError('connHdl must be a number.'); 
+
+    if (!_.isPlainObject(timeoutConfig)) 
+        throw new TypeError('timeoutConfig must be an object.'); 
+
+    if (!isRealNumber(timeoutConfig.level1) && !_.isUndefined(timeoutConfig.level1)) 
+        throw new TypeError('timeoutConfig.level1 must be a number.'); 
+    
+    if (!isRealNumber(timeoutConfig.level2) && !_.isUndefined(timeoutConfig.level2))
+        throw new TypeError('timeoutConfig.level2 must be a number.'); 
+
+    if (!isRealNumber(timeoutConfig.scan) && !_.isUndefined(timeoutConfig.scan))
+        throw new TypeError('timeoutConfig.scan must be a number.'); 
+
 
     hci.timeoutCfgTable[connHdl] = timeoutConfig;
 };
@@ -448,6 +476,10 @@ function getUuids(connHandle, handles, uuids) {
     }
 
     return deferred.promise;
+}
+
+function isRealNumber(val) {
+    return (_.isNumber(val) && !_.isNaN(val));
 }
 
 module.exports = ccBnp;
