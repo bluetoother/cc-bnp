@@ -1,18 +1,15 @@
-'use strict';
-var _ = require('lodash'),
-	should = require('should'),
-	Chance = require('chance'),
-	chance = new Chance(),
+var expect = require('chai').expect,
+    _ = require('lodash'),
+    Chance = require('chance'),
+    chance = new Chance(),
     Q = require('q'),
     DChunks = require('dissolve-chunks'),
     ru = DChunks().Rule();
 
-var hciCmdConcentrater = require('../lib/hci/hciCmdBuilder');
-
-
+var cmdBuilder = require('../lib/hci/hciCmdBuilder');
 
 var furtherProcessArr = [
-	'AttFindInfoRsp', 'AttFindByTypeValueRsp', 'AttReadMultiReq', 'AttReadByTypeRsp',
+    'AttFindInfoRsp', 'AttFindByTypeValueRsp', 'AttReadMultiReq', 'AttReadByTypeRsp',
     'AttReadByGrpTypeRsp', 'GattReadMultiCharValues', 'GattReliableWrites'];
 
 //define argobj which requires further processing
@@ -65,60 +62,70 @@ var attFindInfoRspObj = {
         value1: new Buffer([0x01, 0x02])
     },
     furtherProcessObj = {
-        attFindInfoRsp: hciCmdConcentrater.AttFindInfoRsp(65534, 1, attFindInfoRspObj),
-        attFindByTypeValueRsp: hciCmdConcentrater.AttFindByTypeValueRsp(65534, attFindByTypeValueRspObj),
-        attReadMultiReq: hciCmdConcentrater.AttReadMultiReq(65534, attReadMultiReqObj),
-        attReadByTypeRsp: hciCmdConcentrater.AttReadByTypeRsp(65534, 4, attReadByTypeRspObj),
-        attReadByGrpTypeRsp: hciCmdConcentrater.AttReadByGrpTypeRsp(65534, 6, attReadByGrpTypeRspObj),
-        gattReadMultiCharValues: hciCmdConcentrater.GattReadMultiCharValues(65534, gattReadMultiCharValuesObj),
-        gattReliableWrites: hciCmdConcentrater.GattReliableWrites(65534, 2, gattReliableWritesObj)
+        attFindInfoRsp: cmdBuilder.AttFindInfoRsp(65534, 1, attFindInfoRspObj),
+        attFindByTypeValueRsp: cmdBuilder.AttFindByTypeValueRsp(65534, attFindByTypeValueRspObj),
+        attReadMultiReq: cmdBuilder.AttReadMultiReq(65534, attReadMultiReqObj),
+        attReadByTypeRsp: cmdBuilder.AttReadByTypeRsp(65534, 4, attReadByTypeRspObj),
+        attReadByGrpTypeRsp: cmdBuilder.AttReadByGrpTypeRsp(65534, 6, attReadByGrpTypeRspObj),
+        gattReadMultiCharValues: cmdBuilder.GattReadMultiCharValues(65534, gattReadMultiCharValuesObj),
+        gattReliableWrites: cmdBuilder.GattReliableWrites(65534, 2, gattReliableWritesObj)
     };
 
-describe('Constructor Testing', function () {
-	it('constr_name check', function () {
-        for (var key in hciCmdConcentrater) {
-            var argObj = hciCmdConcentrater[key]();
-            (argObj.constr_name).should.be.equal(key);
-            // console.log((argObj.constr_name).should.be.equal(123));
+describe('hciCmdBuilder Functional check', function () {
+    it('constr_name check', function () {
+        for (var key in cmdBuilder) {
+            var argObj = cmdBuilder[key]();
+            expect(argObj.constr_name).to.be.eql(key);
         }
-	});
+    });
 
     //test normal format framer
-    _.forEach(hciCmdConcentrater, function (val, key) {
-        var argObj = instWrapper(hciCmdConcentrater[key]()),
+    _.forEach(cmdBuilder, function (val, key) {
+        var argObj = instWrapper(cmdBuilder[key]()),
             cmdAttrs = argObj.getCmdAttrs(),
             params = cmdAttrs.params,
             types = cmdAttrs.types,
-            argObjBuf;
+            argObjBuf,
+            args = {};
 
         if (!_.includes(furtherProcessArr, argObj.constr_name)) {
             for(var i = 0; i < params.length; i += 1) {
-                argObj[params[i]] = randomArg(types[i]);
+                args[params[i]] = randomArg(types[i]);
             }
+
+            Object.assign(argObj, args);
 
             argObjBuf = argObj.getHciCmdBuf();
 
             if (argObjBuf.length !== 0) {
                 it(argObj.constr_name + ' framer check', function () {
                     return argObj.parseCmdFrame(argObjBuf).then(function (result) {
-                        delete argObj.constr_name;
-                        delete argObj.getHciCmdParser;
-                        delete argObj.parseCmdFrame;
-                        return argObj.should.be.deepEqual(result);
+                        return expect(result).to.be.eql(args);
                     });
                 });
             }
         }
     });
 
-    //test specific format framer
+    // test specific format framer
     _.forEach(furtherProcessArr, function (val) {
-        it(val + ' framer check', function () {
-            var argObj = instWrapper(furtherProcessObj[_.camelCase(val)]);
-            return compareArgObjAndParsedObj(argObj).then(function (result) {
-                delete argObj.getHciCmdParser;
-                delete argObj.parseCmdFrame;
-                return argObj.should.be.deepEqual(result);
+        var args = furtherProcessObj[_.camelCase(val)],
+            argObj = instWrapper(args),
+            simpleArgs = {},
+            simpleResult = {},
+            notRealArgs = [ 'constr_name', 'getHciCmdParser', 'parseCmdFrame' ],
+            argObjBuf;
+
+        _.forOwn(args, function (val, key) {
+            if (!_.includes(notRealArgs, key))
+                simpleArgs[key] = val;
+        });
+
+        argObjBuf = argObj.getHciCmdBuf();
+
+        it(val + ' framer check', function (done) {
+            return  argObj.parseCmdFrame(argObjBuf).then(function (result) { 
+                if (_.isEqual(simpleArgs, result)) done();
             });
         });
     });
@@ -131,25 +138,25 @@ function randomArg(type) {
 
     switch (type) {
         case 'uint8':
-        	return chance.integer({min: 0, max: 255});
+            return chance.integer({min: 0, max: 255});
         case 'uint16be':
         case 'uint16le':
-        	return chance.integer({min: 0, max: 65535});
+            return chance.integer({min: 0, max: 65535});
         case 'uint32le':
-        	return chance.integer({min: 0, max: 4294967295});
+            return chance.integer({min: 0, max: 4294967295});
         case 'uint64':
             return chance.integer({min: 0, max: 18446744073709551615});
         case 'buffer':
         case 'buffer6':
         case 'buffer8':
         case 'buffer16':
-        	if (type === 'buffer') {
-        		bufLen = chance.integer({min: 0, max: 255});
-        	} else if (type === 'addr') {
-        		bufLen = 6;
-        	} else {
-        		bufLen = _.parseInt(type.slice(6));
-        	}
+            if (type === 'buffer') {
+                bufLen = chance.integer({min: 0, max: 255});
+            } else if (type === 'addr') {
+                bufLen = 6;
+            } else {
+                bufLen = _.parseInt(type.slice(6));
+            }
             
             testBuf = new Buffer(bufLen);
 
@@ -164,26 +171,12 @@ function randomArg(type) {
         case 'passkey':
             return '012345';
         case 'string':
-        	return chance.string();
+            return chance.string();
         default:
         break;
     }
 
     return;
-}
-
-function compareArgObjAndParsedObj (argObj, callback) {
-	var deferred = Q.defer(),
-        buf = argObj.getHciCmdBuf(),
-		constrName;
-
-	argObj.parseCmdFrame(buf).then(function (parsedObj) {
-    	constrName = argObj.constr_name;
-    	delete argObj.constr_name;
-        
-        deferred.resolve(parsedObj);
-    });
-    return deferred.promise.nodeify(callback);
 }
 
 function instWrapper (argobj) {

@@ -5,6 +5,12 @@ cc-bnp
 
 <br />
 
+[![NPM](https://nodei.co/npm/cc-bnp.png?downloads=true)](https://nodei.co/npm/cc-bnp/)  
+
+[![Travis branch](https://img.shields.io/travis/bluetoother/cc-bnp/master.svg?maxAge=2592000)](https://travis-ci.org/bluetoother/cc-bnp)
+[![npm](https://img.shields.io/npm/v/cc-bnp.svg?maxAge=2592000)](https://www.npmjs.com/package/cc-bnp)
+[![npm](https://img.shields.io/npm/l/cc-bnp.svg?maxAge=2592000)](https://www.npmjs.com/package/cc-bnp)
+
 ## Table of Contents  
 
 1. [Overview](#Overview)  
@@ -93,7 +99,7 @@ The basic APIs are about how to initialize the BNP with a given role and how to 
 * [close()](#close)
 * [regChar()](#regChar)
 * [regUuidHdlTable()](#regUuidHdlTable)
-* [regTimeoutConfig()](#regTimeoutCfg)
+* [regTimeoutConfig()](#regTimeoutConfig)
 
 *************************************************
 <a name="init"></a>
@@ -234,19 +240,19 @@ Register a table that maps each characteristic handle to its characteristic UUID
 ```javascript
 var myCharUuidHdlTable1 = {
     // handle: uuid
-        3: '0x2a00'
-        5: '0x2a01'
-        7: '0x2a02'
-        9: '0x2a03'
-        11: '0x2a04'
+        3: '0x2a00',
+        5: '0x2a01',
+        7: '0x2a02',
+        9: '0x2a03',
+        11: '0x2a04',
         14: '0x2a05'
     },
     myCharUuidHdlTable2 = {
-        4: '0x2a00'
-        6: '0x2a01'
-        8: '0x2a02'
-        10: '0x2a03'
-        12: '0x2a04'
+        4: '0x2a00',
+        6: '0x2a01',
+        8: '0x2a02',
+        10: '0x2a03',
+        12: '0x2a04',
         16: '0x2a05'
     };
 
@@ -255,8 +261,8 @@ ccbnp.regUuidHdlTable(1, myCharUuidHdlTable2);    // under connection handle 1
 ```
 
 *************************************************
-<a name="regTimeoutCfg"></a>
-### .regTimeoutCfg(connHdl, timeoutConfig)
+<a name="regTimeoutConfig"></a>
+### .regTimeoutConfig(connHdl, timeoutConfig)
 Register the timeout configuration of commands. This will tell **cc-bnp** of how much time it should wait for the response.  
 
 **Arguments**
@@ -286,8 +292,8 @@ var timeoutConfig1 = {
         scan: 5000
     };
 
-ccbnp.regTimeoutCfg(0, timeoutConfig1);     // for connection handle 0
-ccbnp.regTimeoutCfg(1, timeoutConfig2);     // for connection handle 1
+ccbnp.regTimeoutConfig(0, timeoutConfig1);     // for connection handle 0
+ccbnp.regTimeoutConfig(1, timeoutConfig2);     // for connection handle 1
 ```
 
 *************************************************

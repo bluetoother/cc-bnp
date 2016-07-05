@@ -10,18 +10,20 @@
     "ble-char-packet": "0.0.3",
     "concentrate": "^0.2.3",
     "dissolve": "^0.3.3",
-    "dissolve-chunks": "^1.0.0",
+    "dissolve-chunks": "^1.0.8",
     "enum": "^2.2.0",
     "lodash": "^3.10.1",
     "q": "^1.4.1",
     "serialport": "^2.0.2"
   },
   "devDependencies": {
-    "should-promised": "^0.3.1",
-    "chance": "^0.8.0"
+    "chai": "^3.5.0",
+    "chance": "^0.8.0",
+    "mocha": "^2.5.3",
+    "should-promised": "^0.3.1"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "make test-all"
   },
   "repository": {
     "type": "git",
