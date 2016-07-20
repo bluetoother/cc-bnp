@@ -7,7 +7,7 @@ cc-bnp
 
 [![NPM](https://nodei.co/npm/cc-bnp.png?downloads=true)](https://nodei.co/npm/cc-bnp/)  
 
-[![Travis branch](https://img.shields.io/travis/bluetoother/cc-bnp/master.svg?maxAge=2592000)](https://travis-ci.org/bluetoother/cc-bnp)
+[![Travis branch](https://travis-ci.org/bluetoother/cc-bnp.svg?branch=master)](https://travis-ci.org/bluetoother/cc-bnp)
 [![npm](https://img.shields.io/npm/v/cc-bnp.svg?maxAge=2592000)](https://www.npmjs.com/package/cc-bnp)
 [![npm](https://img.shields.io/npm/l/cc-bnp.svg?maxAge=2592000)](https://www.npmjs.com/package/cc-bnp)
 
