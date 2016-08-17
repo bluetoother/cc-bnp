@@ -2,7 +2,7 @@ var expect = require('chai').expect,
     _ = require('lodash'),
     ccbnp = require('../index.js'); 
 
-var blePacket = require('ble-char-packet');
+var blePacket = require('ble-packet');
 
 describe('regChar Signature Check', function () {
 
