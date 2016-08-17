@@ -6,7 +6,7 @@ var util = require('util'),
     _ = require('lodash'),
     Enum = require('enum'),
     Q = require('q'),
-    blePacket = require('ble-char-packet');
+    blePacket = require('ble-packet');
 
 var hciCmdMeta = require('./lib/hci/hciCmdMeta'),
     BHCI = require('./lib/defs/blehcidefs'),

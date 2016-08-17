@@ -1,13 +1,13 @@
 {
   "name": "cc-bnp",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "The interface for communicating with TI CC254X BLE Network Processor over a serial port.",
   "main": "index.js",
   "directories": {
     "example": "examples"
   },
   "dependencies": {
-    "ble-char-packet": "0.0.3",
+    "ble-packet": "0.0.3",
     "concentrate": "^0.2.3",
     "dissolve": "^0.3.3",
     "dissolve-chunks": "^1.0.8",
