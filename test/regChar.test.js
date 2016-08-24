@@ -1,5 +1,5 @@
 var expect = require('chai').expect,
-    _ = require('lodash'),
+    _ = require('busyman'),
     ccbnp = require('../index.js'); 
 
 var blePacket = require('ble-packet');

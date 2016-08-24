@@ -1,5 +1,5 @@
 var expect = require('chai').expect,
-    _ = require('lodash'),
+    _ = require('busyman'),
     Chance = require('chance'),
     chance = new Chance(),
     Q = require('q'),
@@ -109,7 +109,7 @@ describe('hciCmdBuilder Functional check', function () {
 
     // test specific format framer
     _.forEach(furtherProcessArr, function (val) {
-        var args = furtherProcessObj[_.camelCase(val)],
+        var args = furtherProcessObj[val.slice(0,1).toLowerCase() + val.slice(1)],
             argObj = instWrapper(args),
             simpleArgs = {},
             simpleResult = {},
@@ -124,12 +124,43 @@ describe('hciCmdBuilder Functional check', function () {
         argObjBuf = argObj.getHciCmdBuf();
 
         it(val + ' framer check', function (done) {
+
             return  argObj.parseCmdFrame(argObjBuf).then(function (result) { 
-                if (_.isEqual(simpleArgs, result)) done();
+                if (isEqual(simpleArgs, result)) done();
             });
         });
     });
 });
+
+function isEqual (val, other) {
+    var isEq = true;
+
+    if (typeof val !== typeof other)
+        return false;
+    else if (_.isArray(val) && !_.isArray(other))
+        return false;
+    else if (_.isArray(other) && !_.isArray(val))
+        return false;
+    else if (_.isBuffer(val) && !_.isBuffer(other))
+        return false;
+    else if (_.isFunction(val) || _.isFunction(other))
+        return false;
+    else if (!_.isObjectLike(val))
+        return val === other;
+    else if (_.isBuffer(val))
+        return val.equals(other);
+
+    // object-like comparison
+    if (_.size(val) !== _.size(other))
+        return false;
+
+    _.forEach(other, function (v, k) {
+        isEq = isEqual(val[k], v);
+        return isEq;    // false, break immediately
+    });
+
+    return isEq;
+}
 
 function randomArg(type) {
     var k,

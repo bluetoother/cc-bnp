@@ -1,7 +1,5 @@
-cc-bnp
-===============
-
-**cc-bnp** is the interface for a host to communicate with TI **CC**254X **B**LE **N**etwork **P**rocessor(BNP) over a serial port.  
+# cc-bnp
+The interface for a host to communicate with TI **CC**254X **B**LE **N**etwork **P**rocessor(BNP) over a serial port.  
 
 <br />
 
@@ -194,14 +192,14 @@ ccbnp.close(function (err) {
 ### .regChar(regObj)
 Register a characteristic UUID and its value format.  
 
-If a characteristic UUID is defined by [GATT Specifications](#gattSpec), **cc-bnp** will automatically parse it. If you have a private characteristic (defined by yourself, not by [SIG](https://developer.bluetooth.org/gatt/characteristics/Pages/CharacteristicsHome.aspx)), please use this method to register your characteristic to **cc-bnp**. This will tell **cc-bnp** how to parse private characteristics from the received messages.  
+If a characteristic UUID is defined by [GATT Specifications](#gattSpec) or [BIPSO Specifications](http://bluetoother.github.io/bipso/), **cc-bnp** will automatically parse it. If you have a private characteristic (defined by yourself, not by [SIG](https://developer.bluetooth.org/gatt/characteristics/Pages/CharacteristicsHome.aspx) or [BIPSO](http://bluetoother.github.io/bipso/)), please use this method to register your characteristic to **cc-bnp**. This will tell **cc-bnp** how to parse private characteristics from the received messages.  
 
 **[WARNING]**: This method can overwrite a public UUID definition ([GATT Specifications](#gattSpec)). It is better to choose a private UUID different from public-defined ones.  
 
 **Arguments**
 
 - regObj (*Object*):  The object should be given with the following properties  
-    - `uuid` (*Hex string*) - Characteristic UUID to register (e.g., '0x2a00', '0x2a1c').  
+    - `uuid` (*Hex string*) - Characteristic UUID to register (e.g., '0xaaa0', '0xaac2').  
     - `params` (*Array*) - Field names in the characteristic value.  
     - `types` (*Array*) - Data type of each parameter in `params` array.  
 
@@ -263,7 +261,7 @@ ccbnp.regUuidHdlTable(1, myCharUuidHdlTable2);    // under connection handle 1
 *************************************************
 <a name="regTimeoutConfig"></a>
 ### .regTimeoutConfig(connHdl, timeoutConfig)
-Register the timeout configuration of commands. This will tell **cc-bnp** of how much time it should wait for the response.  
+Register the timeout configuration of HCI commands. This will tell **cc-bnp** of how long time it should wait for the response.  
 
 **Arguments**
 
@@ -308,145 +306,178 @@ ccbnp.regTimeoutConfig(1, timeoutConfig2);     // for connection handle 1
 
 *************************************************
 <a name="onReady"></a>
-### .on('ready', callback)
-The `'ready'` event is fired when the initializing procedure completes.
+### Event: 'ready'
 
-**Arguments**
+Event Handler: `function(result) {}`
 
-- callback(result)
-    - `'result'` (*Object*) - Device information with the following properties:
-```sh
-{
-    devAddr: '0x78c5e59b5ef8',  // Device public address
-    irk: <Buffer 72 74 73 20 3d 20 44 75 70 6c 65 78 3b 0a 0a 2f>,  // 16 bytes IRK
-    csrk: <Buffer 2a 3c 72 65 70 6c 61 63 65 6d 65 6e 74 3e 2a 2f>  // 16 bytes CSRK
-}
-```
-
-**Example**
-
-```javascript
-ccbnp.on('ready', function (result) {
-    console.log(result);
-    // do your work here
-});
-```
+The 'ready' event is fired when the initializing procedure completes, where `result` is object of device information with the following properties
+    
+    ```js
+        {
+            devAddr: '0x78c5e59b5ef8',  // Device public address
+            irk: <Buffer 72 74 73 20 3d 20 44 75 70 6c 65 78 3b 0a 0a 2f>,  // 16 bytes IRK
+            csrk: <Buffer 2a 3c 72 65 70 6c 61 63 65 6d 65 6e 74 3e 2a 2f>  // 16 bytes CSRK
+        }
+    ```
 
 *************************************************
-
 <a name="onInd"></a>
-### .on('ind', callback)
-When there is an incoming *BLE indication* message, **cc-bnp** fires an `'ind'` event along with the message object.  
+### Event: 'ind'
 
-**Arguments**
+Event Handler: `function(msg) {}`
 
-- callback(msg)
-    - msg (*Object*): It has two properties `type` and `data`, where `type` denotes the *indication type* and `data` is the message content. The reason of link termination along with a `'linkTerminated'` indication can be found from the [reason codes table](#reasonCodes).  
+When there is an incoming _BLE indication_ message, **cc-bnp** fires an `'ind'` event along with the message object. The `msg` is an object with the properties given in the table:
 
-        ```javascript
-        ccbnp.on('ind', function (msg) {
-            console.log(msg.type);
-            console.log(msg.data);
-        });
-        ```
+| Property | Type   | Description                                                                                                                                               |
+|----------|--------|-----------------------------------------------------------------------------------------------------------------------------------------------------------|
+| type     | String | Indication type, can be 'linkEstablished', 'linkTerminated', 'linkParamUpdate', 'attNoti','attInd', 'authenComplete', 'passkeyNeeded' and 'bondComplete'. |
+| data     | Object | Data along with the indication, which depends on the type of indication                                                                                   |
 
-    - msg.type (*String*) includes
-        * `'linkEstablished'`   - GAP\_LinkEstablished (TI Vendor-Specific Event)  
-        * `'linkTerminated'`    - GAP\_LinkTerminated
-        * `'linkParamUpdate'`   - GAP\_LinkParamUpdate
-        * `'attNoti'`           - ATT\_HandleValueNoti
-        * `'attInd'`            - ATT\_HandleValueInd
-        * `'authenComplete'`    - GAP\_AuthenticationComplete
-        * `'passkeyNeeded'`     - GAP\_PasskeyNeeded
-        * `'bondComplete'`      - GAP\_BondComplete
+* **linkEstablished**  
+    
+    A connection is established with another device.  
 
-    - msg.data (*Object*) corresponding to each indication type  
+    * `msg.type` (*String*): `'linkEstablished'`  
+    * `msg.data` (*Object*): Content of the `'linkEstablished'` type event.  
 
-        ```javascript
-        // When (msg.type === 'linkEstablished'):
-        msg.data = {
-            addr: '0x9059af0b8159',   // Address of the connected device
-            connHandle: 0,            // Handle of the connection
-            connInterval: 80,         // Connection interval used on this connection, time = 80 * 1.25 msec
-            connLatency: 0,           // Connection latency used on this connection
-            connTimeout: 2000,        // Connection supervision timeout, time = 2000 * 10 msec
-            clockAccuracy: 0,         // The accuracy of clock 
-        }
-        ```
+    ```js
+    msg.data = {
+        addr: '0x9059af0b8159',   // Address of the connected device
+        connHandle: 0,            // Handle of the connection
+        connInterval: 80,         // Connection interval used on this connection, time = 80 * 1.25 msec
+        connLatency: 0,           // Connection latency used on this connection
+        connTimeout: 2000,        // Connection supervision timeout, time = 2000 * 10 msec
+        clockAccuracy: 0,         // The accuracy of clock 
+    }
+    ```
 
-        ```javascript
-        // When (msg.type === 'linkTerminated'):
-        msg.data = {
-            connHandle: 0,      // Connection Handle of the terminated link
-            reason: 8,          // The reason of termination
-        }
-        ```
+<br />
 
-        ```javascript
-       // When (msg.type === 'linkParamUpdate'):
-        msg.data = {
-            connHandle: 0,
-            connInterval: 80,
-            connLatency: 0,
-            connTimeout: 2000
-        }
-        ```
+* **linkTerminated**  
+    
+    A link is terminated.  
 
-        ```javascript
-        // When (msg.type === 'attNoti'):
-        msg.data = {
-            connHandle: 0,
-            authenticated: 0,       // Whether or not an authenticated link is required
-            handle: 93,             // The handle of the attribute
-            value: <Buffer C3 01>   // The value of the attribute 
-        }
-        ```
+    * `msg.type` (*String*): `'linkTerminated'`  
+    * `msg.data` (*Object*): Content of the `'linkTerminated'` type event.  
 
-        ```javascript
-        // When (msg.type === 'attInd'):
-        msg.data = {
-            connHandle: 0,
-            authenticated: 0,
-            handle: 94,
-            value: <Buffer 08 00>
-        }    
-        ```
+    ```js
+    msg.data = {
+        connHandle: 0,      // Connection Handle of the terminated link
+        reason: 8,          // The reason of termination
+    }
+    ```
+    
+<br />
 
-        ```javascript
-        // When (msg.type === 'authenComplete'):
-        msg.data = {
-            connHandle: 0,
-            mitm: 1,    // 0 or 1 means true or false
-            bond: 1,    // 0 or 1 means true or false
-            ltk: <Buffer 23 84 A1 D8 95 C9 ED C6 B6 E4 47 F4 44 F3 E4 73>,  // 16 bytes LTK
-            div: 0x668b, 							                        // The DIV used with this LTK.
-            rand: <Buffer E6 68 CE EE DC D6 E9 99>							// 8 bytes random number generated for this LTK.
-        }    
-        ```
+* **linkParamUpdate**  
+    
+    Connection parameter update is completed.  
 
-        ```javascript
-        // When (msg.type === 'passkeyNeeded'):
-        msg.data = {
-            devAddr: '0x78c5e570796e',
-            connHandle: 0,
-            uiInput: 1,	  // Whether to ask user to input a passcode, 0 or 1 means no or yes
-            uiOutput: 0   // Whether to display a passcode, 0 or 1 means no or yes
-        }    
-        ```
+    * `msg.type` (*String*): `'linkParamUpdate'`  
+    * `msg.data` (*Object*): Content of the `'linkParamUpdate'` type event.  
 
-        ```javascript
-        // When (msg.type === 'bondComplete'):
-        msg.data = {
-            connHandle: 0
-        }    
-        ```
+    ```js
+    msg.data = {
+        connHandle: 0,
+        connInterval: 80,
+        connLatency: 0,
+        connTimeout: 2000
+    }
+    ```
+    
+<br />
 
-*************************************************
+* **attNoti**  
+    
+    A notification of an remote attribute’s value.  
+
+    * `msg.type` (*String*): `'attNoti'`  
+    * `msg.data` (*Object*): Content of the `'attNoti'` type event.  
+
+    ```js
+    msg.data = {
+        connHandle: 0,
+        authenticated: 0,       // Whether or not an authenticated link is required
+        handle: 93,             // The handle of the attribute
+        value: <Buffer C3 01>   // The value of the attribute 
+    }
+    ```
+    
+<br />
+
+* **attInd**  
+    
+    An indication of an remote attribute’s value.  
+
+    * `msg.type` (*String*): `'attInd'`  
+    * `msg.data` (*Object*): Content of the `'attInd'` type event.  
+
+    ```js
+    msg.data = {
+        connHandle: 0,
+        authenticated: 0,
+        handle: 94,
+        value: <Buffer 08 00>
+    }  
+    ```
+    
+<br />
+
+* **authenComplete**  
+    
+    The pairing process is completed (pass or fail).  
+
+    * `msg.type` (*String*): `'authenComplete'`  
+    * `msg.data` (*Object*): Content of the `'authenComplete'` type event.  
+
+    ```js
+    msg.data = {
+        connHandle: 0,
+        mitm: 1,    // 0 or 1 means true or false
+        bond: 1,    // 0 or 1 means true or false
+        ltk: <Buffer 23 84 A1 D8 95 C9 ED C6 B6 E4 47 F4 44 F3 E4 73>,  // 16 bytes LTK
+        div: 0x668b,                                                    // The DIV used with this LTK.
+        rand: <Buffer E6 68 CE EE DC D6 E9 99>                          // 8 bytes random number generated for this LTK.
+    }    
+    ```
+    
+<br />
+
+* **passkeyNeeded**  
+    
+    A connection is requesting for a passkey during the pairing process .  
+
+    * `msg.type` (*String*): `'passkeyNeeded'`  
+    * `msg.data` (*Object*): Content of the `'passkeyNeeded'` type event.  
+
+    ```js
+    msg.data = {
+        devAddr: '0x78c5e570796e',
+        connHandle: 0,
+        uiInput: 1,   // Whether to ask user to input a passcode, 0 or 1 means no or yes
+        uiOutput: 0   // Whether to display a passcode, 0 or 1 means no or yes
+    }     
+    ```
+    
+<br />
+
+* **bondComplete**  
+    
+    A bond is complete and the connection is encrypted.  
+
+    * `msg.type` (*String*): `'bondComplete'`  
+    * `msg.data` (*Object*): Content of the `'bondComplete'` type event.  
+
+    ```js
+    msg.data = {
+        connHandle: 0
+    }      
+    ```
 
 <br />
 
 <a name="vendorHci"></a>
-### 2.3 TI's BLE Vendor-Specific HCI Command APIs
+### 2.3 TI's BLE Vendor-Specific HCI Command APIs  
 
 TI's BLE Vendor-Specific HCI Commands are organized in subgroups: **hci**, **l2cap**, **att**, **gatt**, **gap**, and **util**. The description of each command is documented in [TI\_BLE\_Vendor\_Specific\_HCI_Guide.pdf](https://github.com/bluetoother/documents/blob/master/cc-bnp/TI_BLE_Vendor_Specific_HCI_Guide.pdf).  
 
@@ -513,7 +544,7 @@ ccbnp.gatt.writeCharValue(0, 37, valObj, '0x2a18', function (err, result) {
         console.log(result);
 });
 ```
-The 'uuid' of a public characteristic value can be found in [GATT Specifications ](#gattSpec). If you are using a private characteristic, please use [.regChar()](#regChar) to register your uuid first.  
+The 'uuid' of a public characteristic value can be found in [GATT Specifications](#gattSpec) and Bipso characteristic value can be found in [BIPSO Specifications](http://bluetoother.github.io/bipso/). If you are using a private characteristic, please use [.regChar()](#regChar) to register your uuid first.  
 
 *************************************************
 

@@ -1,18 +1,19 @@
 {
   "name": "cc-bnp",
-  "version": "0.1.5",
-  "description": "The interface for communicating with TI CC254X BLE Network Processor over a serial port.",
+  "version": "0.2.0",
+  "description": "The interface for a host to communicate with TI CC254X BLE Network Processor(BNP) over a serial port.",
   "main": "index.js",
   "directories": {
     "example": "examples"
   },
   "dependencies": {
-    "ble-packet": "0.0.3",
+    "bipso": "^1.2.0",
+    "ble-packet": "^0.2.0",
+    "busyman": "^0.2.0",
     "concentrate": "^0.2.3",
     "dissolve": "^0.3.3",
-    "dissolve-chunks": "^1.0.8",
+    "dissolve-chunks": "^1.2.0",
     "enum": "^2.2.0",
-    "lodash": "^3.10.1",
     "q": "^1.4.1",
     "serialport": "^2.0.2"
   },
@@ -35,7 +36,8 @@
   ],
   "author": "Hedy Wang <hedywings@gmail.com>",
   "contributors": [
-    "Peter Yi <peter.eb9@gmail.com>"
+    "Peter Yi <peter.eb9@gmail.com>",
+    "Simen Li <simenkid@gmail.com>"
   ],
   "license": "MIT",
   "bugs": {
