@@ -299,18 +299,19 @@ ccbnp.regTimeoutConfig(1, timeoutConfig2);     // for connection handle 1
 <br />
 
 <a name="Events"></a>
-### 2.2 Events
+## 2.2 Events
 
-* [ready](#onReady)
-* [ind](#onInd)
+* [ready](#onReady)  
+* [error](#onError)
+* [ind](#onInd)  
 
 *************************************************
 <a name="onReady"></a>
 ### Event: 'ready'
 
-Event Handler: `function(result) {}`
+Listener: `function(msg) {}`
 
-The 'ready' event is fired when the initializing procedure completes, where `result` is object of device information with the following properties
+The 'ready' event is fired when the initializing procedure completes, where `msg` is object of device information with the following properties
     
     ```js
         {
@@ -321,10 +322,18 @@ The 'ready' event is fired when the initializing procedure completes, where `res
     ```
 
 *************************************************
+<a name="onError"></a>
+### Event: 'error'
+
+Listener: `function(err) {}`
+
+The 'error' event is fired when when an error occurs
+
+*************************************************
 <a name="onInd"></a>
 ### Event: 'ind'
 
-Event Handler: `function(msg) {}`
+Listener: `function(msg) {}`
 
 When there is an incoming _BLE indication_ message, **cc-bnp** fires an `'ind'` event along with the message object. The `msg` is an object with the properties given in the table:
 
