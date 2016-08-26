@@ -10,6 +10,7 @@
     "ble-packet": "^0.4.0",
     "busyman": "^0.2.0",
     "concentrate": "^0.2.3",
+    "debug": "^2.2.0",
     "dissolve": "^0.3.3",
     "dissolve-chunks": "^1.2.0",
     "enum": "^2.2.0",
