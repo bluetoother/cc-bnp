@@ -1,6 +1,6 @@
 {
   "name": "cc-bnp",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "The interface for a host to communicate with TI CC254X BLE Network Processor(BNP) over a serial port.",
   "main": "index.js",
   "directories": {
@@ -11,7 +11,6 @@
     "busyman": "^0.2.0",
     "concentrate": "^0.2.3",
     "debug": "^2.2.0",
-    "dissolve": "^0.3.3",
     "dissolve-chunks": "^1.2.0",
     "enum": "^2.2.0",
     "q": "^1.4.1",
