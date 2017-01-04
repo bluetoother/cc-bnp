@@ -23,14 +23,6 @@ Please visit the [Wiki](https://github.com/bluetoother/cc-bnp/wiki).
 
 <br />
 
-## BLE Network Processor (BNP)  
-
-The following diagram shows the scenario when CC254X operates as a BNP. In this case, the controller and host are implemented together on CC2540/41, and the application can be externally developed on an application processor (e.g., another mcu or PC). The application and profiles can communicate with BNP through TI's vendor-specific HCI commands upon an UART interface.  
-
-![Network Processor Configuration](https://github.com/bluetoother/documents/blob/master/cc-bnp/bnp.png)
-
-<br />
-
 ## Installation
 
 > $ npm install cc-bnp --save
