@@ -216,7 +216,7 @@ describe('hciCmdBuilder Functional check', function () {
         var gapEndDiscoverableDone    = evtBpi.GapEndDiscoverableDone   ();     gapEndDiscoverableDone   .getHciEvtPacket(3, new Buffer([0x00]), function(err, result) {if (result) done();});
     });
     it('gapLinkEstablished check', function (done) {
-        var gapLinkEstablished        = evtBpi.GapLinkEstablished       ();     gapLinkEstablished       .getHciEvtPacket(19, new Buffer([0x00, 0x02, 0x03, 0x00, 0x00, 0xCA, 0x01, 0x80, 0x01, 0x00, 0x00, 0xC0, 0x50, 0x00, 0x00, 0x0A, 0x05]), function(err, result) {if (result) done();});
+        var gapLinkEstablished        = evtBpi.GapLinkEstablished       ();     gapLinkEstablished       .getHciEvtPacket(20, new Buffer([0x00, 0x02, 0x03, 0x00, 0x00, 0xCA, 0x01, 0x80, 0x01, 0x00, 0x00, 0x00, 0xC0, 0x50, 0x00, 0x00, 0x0A, 0x05]), function(err, result) {if (result) done();});
     });
     it('gapLinkTerminated check', function (done) {
         var gapLinkTerminated         = evtBpi.GapLinkTerminated        ();     gapLinkTerminated        .getHciEvtPacket(6, new Buffer([0x00, 0x01, 0x00, 0x16]), function(err, result) {if (result) done();});
